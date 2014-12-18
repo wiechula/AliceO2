@@ -1,0 +1,45 @@
+var annotated =
+[
+    [ "ALICE", null, [
+      [ "HLT", null, [
+        [ "Component", "class_a_l_i_c_e_1_1_h_l_t_1_1_component.html", "class_a_l_i_c_e_1_1_h_l_t_1_1_component" ],
+        [ "HOMERFactory", "class_a_l_i_c_e_1_1_h_l_t_1_1_h_o_m_e_r_factory.html", "class_a_l_i_c_e_1_1_h_l_t_1_1_h_o_m_e_r_factory" ],
+        [ "SystemInterface", "class_a_l_i_c_e_1_1_h_l_t_1_1_system_interface.html", "class_a_l_i_c_e_1_1_h_l_t_1_1_system_interface" ],
+        [ "WrapperDevice", "class_a_l_i_c_e_1_1_h_l_t_1_1_wrapper_device.html", "class_a_l_i_c_e_1_1_h_l_t_1_1_wrapper_device" ]
+      ] ]
+    ] ],
+    [ "AliceO2", "namespace_alice_o2.html", "namespace_alice_o2" ],
+    [ "AliHLTAnalysisEnvironment", "struct_ali_h_l_t_analysis_environment.html", "struct_ali_h_l_t_analysis_environment" ],
+    [ "AliHLTComponentBlockData", "struct_ali_h_l_t_component_block_data.html", "struct_ali_h_l_t_component_block_data" ],
+    [ "AliHLTComponentDataType", "struct_ali_h_l_t_component_data_type.html", "struct_ali_h_l_t_component_data_type" ],
+    [ "AliHLTComponentEnvironment", "struct_ali_h_l_t_component_environment.html", "struct_ali_h_l_t_component_environment" ],
+    [ "AliHLTComponentEventData", "struct_ali_h_l_t_component_event_data.html", "struct_ali_h_l_t_component_event_data" ],
+    [ "AliHLTComponentEventDoneData", "struct_ali_h_l_t_component_event_done_data.html", "struct_ali_h_l_t_component_event_done_data" ],
+    [ "AliHLTComponentShmData", "struct_ali_h_l_t_component_shm_data.html", "struct_ali_h_l_t_component_shm_data" ],
+    [ "AliHLTComponentStatistics", "struct_ali_h_l_t_component_statistics.html", "struct_ali_h_l_t_component_statistics" ],
+    [ "AliHLTComponentTableEntry", "struct_ali_h_l_t_component_table_entry.html", "struct_ali_h_l_t_component_table_entry" ],
+    [ "AliHLTComponentTriggerData", "struct_ali_h_l_t_component_trigger_data.html", "struct_ali_h_l_t_component_trigger_data" ],
+    [ "AliHLTEventDDLV0", "struct_ali_h_l_t_event_d_d_l_v0.html", "struct_ali_h_l_t_event_d_d_l_v0" ],
+    [ "AliHLTEventDDLV1", "struct_ali_h_l_t_event_d_d_l_v1.html", "struct_ali_h_l_t_event_d_d_l_v1" ],
+    [ "AliHLTEventTriggerData", "struct_ali_h_l_t_event_trigger_data.html", "struct_ali_h_l_t_event_trigger_data" ],
+    [ "AliHLTFXSHeader", "struct_ali_h_l_t_f_x_s_header.html", "struct_ali_h_l_t_f_x_s_header" ],
+    [ "AliHLTHOMERBlockDescriptor", "class_ali_h_l_t_h_o_m_e_r_block_descriptor.html", "class_ali_h_l_t_h_o_m_e_r_block_descriptor" ],
+    [ "AliHLTHOMERReader", "class_ali_h_l_t_h_o_m_e_r_reader.html", "class_ali_h_l_t_h_o_m_e_r_reader" ],
+    [ "AliHLTHOMERWriter", "class_ali_h_l_t_h_o_m_e_r_writer.html", "class_ali_h_l_t_h_o_m_e_r_writer" ],
+    [ "AliHLTMonitoringReader", "class_ali_h_l_t_monitoring_reader.html", "class_ali_h_l_t_monitoring_reader" ],
+    [ "AliHLTMonitoringWriter", "class_ali_h_l_t_monitoring_writer.html", "class_ali_h_l_t_monitoring_writer" ],
+    [ "AliHLTRunDesc", "struct_ali_h_l_t_run_desc.html", "struct_ali_h_l_t_run_desc" ],
+    [ "Content", "struct_content.html", "struct_content" ],
+    [ "DeviceOptions", "struct_device_options.html", "struct_device_options" ],
+    [ "MCTrack", "class_m_c_track.html", "class_m_c_track" ],
+    [ "O2EPNex", "class_o2_e_p_nex.html", "class_o2_e_p_nex" ],
+    [ "O2EpnMerger", "class_o2_epn_merger.html", "class_o2_epn_merger" ],
+    [ "O2FLPex", "class_o2_f_l_pex.html", "class_o2_f_l_pex" ],
+    [ "O2Merger", "class_o2_merger.html", "class_o2_merger" ],
+    [ "O2Proxy", "class_o2_proxy.html", "class_o2_proxy" ],
+    [ "Pythia6Generator", "class_pythia6_generator.html", "class_pythia6_generator" ],
+    [ "Pythia8Generator", "class_pythia8_generator.html", "class_pythia8_generator" ],
+    [ "PyTr1Rng", "class_py_tr1_rng.html", "class_py_tr1_rng" ],
+    [ "PyTr3Rng", "class_py_tr3_rng.html", "class_py_tr3_rng" ],
+    [ "SocketProperties_t", "struct_socket_properties__t.html", "struct_socket_properties__t" ]
+];

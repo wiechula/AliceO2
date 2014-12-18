@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.8"/>
-<title>AliceO2: Main Page</title>
+<title>AliceO2: AliceO2::CDB::StorageFactory Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -44,11 +44,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
-      <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
-      <li><a href="annotated.html"><span>Classes</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -68,6 +68,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <div id="side-nav" class="ui-resizable side-nav-resizable">
   <div id="nav-tree">
@@ -80,7 +88,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('index.html','');});
+$(document).ready(function(){initNavTree('class_alice_o2_1_1_c_d_b_1_1_storage_factory.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -98,15 +106,57 @@ $(document).ready(function(){initNavTree('index.html','');});
 </div>
 
 <div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
+<a href="class_alice_o2_1_1_c_d_b_1_1_storage_factory-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">AliceO2 Documentation</div>  </div>
+<div class="title">AliceO2::CDB::StorageFactory Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
+<div class="dynheader">
+Inheritance diagram for AliceO2::CDB::StorageFactory:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="class_alice_o2_1_1_c_d_b_1_1_storage_factory.png" usemap="#AliceO2::CDB::StorageFactory_map" alt=""/>
+  <map id="AliceO2::CDB::StorageFactory_map" name="AliceO2::CDB::StorageFactory_map">
+<area href="class_alice_o2_1_1_c_d_b_1_1_file_storage_factory.html" alt="AliceO2::CDB::FileStorageFactory" shape="rect" coords="0,112,215,136"/>
+<area href="class_alice_o2_1_1_c_d_b_1_1_grid_storage_factory.html" alt="AliceO2::CDB::GridStorageFactory" shape="rect" coords="225,112,440,136"/>
+<area href="class_alice_o2_1_1_c_d_b_1_1_local_storage_factory.html" alt="AliceO2::CDB::LocalStorageFactory" shape="rect" coords="450,112,665,136"/>
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a20689343cee7d70d5011096fbf107e04"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a20689343cee7d70d5011096fbf107e04"></a>
+virtual Bool_t&#160;</td><td class="memItemRight" valign="bottom"><b>validateStorageUri</b> (const char *dbString)=0</td></tr>
+<tr class="separator:a20689343cee7d70d5011096fbf107e04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c1b7c8b284ecb090c358ffce4d317c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3c1b7c8b284ecb090c358ffce4d317c2"></a>
+virtual <a class="el" href="class_alice_o2_1_1_c_d_b_1_1_storage_parameters.html">StorageParameters</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>createStorageParameter</b> (const char *dbString)=0</td></tr>
+<tr class="separator:a3c1b7c8b284ecb090c358ffce4d317c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:af39d826f4903d86cc13439b429f27f52"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af39d826f4903d86cc13439b429f27f52"></a>
+virtual <a class="el" href="class_alice_o2_1_1_c_d_b_1_1_storage.html">Storage</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>createStorage</b> (const <a class="el" href="class_alice_o2_1_1_c_d_b_1_1_storage_parameters.html">StorageParameters</a> *param)=0</td></tr>
+<tr class="separator:af39d826f4903d86cc13439b429f27f52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:adddd5c43ff870a047aa66db4edf82a7e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adddd5c43ff870a047aa66db4edf82a7e"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>Manager</b></td></tr>
+<tr class="separator:adddd5c43ff870a047aa66db4edf82a7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>/Users/turany/fairsoft/docs/src/AliceO2/o2cdb/<a class="el" href="_manager_8h_source.html">Manager.h</a></li>
+</ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><a class="el" href="namespace_alice_o2.html">AliceO2</a></li><li class="navelem"><b>CDB</b></li><li class="navelem"><a class="el" href="class_alice_o2_1_1_c_d_b_1_1_storage_factory.html">StorageFactory</a></li>
     <li class="footer">Generated on Thu Dec 18 2014 10:04:44 for AliceO2 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.8 </li>

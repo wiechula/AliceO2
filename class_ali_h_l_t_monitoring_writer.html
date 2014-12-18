@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.8"/>
-<title>AliceO2: Main Page</title>
+<title>AliceO2: AliHLTMonitoringWriter Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -44,11 +44,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
-      <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
-      <li><a href="annotated.html"><span>Classes</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -68,6 +68,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <div id="side-nav" class="ui-resizable side-nav-resizable">
   <div id="nav-tree">
@@ -80,7 +88,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('index.html','');});
+$(document).ready(function(){initNavTree('class_ali_h_l_t_monitoring_writer.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -98,15 +106,51 @@ $(document).ready(function(){initNavTree('index.html','');});
 </div>
 
 <div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="class_ali_h_l_t_monitoring_writer-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">AliceO2 Documentation</div>  </div>
+<div class="title">AliHLTMonitoringWriter Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_ali_h_l_t_h_o_m_e_r_writer_8h_source.html">AliHLTHOMERWriter.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for AliHLTMonitoringWriter:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="class_ali_h_l_t_monitoring_writer.png" usemap="#AliHLTMonitoringWriter_map" alt=""/>
+  <map id="AliHLTMonitoringWriter_map" name="AliHLTMonitoringWriter_map">
+<area href="class_ali_h_l_t_h_o_m_e_r_writer.html" alt="AliHLTHOMERWriter" shape="rect" coords="0,56,144,80"/>
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a4a6b0ccf848142dd204aea880d495d59"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4a6b0ccf848142dd204aea880d495d59"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()=0</td></tr>
+<tr class="separator:a4a6b0ccf848142dd204aea880d495d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94b58287cd9a5d9f30c0fa9e3779e06f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a94b58287cd9a5d9f30c0fa9e3779e06f"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddBlock</b> (const void *descriptor, const void *data)=0</td></tr>
+<tr class="separator:a94b58287cd9a5d9f30c0fa9e3779e06f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cc4ea45a1bde5e140b73de72b800747"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6cc4ea45a1bde5e140b73de72b800747"></a>
+virtual homer_uint32&#160;</td><td class="memItemRight" valign="bottom"><b>GetTotalMemorySize</b> (bool includeData=true)=0</td></tr>
+<tr class="separator:a6cc4ea45a1bde5e140b73de72b800747"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9229420c438a582ed6f4ee0184efb4a1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9229420c438a582ed6f4ee0184efb4a1"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Copy</b> (void *destination, homer_uint64 eventType, homer_uint64 eventNr, homer_uint64 statusFlags, homer_uint64 nodeID, bool includeData=true)=0</td></tr>
+<tr class="separator:a9229420c438a582ed6f4ee0184efb4a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A pure virtual interface definition for HLT monitoring writers. </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li>/Users/turany/fairsoft/docs/src/AliceO2/devices/aliceHLTwrapper/<a class="el" href="_ali_h_l_t_h_o_m_e_r_writer_8h_source.html">AliHLTHOMERWriter.h</a></li>
+</ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><a class="el" href="class_ali_h_l_t_monitoring_writer.html">AliHLTMonitoringWriter</a></li>
     <li class="footer">Generated on Thu Dec 18 2014 10:04:44 for AliceO2 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.8 </li>

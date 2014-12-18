@@ -1,0 +1,28 @@
+var struct_device_options =
+[
+    [ "eventRate", "struct_device_options.html#a660f2547d13b9f23e594ead733d56cf6", null ],
+    [ "eventSize", "struct_device_options.html#a8bedc3ef7033daef4fb61922773c97fb", null ],
+    [ "heartbeatIntervalInMs", "struct_device_options.html#a26378416d308b8e39ba5c25e11228c4f", null ],
+    [ "heartbeatTimeoutInMs", "struct_device_options.html#a983ba6a1c0236a8dd1efbe7b54d17ae6", null ],
+    [ "id", "struct_device_options.html#a2d927f82894bd434ca597b4642422bfd", null ],
+    [ "inputAddress", "struct_device_options.html#af25a59eb2d31d440047027e5d16e9bbc", null ],
+    [ "inputAddress", "struct_device_options.html#a7124cd7530328040f1d14cb6f0b0000a", null ],
+    [ "inputBufSize", "struct_device_options.html#a024dfcf496849348cb63f85bbff7483f", null ],
+    [ "inputBufSize", "struct_device_options.html#a0d228df2650ecc1f3ec43b2a5a1a4e0c", null ],
+    [ "inputMethod", "struct_device_options.html#a53c0e4873f2bd820bb65ba1b4d2cf255", null ],
+    [ "inputMethod", "struct_device_options.html#afd170396b5dd2c600e5a9b783238ead0", null ],
+    [ "inputSocketType", "struct_device_options.html#a5cbc080c2ae568ded93cfe19fe9dbffe", null ],
+    [ "inputSocketType", "struct_device_options.html#a0951cef8f35fdc1544a77d8f69ac4bf1", null ],
+    [ "ioThreads", "struct_device_options.html#a04a262a533292a72dfebcadd380a0c35", null ],
+    [ "numInputs", "struct_device_options.html#aceaf2af65fd2d6c28dabecc5c81569f6", null ],
+    [ "numOutputs", "struct_device_options.html#a6d17bdc7b62ab4758a035a02d669e507", null ],
+    [ "outputAddress", "struct_device_options.html#a0905929765f7499d149c3adac4396a00", null ],
+    [ "outputAddress", "struct_device_options.html#a2cecdc6e53dea0c40e8590aa52e50bc3", null ],
+    [ "outputBufSize", "struct_device_options.html#affe979ead74ee5a2ba207333d4405a64", null ],
+    [ "outputBufSize", "struct_device_options.html#a344d95493b4c86ceec863d8a39fb50ca", null ],
+    [ "outputMethod", "struct_device_options.html#ac8e7fc081bde26b3fcaa289e9981c35a", null ],
+    [ "outputMethod", "struct_device_options.html#a55c48e20d4afbb7255d99219a838c792", null ],
+    [ "outputSocketType", "struct_device_options.html#a8df1f887d9e5fcc7bbe0c3644f430be9", null ],
+    [ "outputSocketType", "struct_device_options.html#a158c2575654a0c9251d25279de9a2499", null ],
+    [ "sendOffset", "struct_device_options.html#a8c020b376db57283f5e0614c567acfea", null ]
+];

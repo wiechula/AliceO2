@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.8"/>
-<title>AliceO2: Main Page</title>
+<title>AliceO2: AliceO2</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -44,8 +44,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
-      <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li class="current"><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -80,7 +80,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('index.html','');});
+$(document).ready(function(){initNavTree('md___users_turany_fairsoft_docs_src__alice_o2__r_e_a_d_m_e.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -99,10 +99,37 @@ $(document).ready(function(){initNavTree('index.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">AliceO2 Documentation</div>  </div>
+<div class="title"><a class="el" href="namespace_alice_o2.html">AliceO2</a> </div>  </div>
 </div><!--header-->
 <div class="contents">
-</div><!-- contents -->
+<div class="textblock"><p>Alice O2 project software. Simulation and reconstraction software for the ALICE experiment at CERN based on ALFA and the FairRoot software.</p>
+<h3>Step by Step installation</h3>
+<ol type="1">
+<li><p class="startli">Install <a href="https://github.com/FairRootGroup/FairSoft/tree/dev">FairSoft/AlFa</a></p>
+<p class="startli">we use here "alfa_src" as a directory name, you can change it to what ever you like </p><pre class="fragment">git clone  https://github.com/FairRootGroup/FairSoft.git  alfa_src
+cd  alfa_src
+./alfaconfig.sh
+# 1) gcc (on Linux) 5) Clang (on OSX)
+# 1) No Debug Info
+# 2) Internet (install G4 files from internet)
+# path: ~/AlFa
+</pre><p class="startli">To run the tests do: </p><pre class="fragment">cd alfa_src/FairRoot/build_for_alfa/
+make test
+</pre></li>
+<li><p class="startli">Set several required shell variables, needed during the installation and running of the different software packages. Put these in your shell's rc file (~/.bashrc or ~/.cshrc). For bash: </p><pre class="fragment"> export SIMPATH=~/AlFa
+ export FAIRROOTPATH=$SIMPATH/FairRoot
+</pre><p class="startli">or for csh: </p><pre class="fragment">setenv SIMPATH ~/AlFa
+setenv FAIRROOTPATH $SIMPATH/FairRoot
+</pre></li>
+<li>Install the <a href="https://github.com/AliceO2Group/AliceO2">AliceO2</a> software <pre class="fragment"> git clone  https://github.com/AliceO2Group/AliceO2.git
+ cd AliceO2
+ mkdir build_o2
+ cd build_o2
+ cmake ../
+ make
+ . config.sh [or source config.csh]</pre> </li>
+</ol>
+</div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
