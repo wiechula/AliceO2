@@ -127,13 +127,25 @@ Inheritance diagram for AliceO2::Devices::EPNex:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a8cdc5b7f4fd73982534a2f3beb43c301"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8cdc5b7f4fd73982534a2f3beb43c301"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>HeartbeatIntervalInMs</b> = FairMQDevice::Last, 
-<b>Last</b>
+<tr class="memitem:a8cdc5b7f4fd73982534a2f3beb43c301"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8cdc5b7f4fd73982534a2f3beb43c301"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<b>HeartbeatIntervalInMs</b> = FairMQDevice::Last, 
+<b>NumFLPs</b>, 
+<b>BufferTimeoutInMs</b>, 
+<b>TestMode</b>, 
+<br />
+&#160;&#160;<b>Last</b>
+<br />
  }</td></tr>
 <tr class="separator:a8cdc5b7f4fd73982534a2f3beb43c301"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a55262aae702521a79be5dfb4dd4d2a71"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a55262aae702521a79be5dfb4dd4d2a71"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PrintBuffer</b> (std::unordered_map&lt; uint64_t, <a class="el" href="struct_alice_o2_1_1_devices_1_1timeframe_buffer.html">timeframeBuffer</a> &gt; &amp;buffer)</td></tr>
+<tr class="separator:a55262aae702521a79be5dfb4dd4d2a71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ea87338ee875fe0bcdc21779e6d137e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9ea87338ee875fe0bcdc21779e6d137e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DiscardIncompleteTimeframes</b> ()</td></tr>
+<tr class="separator:a9ea87338ee875fe0bcdc21779e6d137e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac858131992ab03b41b759561cb98a2e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac858131992ab03b41b759561cb98a2e4"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetProperty</b> (const int key, const std::string &amp;value, const int slot=0)</td></tr>
 <tr class="separator:ac858131992ab03b41b759561cb98a2e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -161,6 +173,22 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:a57b046ac4887f229b9797109e42b2a5c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a57b046ac4887f229b9797109e42b2a5c"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>fHeartbeatIntervalInMs</b></td></tr>
 <tr class="separator:a57b046ac4887f229b9797109e42b2a5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a088538af061c3fa4dadb49f8fb2f4afa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a088538af061c3fa4dadb49f8fb2f4afa"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>fBufferTimeoutInMs</b></td></tr>
+<tr class="separator:a088538af061c3fa4dadb49f8fb2f4afa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7968e5b0e1ab3a2a39dc4520a20d8f3b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7968e5b0e1ab3a2a39dc4520a20d8f3b"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>fNumFLPs</b></td></tr>
+<tr class="separator:a7968e5b0e1ab3a2a39dc4520a20d8f3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b104b5a322211b2505302e53fe75dd6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b104b5a322211b2505302e53fe75dd6"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>fTestMode</b></td></tr>
+<tr class="separator:a0b104b5a322211b2505302e53fe75dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5add5517767270dbba5948e83669132"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5add5517767270dbba5948e83669132"></a>
+std::unordered_map&lt; uint64_t, <br class="typebreak" />
+<a class="el" href="struct_alice_o2_1_1_devices_1_1timeframe_buffer.html">timeframeBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fTimeframeBuffer</b></td></tr>
+<tr class="separator:aa5add5517767270dbba5948e83669132"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ad2b582ad1bbf9553805706f72c0e4b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ad2b582ad1bbf9553805706f72c0e4b"></a>
+std::unordered_set&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fDiscardedSet</b></td></tr>
+<tr class="separator:a8ad2b582ad1bbf9553805706f72c0e4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>/Users/turany/fairsoft/docs/src/AliceO2/devices/flp2epn-distributed/<a class="el" href="_e_p_nex_8h_source.html">EPNex.h</a></li>
@@ -172,7 +200,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>fHeartbeatIntervalInMs
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespace_alice_o2.html">AliceO2</a></li><li class="navelem"><b>Devices</b></li><li class="navelem"><a class="el" href="class_alice_o2_1_1_devices_1_1_e_p_nex.html">EPNex</a></li>
-    <li class="footer">Generated on Thu Dec 18 2014 10:04:44 for AliceO2 by
+    <li class="footer">Generated on Tue Feb 17 2015 08:26:31 for AliceO2 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.8 </li>
   </ul>

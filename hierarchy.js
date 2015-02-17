@@ -34,6 +34,7 @@ var hierarchy =
     [ "AliHLTHOMERReader::DataBlock", "struct_ali_h_l_t_h_o_m_e_r_reader_1_1_data_block.html", null ],
     [ "AliHLTHOMERReader::DataSource", "struct_ali_h_l_t_h_o_m_e_r_reader_1_1_data_source.html", null ],
     [ "DeviceOptions", "struct_device_options.html", null ],
+    [ "f2eHeader", "structf2e_header.html", null ],
     [ "FairContFact", null, [
       [ "AliceO2::ITS::ContainerFactory", "class_alice_o2_1_1_i_t_s_1_1_container_factory.html", null ],
       [ "AliceO2::Passive::PassiveContFact", "class_alice_o2_1_1_passive_1_1_passive_cont_fact.html", null ],
@@ -76,7 +77,9 @@ var hierarchy =
       [ "O2FLPex", "class_o2_f_l_pex.html", null ],
       [ "O2FLPex", "class_o2_f_l_pex.html", null ],
       [ "O2Merger", "class_o2_merger.html", null ],
-      [ "O2Proxy", "class_o2_proxy.html", null ]
+      [ "O2Proxy", "class_o2_proxy.html", null ],
+      [ "RoundtripClient", "class_roundtrip_client.html", null ],
+      [ "RoundtripServer", "class_roundtrip_server.html", null ]
     ] ],
     [ "FairParGenericSet", null, [
       [ "AliceO2::ITS::MisalignmentParameter", "class_alice_o2_1_1_i_t_s_1_1_misalignment_parameter.html", null ]
@@ -90,6 +93,8 @@ var hierarchy =
     [ "SocketProperties_t", "struct_socket_properties__t.html", null ],
     [ "ALICE::HLT::SystemInterface", "class_a_l_i_c_e_1_1_h_l_t_1_1_system_interface.html", null ],
     [ "AliHLTHOMERWriter::TBlockData", "struct_ali_h_l_t_h_o_m_e_r_writer_1_1_t_block_data.html", null ],
+    [ "AliceO2::Devices::timeframeBuffer", "struct_alice_o2_1_1_devices_1_1timeframe_buffer.html", null ],
+    [ "AliceO2::Devices::timeframeDuration", "struct_alice_o2_1_1_devices_1_1timeframe_duration.html", null ],
     [ "TNamed", null, [
       [ "AliceO2::Field::MagneticWrapperChebyshev", "class_alice_o2_1_1_field_1_1_magnetic_wrapper_chebyshev.html", null ],
       [ "AliceO2::MathUtils::Chebyshev3D", "class_alice_o2_1_1_math_utils_1_1_chebyshev3_d.html", null ],

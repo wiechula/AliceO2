@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wrapperdevice',['WrapperDevice',['../class_a_l_i_c_e_1_1_h_l_t_1_1_wrapper_device.html',1,'ALICE::HLT']]]
+  ['v11geometry',['V11Geometry',['../class_alice_o2_1_1_i_t_s_1_1_v11_geometry.html',1,'AliceO2::ITS']]]
 ];

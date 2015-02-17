@@ -35,7 +35,9 @@ var namespace_alice_o2 =
       [ "EPNex", "class_alice_o2_1_1_devices_1_1_e_p_nex.html", "class_alice_o2_1_1_devices_1_1_e_p_nex" ],
       [ "FLPex", "class_alice_o2_1_1_devices_1_1_f_l_pex.html", "class_alice_o2_1_1_devices_1_1_f_l_pex" ],
       [ "FLPexSampler", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler" ],
-      [ "FrameBuilder", "class_alice_o2_1_1_devices_1_1_frame_builder.html", "class_alice_o2_1_1_devices_1_1_frame_builder" ]
+      [ "FrameBuilder", "class_alice_o2_1_1_devices_1_1_frame_builder.html", "class_alice_o2_1_1_devices_1_1_frame_builder" ],
+      [ "timeframeBuffer", "struct_alice_o2_1_1_devices_1_1timeframe_buffer.html", "struct_alice_o2_1_1_devices_1_1timeframe_buffer" ],
+      [ "timeframeDuration", "struct_alice_o2_1_1_devices_1_1timeframe_duration.html", "struct_alice_o2_1_1_devices_1_1timeframe_duration" ]
     ] ],
     [ "Field", null, [
       [ "MagneticField", "class_alice_o2_1_1_field_1_1_magnetic_field.html", "class_alice_o2_1_1_field_1_1_magnetic_field" ],

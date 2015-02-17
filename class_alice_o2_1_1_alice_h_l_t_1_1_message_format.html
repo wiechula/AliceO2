@@ -125,7 +125,7 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a27a2c9de97a3bcfb4b4638449e4e965f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27a2c9de97a3bcfb4b4638449e4e965f"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>kOutputModeHOMER</b> =0, 
+<tr class="memitem:a27a2c9de97a3bcfb4b4638449e4e965f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27a2c9de97a3bcfb4b4638449e4e965f"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>kOutputModeHOMER</b> = 0, 
 <b>kOutputModeMultiPart</b>, 
 <b>kOutputModeSequence</b>, 
 <b>kOutputModeLast</b>
@@ -148,38 +148,38 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr
 <tr class="memitem:af9994faea7b4e155bd0ef9abc4393d12"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9994faea7b4e155bd0ef9abc4393d12"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setOutputMode</b> (unsigned mode)</td></tr>
 <tr class="separator:af9994faea7b4e155bd0ef9abc4393d12"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c1011ed58de2a11143e917e37956a14"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0c1011ed58de2a11143e917e37956a14"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>AddMessage</b> (AliHLTUInt8_t *buffer, unsigned size)</td></tr>
-<tr class="separator:a0c1011ed58de2a11143e917e37956a14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e169fdd2bd96a96ac8a48abe56e7560"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e169fdd2bd96a96ac8a48abe56e7560"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>AddMessages</b> (const vector&lt; <a class="el" href="struct_alice_o2_1_1_alice_h_l_t_1_1_message_format_1_1_buffer_desc__t.html">BufferDesc_t</a> &gt; &amp;list)</td></tr>
-<tr class="separator:a3e169fdd2bd96a96ac8a48abe56e7560"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4babdb99a36d65f91c6191fd203a1563"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4babdb99a36d65f91c6191fd203a1563"></a>
+<tr class="memitem:acc9be4cbe5b7e81a9db1cc605120fb86"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc9be4cbe5b7e81a9db1cc605120fb86"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>addMessage</b> (AliHLTUInt8_t *buffer, unsigned size)</td></tr>
+<tr class="separator:acc9be4cbe5b7e81a9db1cc605120fb86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45124937dd4d3b9bb63a2cafa3190b32"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45124937dd4d3b9bb63a2cafa3190b32"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>addMessages</b> (const vector&lt; <a class="el" href="struct_alice_o2_1_1_alice_h_l_t_1_1_message_format_1_1_buffer_desc__t.html">BufferDesc_t</a> &gt; &amp;list)</td></tr>
+<tr class="separator:a45124937dd4d3b9bb63a2cafa3190b32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d645f9ea8256d0fe2b3ee0754157118"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9d645f9ea8256d0fe2b3ee0754157118"></a>
 vector<br class="typebreak" />
-&lt; <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>BlockDescriptors</b> ()</td></tr>
-<tr class="separator:a4babdb99a36d65f91c6191fd203a1563"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3e08fe5e6054c32aab6a2e55b895328"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3e08fe5e6054c32aab6a2e55b895328"></a>
+&lt; <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getBlockDescriptors</b> ()</td></tr>
+<tr class="separator:a9d645f9ea8256d0fe2b3ee0754157118"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c83da8ac78eece1e0b5a1f4e4df9f9d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c83da8ac78eece1e0b5a1f4e4df9f9d"></a>
 const vector<br class="typebreak" />
-&lt; <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>BlockDescriptors</b> () const </td></tr>
-<tr class="separator:ad3e08fe5e6054c32aab6a2e55b895328"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9402466dcd2ce461b935d91dd0d011d4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9402466dcd2ce461b935d91dd0d011d4"></a>
-vector&lt; <a class="el" href="struct_alice_o2_1_1_alice_h_l_t_1_1_message_format_1_1_buffer_desc__t.html">BufferDesc_t</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateMessages</b> (const <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> *blocks, unsigned count, unsigned totalPayloadSize)</td></tr>
-<tr class="separator:a9402466dcd2ce461b935d91dd0d011d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae91eb18d382062802e5523359ccddbd7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae91eb18d382062802e5523359ccddbd7"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>ReadBlockSequence</b> (AliHLTUInt8_t *buffer, unsigned size, vector&lt; <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> &gt; &amp;descriptorList) const </td></tr>
-<tr class="separator:ae91eb18d382062802e5523359ccddbd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1dc898e296e8e08967f9b8f3390f0796"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1dc898e296e8e08967f9b8f3390f0796"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>ReadHOMERFormat</b> (AliHLTUInt8_t *buffer, unsigned size, vector&lt; <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> &gt; &amp;descriptorList) const </td></tr>
-<tr class="separator:a1dc898e296e8e08967f9b8f3390f0796"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2b3f7c107dd31866bc7651b8cba3207"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac2b3f7c107dd31866bc7651b8cba3207"></a>
-<a class="el" href="class_ali_h_l_t_h_o_m_e_r_writer.html">AliHLTHOMERWriter</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>CreateHOMERFormat</b> (const <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> *pOutputBlocks, AliHLTUInt32_t outputBlockCnt) const </td></tr>
-<tr class="separator:ac2b3f7c107dd31866bc7651b8cba3207"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab9721a3ec1d09cf6d366c175b5168ecc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab9721a3ec1d09cf6d366c175b5168ecc"></a>
-AliHLTUInt64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ByteSwap64</b> (AliHLTUInt64_t src) const </td></tr>
-<tr class="separator:ab9721a3ec1d09cf6d366c175b5168ecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c316e914408b304196326252cddd177"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c316e914408b304196326252cddd177"></a>
-AliHLTUInt32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ByteSwap32</b> (AliHLTUInt32_t src) const </td></tr>
-<tr class="separator:a7c316e914408b304196326252cddd177"><td class="memSeparator" colspan="2">&#160;</td></tr>
+&lt; <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getBlockDescriptors</b> () const </td></tr>
+<tr class="separator:a9c83da8ac78eece1e0b5a1f4e4df9f9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05226ed2d98d6fb4c7305069b9627c4f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a05226ed2d98d6fb4c7305069b9627c4f"></a>
+vector&lt; <a class="el" href="struct_alice_o2_1_1_alice_h_l_t_1_1_message_format_1_1_buffer_desc__t.html">BufferDesc_t</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>createMessages</b> (const <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> *blocks, unsigned count, unsigned totalPayloadSize)</td></tr>
+<tr class="separator:a05226ed2d98d6fb4c7305069b9627c4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b0c182f04d86d65fbc22257fce914af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b0c182f04d86d65fbc22257fce914af"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>readBlockSequence</b> (AliHLTUInt8_t *buffer, unsigned size, vector&lt; <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> &gt; &amp;descriptorList) const </td></tr>
+<tr class="separator:a1b0c182f04d86d65fbc22257fce914af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adba2685b7e0bfe474c9c1e7fe38e861c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adba2685b7e0bfe474c9c1e7fe38e861c"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>readHOMERFormat</b> (AliHLTUInt8_t *buffer, unsigned size, vector&lt; <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> &gt; &amp;descriptorList) const </td></tr>
+<tr class="separator:adba2685b7e0bfe474c9c1e7fe38e861c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcaf60353ecbe81cbc313e320eba0830"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adcaf60353ecbe81cbc313e320eba0830"></a>
+<a class="el" href="class_ali_h_l_t_h_o_m_e_r_writer.html">AliHLTHOMERWriter</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>createHOMERFormat</b> (const <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> *pOutputBlocks, AliHLTUInt32_t outputBlockCnt) const </td></tr>
+<tr class="separator:adcaf60353ecbe81cbc313e320eba0830"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5068d1a8d39c40a15a3ed899f559829"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad5068d1a8d39c40a15a3ed899f559829"></a>
+AliHLTUInt64_t&#160;</td><td class="memItemRight" valign="bottom"><b>byteSwap64</b> (AliHLTUInt64_t src) const </td></tr>
+<tr class="separator:ad5068d1a8d39c40a15a3ed899f559829"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3a10da4c864f9d38bb2afcdd70c2f9c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3a10da4c864f9d38bb2afcdd70c2f9c"></a>
+AliHLTUInt32_t&#160;</td><td class="memItemRight" valign="bottom"><b>byteSwap32</b> (AliHLTUInt32_t src) const </td></tr>
+<tr class="separator:ab3a10da4c864f9d38bb2afcdd70c2f9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Helper class to format ALICE HLT data blocks for transport in messaging system.</p>
@@ -194,7 +194,7 @@ AliHLTUInt32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ByteSwap32<
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespace_alice_o2.html">AliceO2</a></li><li class="navelem"><b>AliceHLT</b></li><li class="navelem"><a class="el" href="class_alice_o2_1_1_alice_h_l_t_1_1_message_format.html">MessageFormat</a></li>
-    <li class="footer">Generated on Thu Dec 18 2014 10:04:44 for AliceO2 by
+    <li class="footer">Generated on Tue Feb 17 2015 08:26:30 for AliceO2 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.8 </li>
   </ul>

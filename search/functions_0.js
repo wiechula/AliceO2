@@ -11,7 +11,7 @@ var searchData=
   ['alihlthomerreaderdelete',['AliHLTHOMERReaderDelete',['../_ali_h_l_t_h_o_m_e_r_reader_8h.html#ae07cd7d5802520854c6eaf12e1756972',1,'AliHLTHOMERReader.h']]],
   ['alihlthomerwritercreate',['AliHLTHOMERWriterCreate',['../_ali_h_l_t_h_o_m_e_r_writer_8h.html#aeeac8bfc1d6265abb770ffa1da4aa91a',1,'AliHLTHOMERWriter.h']]],
   ['alihlthomerwriterdelete',['AliHLTHOMERWriterDelete',['../_ali_h_l_t_h_o_m_e_r_writer_8h.html#a9d5f7ba1f1b61660beac43c0184f7efe',1,'AliHLTHOMERWriter.h']]],
-  ['alloc',['Alloc',['../class_a_l_i_c_e_1_1_h_l_t_1_1_system_interface.html#a9cbc02c732a1933bf990f76fcac395f1',1,'ALICE::HLT::SystemInterface']]],
+  ['alloc',['alloc',['../class_a_l_i_c_e_1_1_h_l_t_1_1_system_interface.html#aef88e3174b6b6476e85591d927e39a32',1,'ALICE::HLT::SystemInterface']]],
   ['angleofintersectionwithline',['angleOfIntersectionWithLine',['../class_alice_o2_1_1_i_t_s_1_1_v11_geometry.html#aa716012a65fed68a30d5b0c775ac2310',1,'AliceO2::ITS::V11Geometry']]],
   ['angles',['angles',['../class_alice_o2_1_1_i_t_s_1_1_segmentation.html#a234b793afce670290ec90abfa56883d4',1,'AliceO2::ITS::Segmentation']]],
   ['anglesforroundedcorners',['anglesForRoundedCorners',['../class_alice_o2_1_1_i_t_s_1_1_v11_geometry.html#a09211c13165c3a969a04a4efbe45adce',1,'AliceO2::ITS::V11Geometry']]]

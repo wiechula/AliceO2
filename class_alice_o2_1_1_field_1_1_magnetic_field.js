@@ -1,6 +1,6 @@
 var class_alice_o2_1_1_field_1_1_magnetic_field =
 [
-    [ "kOverrideGRP", "class_alice_o2_1_1_field_1_1_magnetic_field.html#a56b3334bf65241e76752db4372a777cbaa090d84f7b9aa1ff44d24d6f744723ce", null ],
+    [ "kOverrideGRP", "class_alice_o2_1_1_field_1_1_magnetic_field.html#af1ba548609a4b955bbb0177bf04c38b4aa090d84f7b9aa1ff44d24d6f744723ce", null ],
     [ "BeamType_t", "class_alice_o2_1_1_field_1_1_magnetic_field.html#a230e27ae6dfbf358b1de1a353f2c8806", [
       [ "kNoBeamField", "class_alice_o2_1_1_field_1_1_magnetic_field.html#a230e27ae6dfbf358b1de1a353f2c8806a4dd2613d0e29752f9c6edc67a8cd4b02", null ],
       [ "kBeamTypepp", "class_alice_o2_1_1_field_1_1_magnetic_field.html#a230e27ae6dfbf358b1de1a353f2c8806a5d5233e2a74136f7335f4823b125180d", null ],

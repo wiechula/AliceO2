@@ -113,6 +113,8 @@ $(document).ready(function(){initNavTree('class_a_l_i_c_e_1_1_h_l_t_1_1_componen
 <div class="title">ALICE::HLT::Component Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_component_8h_source.html">Component.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -124,19 +126,26 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_a_l_i_c_e_1_1_h_l_t_1_1_component.html#ab8378fa275af98e568a7e91d33d867af">~Component</a> ()</td></tr>
 <tr class="memdesc:ab8378fa275af98e568a7e91d33d867af"><td class="mdescLeft">&#160;</td><td class="mdescRight">destructor <br /></td></tr>
 <tr class="separator:ab8378fa275af98e568a7e91d33d867af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab72f4c4f50788ff6872e5b32e8b60a34"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_a_l_i_c_e_1_1_h_l_t_1_1_component.html#ab72f4c4f50788ff6872e5b32e8b60a34">Init</a> (int argc, char **argv)</td></tr>
-<tr class="separator:ab72f4c4f50788ff6872e5b32e8b60a34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a395de41ad700e3ae154b940887be36"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a395de41ad700e3ae154b940887be36"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>Process</b> (vector&lt; <a class="el" href="struct_alice_o2_1_1_alice_h_l_t_1_1_message_format_1_1_buffer_desc__t.html">AliceO2::AliceHLT::MessageFormat::BufferDesc_t</a> &gt; &amp;dataArray)</td></tr>
-<tr class="separator:a6a395de41ad700e3ae154b940887be36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1d472571029278f211917bdf3af0529"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_a_l_i_c_e_1_1_h_l_t_1_1_component.html#ad1d472571029278f211917bdf3af0529">init</a> (int argc, char **argv)</td></tr>
+<tr class="memdesc:ad1d472571029278f211917bdf3af0529"><td class="mdescLeft">&#160;</td><td class="mdescRight">Init the component.  <a href="#ad1d472571029278f211917bdf3af0529">More...</a><br /></td></tr>
+<tr class="separator:ad1d472571029278f211917bdf3af0529"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9d67b85bb8a3c6f9b15c2ca301ec51a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_a_l_i_c_e_1_1_h_l_t_1_1_component.html#ab9d67b85bb8a3c6f9b15c2ca301ec51a">process</a> (vector&lt; <a class="el" href="struct_alice_o2_1_1_alice_h_l_t_1_1_message_format_1_1_buffer_desc__t.html">AliceO2::AliceHLT::MessageFormat::BufferDesc_t</a> &gt; &amp;dataArray)</td></tr>
+<tr class="separator:ab9d67b85bb8a3c6f9b15c2ca301ec51a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2bca3f2b010c9bfcf835dbdce2e4f59"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2bca3f2b010c9bfcf835dbdce2e4f59"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>getEventCount</b> () const </td></tr>
+<tr class="separator:ab2bca3f2b010c9bfcf835dbdce2e4f59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="ab72f4c4f50788ff6872e5b32e8b60a34"></a>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class handles the creation of an HLT component and data processing via the <a class="el" href="class_a_l_i_c_e_1_1_h_l_t_1_1_system_interface.html">SystemInterface</a>. Each HLT component is implemented in a library and identified by a "component ID". HLT components support the processing interface and need to be initialized by calling function Init().</p>
+<p>Mandatory arguments: &ndash;library HLT component library to be loaded &ndash;component component ID</p>
+<p>Optional arguments &ndash;parameter parameters of the component Each componenent is initialized from a list of arguments which have impact on e.g. algorithm, cuts, data selection and the type of output being produced. The arguments are completely under control of component. &ndash;run run no Currently, all HLT components need configuration and calibration data from OCDB; OCDB interface needs to be initialized with run number &ndash;msgsize size of the output buffer in byte This overrides the default behavior where output buffer size is determined from the input size and properties of the component &ndash;output-mode mode of arranging output blocks, </p><dl class="section see"><dt>See also</dt><dd><a class="el" href="_message_format_8h_source.html">MessageFormat.h</a> 0 HOMER format 1 blocks in multiple messages 2 blocks concatenated in one message (default) </dd></dl>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ad1d472571029278f211917bdf3af0529"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int Component::Init </td>
+          <td class="memname">int Component::init </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>argc</em>, </td>
@@ -154,7 +163,26 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>Process</b> (vector&lt
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Init the component. </p>
 <p>initialize: scan arguments, setup system interface and create component </p>
+
+</div>
+</div>
+<a class="anchor" id="ab9d67b85bb8a3c6f9b15c2ca301ec51a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Component::process </td>
+          <td>(</td>
+          <td class="paramtype">vector&lt; <a class="el" href="struct_alice_o2_1_1_alice_h_l_t_1_1_message_format_1_1_buffer_desc__t.html">AliceO2::AliceHLT::MessageFormat::BufferDesc_t</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>dataArray</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Process one event Method takes a list of binary buffers which are expected to start with the <a class="el" href="struct_ali_h_l_t_component_block_data.html">AliHLTComponentBlockData</a> header immediately followed by the block payload. After processing, handles to output blocks are provided in this list. </p>
 
 </div>
 </div>
@@ -168,7 +196,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>Process</b> (vector&lt
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>ALICE</b></li><li class="navelem"><b>HLT</b></li><li class="navelem"><a class="el" href="class_a_l_i_c_e_1_1_h_l_t_1_1_component.html">Component</a></li>
-    <li class="footer">Generated on Thu Dec 18 2014 10:04:44 for AliceO2 by
+    <li class="footer">Generated on Tue Feb 17 2015 08:26:30 for AliceO2 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.8 </li>
   </ul>

@@ -31,6 +31,7 @@ var annotated =
     [ "AliHLTRunDesc", "struct_ali_h_l_t_run_desc.html", "struct_ali_h_l_t_run_desc" ],
     [ "Content", "struct_content.html", "struct_content" ],
     [ "DeviceOptions", "struct_device_options.html", "struct_device_options" ],
+    [ "f2eHeader", "structf2e_header.html", "structf2e_header" ],
     [ "MCTrack", "class_m_c_track.html", "class_m_c_track" ],
     [ "O2EPNex", "class_o2_e_p_nex.html", "class_o2_e_p_nex" ],
     [ "O2EpnMerger", "class_o2_epn_merger.html", "class_o2_epn_merger" ],
@@ -41,5 +42,7 @@ var annotated =
     [ "Pythia8Generator", "class_pythia8_generator.html", "class_pythia8_generator" ],
     [ "PyTr1Rng", "class_py_tr1_rng.html", "class_py_tr1_rng" ],
     [ "PyTr3Rng", "class_py_tr3_rng.html", "class_py_tr3_rng" ],
+    [ "RoundtripClient", "class_roundtrip_client.html", "class_roundtrip_client" ],
+    [ "RoundtripServer", "class_roundtrip_server.html", "class_roundtrip_server" ],
     [ "SocketProperties_t", "struct_socket_properties__t.html", "struct_socket_properties__t" ]
 ];

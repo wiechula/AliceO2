@@ -1,5 +1,7 @@
 var struct_device_options =
 [
+    [ "DeviceOptions", "struct_device_options.html#a0af7166adac2bcb9de2b433121f77293", null ],
+    [ "bufferTimeoutInMs", "struct_device_options.html#a9f25154381fc09b09cf7271c577c990c", null ],
     [ "eventRate", "struct_device_options.html#a660f2547d13b9f23e594ead733d56cf6", null ],
     [ "eventSize", "struct_device_options.html#a8bedc3ef7033daef4fb61922773c97fb", null ],
     [ "heartbeatIntervalInMs", "struct_device_options.html#a26378416d308b8e39ba5c25e11228c4f", null ],
@@ -14,6 +16,16 @@ var struct_device_options =
     [ "inputSocketType", "struct_device_options.html#a5cbc080c2ae568ded93cfe19fe9dbffe", null ],
     [ "inputSocketType", "struct_device_options.html#a0951cef8f35fdc1544a77d8f69ac4bf1", null ],
     [ "ioThreads", "struct_device_options.html#a04a262a533292a72dfebcadd380a0c35", null ],
+    [ "logInputRate", "struct_device_options.html#aa7d1bedf18541cc02cea76f3349160cf", null ],
+    [ "logInputRate", "struct_device_options.html#a346f0ad4bdb8d372618a64b31974cfae", null ],
+    [ "logNextStepRate", "struct_device_options.html#afb2e64e35a6fdb92d79bb4247ad7f226", null ],
+    [ "logOutputRate", "struct_device_options.html#a8c44c413cd91f614d1d0b395a39ca1d9", null ],
+    [ "logOutputRate", "struct_device_options.html#a8c44c413cd91f614d1d0b395a39ca1d9", null ],
+    [ "logRttackRate", "struct_device_options.html#a76706a3d11b41a6eddbb4b2d422fa426", null ],
+    [ "nextStepBufSize", "struct_device_options.html#aeedafcf67cbc5189d58670cea47cdff5", null ],
+    [ "nextStepMethod", "struct_device_options.html#a46ba87eebc7e912cf5db516806c71150", null ],
+    [ "nextStepSocketType", "struct_device_options.html#ad3ff01b2af6fdffad288636b854cb9c3", null ],
+    [ "numFLPs", "struct_device_options.html#a2dbaae8e42a31497aa4a671a0b601a40", null ],
     [ "numInputs", "struct_device_options.html#aceaf2af65fd2d6c28dabecc5c81569f6", null ],
     [ "numOutputs", "struct_device_options.html#a6d17bdc7b62ab4758a035a02d669e507", null ],
     [ "outputAddress", "struct_device_options.html#a0905929765f7499d149c3adac4396a00", null ],
@@ -24,5 +36,10 @@ var struct_device_options =
     [ "outputMethod", "struct_device_options.html#a55c48e20d4afbb7255d99219a838c792", null ],
     [ "outputSocketType", "struct_device_options.html#a8df1f887d9e5fcc7bbe0c3644f430be9", null ],
     [ "outputSocketType", "struct_device_options.html#a158c2575654a0c9251d25279de9a2499", null ],
-    [ "sendOffset", "struct_device_options.html#a8c020b376db57283f5e0614c567acfea", null ]
+    [ "rttackBufSize", "struct_device_options.html#a904e3e4d2b546055f8c1bbde55e236ba", null ],
+    [ "rttackMethod", "struct_device_options.html#aefaa90d154b34a1436ed83a9af90f1e6", null ],
+    [ "rttackSocketType", "struct_device_options.html#a7f9be34ab9908a6b66610617035151fc", null ],
+    [ "sendOffset", "struct_device_options.html#a8c020b376db57283f5e0614c567acfea", null ],
+    [ "testMode", "struct_device_options.html#a7e5a32da381711f7a0f6b9aa0dd26cbe", null ],
+    [ "text", "struct_device_options.html#a5b7cd11002ef36ea9aa286c2eb0bb3b3", null ]
 ];

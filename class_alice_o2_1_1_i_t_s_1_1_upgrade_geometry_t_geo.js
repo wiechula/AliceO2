@@ -1,10 +1,10 @@
 var class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo =
 [
-    [ "kITSVNA", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#ae38d4e7ff5e8946cf714e5e847e1c59da2a3772f38745c1fab78996ac0215f911", null ],
-    [ "kITSVUpg", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#ae38d4e7ff5e8946cf714e5e847e1c59da3b1d1b7a0cc98c3598fc93bd4a076f05", null ],
-    [ "kChipTypePix", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#ab41999cbf10943983fe802580f8cce87a7a2a8d4e5c1f270ce8ad5efbcc7aca45", null ],
-    [ "kNChipTypes", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#ab41999cbf10943983fe802580f8cce87a96338241ca8d0e5ea178c0e52a6a4873", null ],
-    [ "kMaxSegmPerChipType", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#ab41999cbf10943983fe802580f8cce87a17679163c398361a610a26c176b6e77f", null ],
+    [ "kITSVNA", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#ab41999cbf10943983fe802580f8cce87a2a3772f38745c1fab78996ac0215f911", null ],
+    [ "kITSVUpg", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#ab41999cbf10943983fe802580f8cce87a3b1d1b7a0cc98c3598fc93bd4a076f05", null ],
+    [ "kChipTypePix", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#a5a8c527abb484fdfcee0b352dbade8daa7a2a8d4e5c1f270ce8ad5efbcc7aca45", null ],
+    [ "kNChipTypes", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#a5a8c527abb484fdfcee0b352dbade8daa96338241ca8d0e5ea178c0e52a6a4873", null ],
+    [ "kMaxSegmPerChipType", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#a5a8c527abb484fdfcee0b352dbade8daa17679163c398361a610a26c176b6e77f", null ],
     [ "UpgradeGeometryTGeo", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#a771a1958b7034edfaa0f3c420ea6ac56", null ],
     [ "~UpgradeGeometryTGeo", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#a46ec2a23df6c0d0d6140884ea529ca9d", null ],
     [ "UpgradeGeometryTGeo", "class_alice_o2_1_1_i_t_s_1_1_upgrade_geometry_t_geo.html#af31bf2fc2b3b7f8857985da6e92d6281", null ],

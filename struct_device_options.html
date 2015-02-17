@@ -170,6 +170,18 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>numOutputs</b></td></t
 <tr class="memitem:a26378416d308b8e39ba5c25e11228c4f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a26378416d308b8e39ba5c25e11228c4f"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>heartbeatIntervalInMs</b></td></tr>
 <tr class="separator:a26378416d308b8e39ba5c25e11228c4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f25154381fc09b09cf7271c577c990c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f25154381fc09b09cf7271c577c990c"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>bufferTimeoutInMs</b></td></tr>
+<tr class="separator:a9f25154381fc09b09cf7271c577c990c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dbaae8e42a31497aa4a671a0b601a40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2dbaae8e42a31497aa4a671a0b601a40"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>numFLPs</b></td></tr>
+<tr class="separator:a2dbaae8e42a31497aa4a671a0b601a40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e5a32da381711f7a0f6b9aa0dd26cbe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7e5a32da381711f7a0f6b9aa0dd26cbe"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>testMode</b></td></tr>
+<tr class="separator:a7e5a32da381711f7a0f6b9aa0dd26cbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7d1bedf18541cc02cea76f3349160cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa7d1bedf18541cc02cea76f3349160cf"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>logInputRate</b></td></tr>
+<tr class="separator:aa7d1bedf18541cc02cea76f3349160cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a158c2575654a0c9251d25279de9a2499"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a158c2575654a0c9251d25279de9a2499"></a>
 vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>outputSocketType</b></td></tr>
 <tr class="separator:a158c2575654a0c9251d25279de9a2499"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -182,15 +194,51 @@ vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>out
 <tr class="memitem:a2cecdc6e53dea0c40e8590aa52e50bc3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2cecdc6e53dea0c40e8590aa52e50bc3"></a>
 vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>outputAddress</b></td></tr>
 <tr class="separator:a2cecdc6e53dea0c40e8590aa52e50bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c44c413cd91f614d1d0b395a39ca1d9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8c44c413cd91f614d1d0b395a39ca1d9"></a>
+vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>logOutputRate</b></td></tr>
+<tr class="separator:a8c44c413cd91f614d1d0b395a39ca1d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a983ba6a1c0236a8dd1efbe7b54d17ae6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a983ba6a1c0236a8dd1efbe7b54d17ae6"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>heartbeatTimeoutInMs</b></td></tr>
 <tr class="separator:a983ba6a1c0236a8dd1efbe7b54d17ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c020b376db57283f5e0614c567acfea"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8c020b376db57283f5e0614c567acfea"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>sendOffset</b></td></tr>
 <tr class="separator:a8c020b376db57283f5e0614c567acfea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a346f0ad4bdb8d372618a64b31974cfae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a346f0ad4bdb8d372618a64b31974cfae"></a>
+vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>logInputRate</b></td></tr>
+<tr class="separator:a346f0ad4bdb8d372618a64b31974cfae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a660f2547d13b9f23e594ead733d56cf6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a660f2547d13b9f23e594ead733d56cf6"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>eventRate</b></td></tr>
 <tr class="separator:a660f2547d13b9f23e594ead733d56cf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c44c413cd91f614d1d0b395a39ca1d9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8c44c413cd91f614d1d0b395a39ca1d9"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>logOutputRate</b></td></tr>
+<tr class="separator:a8c44c413cd91f614d1d0b395a39ca1d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3ff01b2af6fdffad288636b854cb9c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3ff01b2af6fdffad288636b854cb9c3"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>nextStepSocketType</b></td></tr>
+<tr class="separator:ad3ff01b2af6fdffad288636b854cb9c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeedafcf67cbc5189d58670cea47cdff5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeedafcf67cbc5189d58670cea47cdff5"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>nextStepBufSize</b></td></tr>
+<tr class="separator:aeedafcf67cbc5189d58670cea47cdff5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46ba87eebc7e912cf5db516806c71150"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a46ba87eebc7e912cf5db516806c71150"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>nextStepMethod</b></td></tr>
+<tr class="separator:a46ba87eebc7e912cf5db516806c71150"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb2e64e35a6fdb92d79bb4247ad7f226"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afb2e64e35a6fdb92d79bb4247ad7f226"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>logNextStepRate</b></td></tr>
+<tr class="separator:afb2e64e35a6fdb92d79bb4247ad7f226"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f9be34ab9908a6b66610617035151fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7f9be34ab9908a6b66610617035151fc"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>rttackSocketType</b></td></tr>
+<tr class="separator:a7f9be34ab9908a6b66610617035151fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a904e3e4d2b546055f8c1bbde55e236ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a904e3e4d2b546055f8c1bbde55e236ba"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>rttackBufSize</b></td></tr>
+<tr class="separator:a904e3e4d2b546055f8c1bbde55e236ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefaa90d154b34a1436ed83a9af90f1e6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefaa90d154b34a1436ed83a9af90f1e6"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>rttackMethod</b></td></tr>
+<tr class="separator:aefaa90d154b34a1436ed83a9af90f1e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76706a3d11b41a6eddbb4b2d422fa426"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76706a3d11b41a6eddbb4b2d422fa426"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>logRttackRate</b></td></tr>
+<tr class="separator:a76706a3d11b41a6eddbb4b2d422fa426"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b7cd11002ef36ea9aa286c2eb0bb3b3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b7cd11002ef36ea9aa286c2eb0bb3b3"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>text</b></td></tr>
+<tr class="separator:a5b7cd11002ef36ea9aa286c2eb0bb3b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following files:<ul>
 <li>/Users/turany/fairsoft/docs/src/AliceO2/devices/flp2epn/run/runEPN.cxx</li>
@@ -203,6 +251,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>eventRate</b></td></tr
 <li>/Users/turany/fairsoft/docs/src/AliceO2/devices/flp2epn-distributed/run/runFLPSampler.cxx</li>
 <li>/Users/turany/fairsoft/docs/src/AliceO2/devices/flp2epn-dynamic/run/runEPN_dynamic.cxx</li>
 <li>/Users/turany/fairsoft/docs/src/AliceO2/devices/flp2epn-dynamic/run/runFLP_dynamic.cxx</li>
+<li>/Users/turany/fairsoft/docs/src/AliceO2/devices/roundtrip/runRoundtripClient.cxx</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -210,7 +259,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>eventRate</b></td></tr
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="struct_device_options.html">DeviceOptions</a></li>
-    <li class="footer">Generated on Thu Dec 18 2014 10:04:44 for AliceO2 by
+    <li class="footer">Generated on Tue Feb 17 2015 08:26:30 for AliceO2 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.8 </li>
   </ul>

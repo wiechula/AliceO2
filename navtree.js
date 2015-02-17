@@ -1,6 +1,7 @@
 var NAVTREE =
 [
   [ "AliceO2", "index.html", [
+    [ "Generating Doxygen documentation", "md___users_turany_fairsoft_docs_src__alice_o2_doxygen__r_e_a_d_m_e.html", null ],
     [ "AliceO2", "md___users_turany_fairsoft_docs_src__alice_o2__r_e_a_d_m_e.html", null ],
     [ "Modules", "modules.html", "modules" ],
     [ "Namespaces", null, [
@@ -34,15 +35,15 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 ".html",
-"class_ali_h_l_t_h_o_m_e_r_block_descriptor.html#a5cd0d68883778844d89704d157a5eab6",
-"class_alice_o2_1_1_c_d_b_1_1_condition_id.html#a2516f0c36f5b1642001dfadcd2605cab",
-"class_alice_o2_1_1_c_d_b_1_1_manager.html#ac565531ddae141f877a8a8080e28001e",
-"class_alice_o2_1_1_field_1_1_magnetic_field.html#ae4e37e31c208cb4706b0b48118d4a893a07212b3c7485c2ef67fc245c015ade9e",
-"class_alice_o2_1_1_i_t_s_1_1_point.html#ad92f2337b839a94ce97dcdb439b4325a",
-"class_alice_o2_1_1_i_t_s_1_1_v11_geometry.html#a01a6f01c570eda938ba93bfcbe4435a5",
-"class_o2_e_p_nex.html#aa9b8840325e57e21a4f75ff826dc6884",
-"group__alihlt__component__datatypes.html#ga4153e2f6daccf7def1b8394dd899235f",
-"struct_ali_h_l_t_component_event_data.html#a99a73e4bcd560dd38d3384d8c8df0fe7"
+"class_ali_h_l_t_h_o_m_e_r_block_descriptor.html#a4c2042d1a948b4eaab7a19ac4d763dee",
+"class_alice_o2_1_1_c_d_b_1_1_condition_id.html",
+"class_alice_o2_1_1_c_d_b_1_1_manager.html#ac00507a49739f9251a64d64a1cf09263",
+"class_alice_o2_1_1_field_1_1_magnetic_field.html#ab9dd9bcb11e361cd13e20d43e47f7c39",
+"class_alice_o2_1_1_i_t_s_1_1_misalignment_parameter.html#a36031e01c1e6f8021f02e7293b901338",
+"class_alice_o2_1_1_i_t_s_1_1_upgrade_v1_layer.html#aafa2ccdcf5004a30fac2372cf0ce1eca",
+"class_m_c_track.html#ac8e52ad31a797d247c1b1313d710b40c",
+"group__alihlt__component__datatypes.html#ga2b8e2e558f9ee1e512b8e6dbae75e3be",
+"namespace_alice_o2.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

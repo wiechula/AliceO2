@@ -7,11 +7,12 @@ var class_alice_o2_1_1_devices_1_1_f_l_pex_sampler =
     [ "~FLPexSampler", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#aba04575b66765def2e00d105cd6bb1ba", null ],
     [ "GetProperty", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#ac68941ee10ec3c367c0cfd7f87414e36", null ],
     [ "GetProperty", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#a514251e6461c4899c806273b127d29cd", null ],
+    [ "ListenForAcks", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#aaad69a1c9910ddcc73893f300604659a", null ],
     [ "ResetEventCounter", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#ab23fed17325aa4435443273f5ad446a6", null ],
     [ "Run", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#a19b9bdc7d361c4ebce59772e151cc2a3", null ],
     [ "SetProperty", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#a5dbaff0c9346bc6d3ce805c886264528", null ],
     [ "SetProperty", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#a5cd76667c67353bd8d6d4ea81043f9ea", null ],
     [ "fEventCounter", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#a8e6c85c073ae24f872e257aaa782d607", null ],
     [ "fEventRate", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#aae862a688a171218b47cc5541b6ff029", null ],
-    [ "fEventSize", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#abad9b65d772e5b6eadb0080133534a61", null ]
+    [ "fTimeframeRTT", "class_alice_o2_1_1_devices_1_1_f_l_pex_sampler.html#aefade6b8032c76f7ee9d1a40255a5958", null ]
 ];
