@@ -1,6 +1,7 @@
 var NAVTREE =
 [
   [ "AliceO2", "index.html", [
+    [ "Hough Transform", "md___users_turany_fairsoft_docs_src__alice_o2_devices_hough__r_e_a_d_m_e.html", null ],
     [ "Generating Doxygen documentation", "md___users_turany_fairsoft_docs_src__alice_o2_doxygen__r_e_a_d_m_e.html", null ],
     [ "AliceO2", "md___users_turany_fairsoft_docs_src__alice_o2__r_e_a_d_m_e.html", null ],
     [ "Modules", "modules.html", "modules" ],
@@ -43,7 +44,7 @@ var NAVTREEINDEX =
 "class_alice_o2_1_1_i_t_s_1_1_upgrade_v1_layer.html#aafa2ccdcf5004a30fac2372cf0ce1eca",
 "class_m_c_track.html#ac8e52ad31a797d247c1b1313d710b40c",
 "group__alihlt__component__datatypes.html#ga2b8e2e558f9ee1e512b8e6dbae75e3be",
-"namespace_alice_o2.html"
+"md___users_turany_fairsoft_docs_src__alice_o2_doxygen__r_e_a_d_m_e.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
