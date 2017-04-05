@@ -35,6 +35,10 @@ public:
     mData(calDet.mData)
   {}
 
+  /// Return the pad subset type
+  /// \return pad subset type
+  PadSubset getPadSubset() const { return mPadSubset; }
+
   const std::vector<CalType>& getData() const { return mData; }
   std::vector<CalType>& getData() { return mData; }
 
@@ -47,7 +51,10 @@ public:
   void setName(const std::string& name) { mName = name; }
   const std::string& getName() const { return mName; }
 
+  const CalDet& multiply(const T& val) { return *this *= val; }
+
   const CalDet& operator+= (const CalDet& other);
+  const CalDet& operator*= (const T& val);
 private:
   std::string mName;          ///< name of the object
   std::vector<CalType> mData; ///< internal CalArrays
@@ -60,37 +67,45 @@ inline const CalDet<T>& CalDet<T>::operator+= (const CalDet& other)
 {
 }
 
+//______________________________________________________________________________
+template <class T>
+inline const CalDet<T>& CalDet<T>::operator*= (const T& val)
+{
+  for (auto& cal : mData) {
+    cal *= val;
+  }
+  return *this;
+}
+
 // ===| Full detector initialisation |==========================================
 template <class T>
 CalDet<T>::CalDet(PadSubset padSusbset)
 {
   const auto& mapper = Mapper::instance();
 
+  mPadSubset = padSusbset;
+
   format name;
   // ---| Define number of sub pad regions |------------------------------------
-  size_t size;
-  PadSubset subsetType;
+  size_t size = 0;
 
-  switch (padSusbset) {
+  switch (mPadSubset) {
     case PadSubset::ROC: {
       size = ROC::MaxROC;
-      subsetType = PadSubset::ROC;
       break;
     }
     case PadSubset::Partition: {
       size = Sector::MaxSector * mapper.getNumberOfPartitions();
-      subsetType = PadSubset::Partition;
       break;
     }
     case PadSubset::Region: {
       size = Sector::MaxSector * mapper.getNumberOfPadRegions();
-      subsetType = PadSubset::Region;
       break;
     }
   }
 
   for (size_t i=0; i<size; ++i) {
-    mData.push_back(CalType(subsetType, i));
+    mData.push_back(CalType(mPadSubset, i));
   }
 }
 
