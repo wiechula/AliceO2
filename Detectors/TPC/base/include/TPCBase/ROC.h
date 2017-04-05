@@ -67,19 +67,26 @@ class ROC
       return mLoop;
     }
 
-    // numerical ROC value
-    // @return numerical ROC value
+    /// int return operator to use similar as integer
+    /// \return roc number
+    operator int() { return int(mROC); }
+
+    /// numerical ROC value
+    /// \return numerical ROC value
     unsigned char getRoc() const { return mROC; }
 
-    // side of the ROC
-    // @return side of the sector
+    /// side of the ROC
+    /// \return side of the sector
     Side side() const { return (mROC / SECTORSPERSIDE) % SIDES ? Side::C : Side::A; }
 
-    // ROC type
-    // @return ROC type
+    /// ROC type
+    /// \return ROC type
     RocType rocType() const { return mROC < MaxROC / SIDES ? RocType::IROC : RocType::OROC; }
 
-    // if increment operator went above MaxROC
+    /// get sector
+    Sector getSector() const { return Sector(mROC%SECTORSPERSIDE); }
+
+    /// if increment operator went above MaxROC
     bool looped() const { return mLoop; }
 
   private:
