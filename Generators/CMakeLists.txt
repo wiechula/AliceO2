@@ -9,11 +9,19 @@ if (PYTHIA8_INCLUDE_DIR)
   set(SRCS
       src/Pythia6Generator.cxx
       src/Pythia8Generator.cxx
+      src/URun.cxx
+      src/UEvent.cxx
+      src/UParticle.cxx
+      src/AliceUnigenGenerator.cxx
       )
 
   set(HEADERS
       include/${MODULE_NAME}/Pythia6Generator.h
       include/${MODULE_NAME}/Pythia8Generator.h
+      include/${MODULE_NAME}/URun.h
+      include/${MODULE_NAME}/UEvent.h
+      include/${MODULE_NAME}/UParticle.h
+      include/${MODULE_NAME}/AliceUnigenGenerator.h
       )
 
   set(LINKDEF src/GeneratorsLinkDef.h)
