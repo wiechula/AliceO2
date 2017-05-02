@@ -17,4 +17,5 @@
 add_subdirectory(base)
 add_subdirectory(reconstruction)
 add_subdirectory(simulation)
+add_subdirectory(calibration)
 add_subdirectory(eventdisplay)
