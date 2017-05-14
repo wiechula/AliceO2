@@ -56,10 +56,13 @@ namespace TPC {
       result res{pos,4+32+pos};
 
       for (int i = 0; i < test1_vec.size()-4; i+= 4) {
-        if (res.position-i <= 4) 
-          BOOST_CHECK_EQUAL(mon.addSequence(test1_vec[i],test1_vec[i+1],test1_vec[i+2],test1_vec[i+3]),res.value);
-        else
-          BOOST_CHECK_EQUAL(mon.addSequence(test1_vec[i],test1_vec[i+1],test1_vec[i+2],test1_vec[i+3]),-1);
+        if (res.position-i <= 4) {
+          mon.addSequence(test1_vec[i],test1_vec[i+1],test1_vec[i+2],test1_vec[i+3]);
+          BOOST_CHECK_EQUAL(mon.getPosition(),res.value);
+        } else {
+          mon.addSequence(test1_vec[i],test1_vec[i+1],test1_vec[i+2],test1_vec[i+3]);
+          BOOST_CHECK_EQUAL(mon.getPosition(),-1);
+        }
       }
     }
 
@@ -94,7 +97,8 @@ namespace TPC {
 
         mon.reset();
         for (int i = 0; i < test1_vec.size()-4; i+= 4) {
-          BOOST_CHECK_EQUAL(mon.addSequence(test1_vec[i],test1_vec[i+1],test1_vec[i+2],test1_vec[i+3]),-1);
+          mon.addSequence(test1_vec[i],test1_vec[i+1],test1_vec[i+2],test1_vec[i+3]);
+          BOOST_CHECK_EQUAL(mon.getPosition(),-1);
         }
         test1_vec[v] = old_Value;
       }
