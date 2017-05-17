@@ -96,6 +96,18 @@ void CalibPedestal::analyse()
 }
 
 //______________________________________________________________________________
+void CalibPedestal::resetData()
+{
+  for (auto& vecPtr : mADCdata) {
+    auto vec = vecPtr.get();
+    if (!vec) {
+      continue;
+    }
+    vec->clear();
+  }
+}
+
+//______________________________________________________________________________
 void CalibPedestal::dumpToFile(TString filename)
 {
   TFile *f = TFile::Open(filename, "recreate");
