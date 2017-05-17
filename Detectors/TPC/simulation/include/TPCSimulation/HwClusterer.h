@@ -26,9 +26,6 @@ class HwClusterer : public Clusterer {
   public:
     enum class Processing : int { Sequential, Parallel};
 
-    /// Default Constructor
-    HwClusterer();
-
     /// Constructor
     /// \param processingType parallel or sequential
     /// \param globalTime value of first timebin
@@ -40,8 +37,18 @@ class HwClusterer : public Clusterer {
     /// \param padsPerCF Pads per cluster finder
     /// \param timebinsPerCF Timebins per cluster finder
     /// \param cfPerRow Number of cluster finder in each row
-    HwClusterer(Processing processingType, int globalTime, int cru, float minQDiff,
-      bool assignChargeUnique, bool enableNoiseSim, bool enablePedestalSubtraction, int padsPerCF, int timebinsPerCF, int cfPerRow);
+    HwClusterer(
+        Processing processingType = Processing::Parallel,
+        int globalTime = 0, 
+        int cruMin = 0,
+        int cruMax = 360, 
+        float minQDiff = 0,
+        bool assignChargeUnique = false,
+        bool enableNoiseSim = true, 
+        bool enablePedestalSubtraction = true, 
+        int padsPerCF = 8, 
+        int timebinsPerCF = 8, 
+        int cfPerRow = 0);
     
     /// Destructor
     ~HwClusterer();
@@ -64,6 +71,9 @@ class HwClusterer : public Clusterer {
     /// Switch for triggered / continuous readout
     /// \param isContinuous - false for triggered readout, true for continuous readout
     void setContinuousReadout(bool isContinuous) { mIsContinuousReadout = isContinuous; };
+
+    void setCRUMin(int cru) { mCRUMin = cru; };
+    void setCRUMax(int cru) { mCRUMax = cru; };
     
   private:
     // To be done
@@ -104,7 +114,8 @@ class HwClusterer : public Clusterer {
     Processing    mProcessingType; 
 
     int     mGlobalTime;
-    int     mCRUs;
+    int     mCRUMin;
+    int     mCRUMax;
     float   mMinQDiff;
     bool    mAssignChargeUnique;
     bool    mEnableNoiseSim;
