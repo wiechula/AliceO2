@@ -18,7 +18,7 @@ class ClusterContainer;
 class ClustererTask;
 class HwClusterFinder;
 class HwCluster;
-class DigitMC;
+class Digit;
 
 /// \class HwClusterer
 /// \brief Class for TPC HW cluster finding
@@ -54,6 +54,7 @@ class HwClusterer : public Clusterer {
     /// @param digits Container with TPC digits
     /// @return Container with clusters
     ClusterContainer* Process(TClonesArray *digits) override;
+    ClusterContainer* Process(std::vector<std::unique_ptr<Digit>>& digits) override;
 
     void setProcessingType(Processing processing)    { mProcessingType = processing; };   
 
@@ -83,7 +84,7 @@ class HwClusterer : public Clusterer {
     };
     
     static void processDigits(
-        const std::vector<std::vector<DigitMC*>>& digits, 
+        const std::vector<std::vector<Digit*>>& digits, 
         const std::vector<std::vector<HwClusterFinder*>>& clusterFinder, 
               std::vector<HwCluster>& cluster, 
               CfConfig config);
@@ -93,8 +94,10 @@ class HwClusterer : public Clusterer {
 //              unsigned minTimeBin,
 //              unsigned maxTimeBin);
     
+    ClusterContainer* ProcessTimeBins(int iTimeBinMin, int iTimeBinMax);
+
     std::vector<std::vector<std::vector<HwClusterFinder*>>> mClusterFinder;
-    std::vector<std::vector<std::vector<DigitMC*>>> mDigitContainer;
+    std::vector<std::vector<std::vector<Digit*>>> mDigitContainer;
 
     std::vector<std::vector<HwCluster>> mClusterStorage;
     
