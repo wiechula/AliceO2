@@ -218,26 +218,26 @@ void HwClusterer::processDigits(
     /*
      * add empty timebins to find last clusters
      */
-    if (config.iIsContinuousReadout) {
+    if (!config.iIsContinuousReadout) {
       // +2 so that for sure all data is processed
       for (time = 0; time < clusterFinder[iRow][0]->getNtimebins()+2; ++time){
         for (auto rit = clusterFinder[iRow].crbegin(); rit != clusterFinder[iRow].crend(); ++rit) {
           (*rit)->AddZeroTimebin(time+timeDiff+config.iMinTimeBin,iPadsPerCF);
         }
 
-        /*
-         * search for clusters and store reference to CF if one was found
-         */
-        if (clusterFinder[iRow][0]->getTimebinsAfterLastProcessing() == iTimebinsPerCF-2 -2)  {
-          /*  
-           * ordering is important: from right to left, so that the CFs could inform each other if cluster was found
-           */
-          for (auto rit = clusterFinder[iRow].crbegin(); rit != clusterFinder[iRow].crend(); ++rit) {
-            if ((*rit)->findCluster()) {
-              cfWithCluster.push_back(rit);
-            }
-          }
-        }
+//        /*
+//         * search for clusters and store reference to CF if one was found
+//         */
+//        if (clusterFinder[iRow][0]->getTimebinsAfterLastProcessing() == iTimebinsPerCF-2 -2)  {
+//          /*  
+//           * ordering is important: from right to left, so that the CFs could inform each other if cluster was found
+//           */
+//          for (auto rit = clusterFinder[iRow].crbegin(); rit != clusterFinder[iRow].crend(); ++rit) {
+//            if ((*rit)->findCluster()) {
+//              cfWithCluster.push_back(rit);
+//            }
+//          }
+//        }
       }
       for (auto rit = clusterFinder[iRow].crbegin(); rit != clusterFinder[iRow].crend(); ++rit) {
         (*rit)->setTimebinsAfterLastProcessing(0);
