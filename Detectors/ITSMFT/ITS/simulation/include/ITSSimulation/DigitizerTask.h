@@ -26,6 +26,7 @@
 #include "ITSMFTSimulation/DigiParams.h"
 #include "ITSMFTSimulation/Digitizer.h"
 #include "ITSMFTSimulation/Hit.h"
+#include <Steer/HitProcessingManager.h>
 
 namespace o2
 {
@@ -54,6 +55,10 @@ class DigitizerTask : public FairTask
   void setFairTimeUnitInNS(double tinNS) { mFairTimeUnitInNS = tinNS < 1. ? 1. : tinNS; }
   double getFairTimeUnitInNS() const { return mFairTimeUnitInNS; }
 
+  void setData(const std::vector<o2::ITSMFT::Hit>* h, const o2::steer::RunContext* context) {mHitsArray = h;
+    mRunContext=context;
+  }
+
  private:
 
   Bool_t mUseAlpideSim;         ///< ALPIDE simulation activation flag
@@ -65,6 +70,7 @@ class DigitizerTask : public FairTask
   Digitizer mDigitizer;                 ///< Digitizer
   const std::vector<o2::ITSMFT::Hit>* mHitsArray = nullptr;   ///< Array of MC hits
   std::vector<o2::ITSMFT::Digit> *mDigitsArray = nullptr; ///< Array of digits
+  const o2::steer::RunContext* mRunContext = nullptr; //!
 
   ClassDefOverride(DigitizerTask, 1);
 };
