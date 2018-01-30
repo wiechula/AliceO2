@@ -57,14 +57,15 @@ InitStatus DigitizerTask::Init()
     return kERROR;
   }
 
-  mHitsArray = mgr->InitObjectAs<const std::vector<o2::ITSMFT::Hit>*>("ITSHit");
-  if (!mHitsArray) {
-    LOG(ERROR) << "ITS hits not registered in the FairRootManager. Exiting ..." << FairLogger::endl;
-    return kERROR;
-  }
+ // mHitsArray = mgr->InitObjectAs<const std::vector<o2::ITSMFT::Hit>*>("ITSHit");
+  //if (!mHitsArray) {
+  //  LOG(ERROR) << "ITS hits not registered in the FairRootManager. Exiting ..." << FairLogger::endl;
+  //  return kERROR;
+  //}
 
   // Register output container
-  mgr->RegisterAny("ITSDigit", mDigitsArray, kTRUE);
+  //mgr->RegisterAny("ITSDigit", mDigitsArray, kTRUE);
+  mDigitsArray = new std::vector<o2::ITSMFT::Digit>;
 
   DigiParams param; // RS: TODO: Eventually load this from the CCDB
 
@@ -86,10 +87,10 @@ InitStatus DigitizerTask::Init()
 //________________________________________________________
 void DigitizerTask::Exec(Option_t* option)
 {
-  FairRootManager* mgr = FairRootManager::Instance();
-
+  //FairRootManager* mgr = FairRootManager::Instance();
+  const auto& records = mRunContext->getEventRecords();
   if (mDigitsArray) mDigitsArray->clear();
-  mDigitizer.setEventTime(mgr->GetEventTime());
+  mDigitizer.setEventTime(records[mEventID].timeNS);
 
   // the type of digitization is steered by the DigiParams object of the Digitizer
   LOG(DEBUG) << "Running digitization on new event " << mEventID
