@@ -60,6 +60,12 @@ class Digitizer {
     /// \return digits container
     DigitContainer* Process(const Sector &sector, const std::vector<o2::TPC::HitGroup>& hits, int eventID, float eventTime);
 
+    DigitContainer* ProcessNEW(const Sector &sector, const
+    		                std::vector<std::vector<o2::TPC::HitGroup>*> &hits,
+							std::vector<o2::TPC::TPCHitGroupID>& hitids /* to access hits + get eventid */,
+							const o2::steer::RunContext& context /* for event times */)
+
+
     DigitContainer *getDigitContainer() const { return mDigitContainer; }
 
     /// Switch for triggered / continuous readout

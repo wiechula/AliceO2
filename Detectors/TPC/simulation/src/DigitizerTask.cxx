@@ -101,10 +101,14 @@ InitStatus DigitizerTask::Init()
 
 void DigitizerTask::Exec(Option_t *option)
 {
-  FairRootManager *mgr = FairRootManager::Instance();
+  // FairRootManager *mgr = FairRootManager::Instance();
 
   // time should be given in us
-  float eventTime = static_cast<float>(mgr->GetEventTime() * 0.001);
+  //float eventTime = static_cast<float>(mgr->GetEventTime() * 0.001);
+  mAllSectorHitsLeft;
+  mAllSectorHitsRight;
+  context
+
   if (mEventTimes.size()) {
     eventTime = mEventTimes[mCurrentEvent++];
     LOG(DEBUG) << "Event time taken from bunch simulation";
@@ -122,6 +126,38 @@ void DigitizerTask::Exec(Option_t *option)
   mDigitContainer->setup(sec, eventTimeBin);
   mDigitContainer = mDigitizer->Process(sec, *mSectorHitsArrayLeft, mgr->GetEntryNr(), eventTime);
   mDigitContainer = mDigitizer->Process(sec, *mSectorHitsArrayRight, mgr->GetEntryNr(), eventTime);
+  mDigitContainer->fillOutputContainer(mDigitsArray, *mMCTruthArray, mDigitsDebugArray, eventTimeBin, mIsContinuousReadout);
+}
+
+void DigitizerTask::Exec2(Option_t *option)
+{
+  // FairRootManager *mgr = FairRootManager::Instance();
+
+  // time should be given in us
+  //float eventTime = static_cast<float>(mgr->GetEventTime() * 0.001);
+  mAllSectorHitsLeft;
+  mAllSectorHitsRight;
+  context
+
+  mEndTime - mStartTime
+
+  if (mEventTimes.size()) {
+    eventTime = mEventTimes[mCurrentEvent++];
+    LOG(DEBUG) << "Event time taken from bunch simulation";
+  }
+  const int eventTimeBin = SAMPAProcessing::getTimeBinFromTime(eventTime);
+
+  LOG(DEBUG) << "Running digitization for sector " << mHitSector << "on new event at time " << eventTime << " us in time bin " << eventTimeBin << FairLogger::endl;
+  mDigitsArray->clear();
+  mMCTruthArray->clear();
+  if(mDigitDebugOutput) {
+    mDigitsDebugArray->clear();
+  }
+
+  auto sec = Sector(mHitSector);
+  mDigitContainer->setup(sec, eventTimeBin, mStartTime, mEndTime);
+  mDigitContainer = mDigitizer->ProcessNEW(sec, *mAllSectorHitsLeft, mHitIdsLeft, mRunContext);
+  mDigitContainer = mDigitizer->ProcessNEW(sec, *mAllSectorHitsLeft, mHitIdsRight, mRunContext);
   mDigitContainer->fillOutputContainer(mDigitsArray, *mMCTruthArray, mDigitsDebugArray, eventTimeBin, mIsContinuousReadout);
 }
 
