@@ -58,7 +58,7 @@ class Digitizer {
     /// Steer conversion of points to digits
     /// \param points Container with TPC points
     /// \return digits container
-    DigitContainer* Process(const int sector, const std::vector<o2::TPC::HitGroup>& hits, int eventID, float eventTime);
+    DigitContainer* Process(const Sector &sector, const std::vector<o2::TPC::HitGroup>& hits, int eventID, float eventTime);
 
     DigitContainer *getDigitContainer() const { return mDigitContainer; }
 

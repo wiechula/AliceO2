@@ -38,12 +38,7 @@ class DigitContainer{
     /// Destructor
     ~DigitContainer() = default;
 
-    void setUp(const short sector, const TimeBin timeBinEvent);
-
-    static unsigned short getSectorLeft(const short sector);
-    static unsigned short getSectorRight(const short sector);
-    bool checkNeighboursProcessed(const short sector) const;
-    unsigned short getBufferPosition(const short sector);
+    void setup(const Sector &sector, const TimeBin timeBinEvent);
 
     /// Add digit to the container
     /// \param eventID MC Event ID
@@ -66,24 +61,20 @@ class DigitContainer{
 
   private:
     unsigned short mSectorID;
-    std::array<bool, Sector::MAXSECTOR> mSectorProcessed;
-    std::array<short, Sector::MAXSECTOR> mSectorMapping;
-    unsigned short mNextFreePosition;
-    std::array<DigitSector, 5> mSector; ///< Container for the sector to be processed
+    DigitSector mSector; ///< Container for the sector to be processed
 };
 
 inline
 DigitContainer::DigitContainer()
   : mSectorID(-1),
-    mSectorProcessed(),
-    mSectorMapping(),
-    mNextFreePosition(0),
     mSector()
-{
-  mSectorProcessed.fill(false);
-  mSectorMapping.fill(-1);
-}
+{}
 
+inline
+void DigitContainer::setup(const Sector &sector, const TimeBin timeBinEvent) {
+  mSectorID = sector;
+  mSector.init(timeBinEvent);
+}
 }
 }
 

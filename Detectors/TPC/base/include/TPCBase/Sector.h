@@ -47,6 +47,16 @@ class Sector
     /// @param [in] sec sector number
     Sector(unsigned char sec) : mSector(sec % MAXSECTOR) { ; }
 
+    /// get Sector to the left of the current one
+    /// \param s Sector of interest
+    /// \return Sector left of the current one
+    static Sector getLeft(const Sector s);
+
+    /// get Sector to the right of the current one
+    /// \param s Sector of interest
+    /// \return Sector right of the current one
+    static Sector getRight(const Sector s);
+
     /// comparison operator
     bool operator==(const Sector &other) const { return mSector == other.mSector; }
 
@@ -99,6 +109,29 @@ class Sector
     unsigned char mSector{};    /// Sector representation 0-MAXSECTOR
     bool mLoop{};   /// if operator execution resulted in looping
 };
+
+inline
+Sector Sector::getLeft(const Sector s)
+{
+  const int sector = int(s);
+  const int modulus = sector % 18;
+  int offsetSector = static_cast<int>(sector / 18) * 18;
+  if (modulus == 0)
+    offsetSector += 18;
+  return Sector(offsetSector + modulus - 1);
+}
+
+inline
+Sector Sector::getRight(const Sector s)
+{
+  const int sector = int(s);
+  const int modulus = sector % 18;
+  int offsetSector = static_cast<int>(sector / 18) * 18;
+  if (modulus == 17)
+    offsetSector -= 18;
+  return Sector(offsetSector + modulus + 1);
+}
+
 }
 }
 

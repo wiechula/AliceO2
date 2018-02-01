@@ -31,16 +31,10 @@ class DigitSector{
     /// Destructor
     ~DigitSector() = default;
 
-    void init(const short sector, const TimeBin timeBinEvent);
+    void init(const TimeBin timeBinEvent);
 
     /// Resets the container
     void reset();
-
-    short getSector() const { return mSector; }
-
-    /// Get the size of the container
-    /// \return Size of the time bin container
-    size_t getSize() const {return mTimeBins.size();}
 
     /// Get the container
     /// \return container
@@ -75,23 +69,16 @@ class DigitSector{
 
 inline
 DigitSector::DigitSector()
-  : mSector(-1),
-    mFirstTimeBin(0),
-    mEffectiveTimeBin(0),
+  : mFirstTimeBin(0),
     mNTimeBins(500),
     mTimeBins(550)
 {}
 
 inline
-void DigitSector::init(const short sector, const TimeBin timeBinEvent)
+void DigitSector::init(const TimeBin timeBinEvent)
 {
-  if(mSector == sector) return;
-  else {
-      mSector = sector;
-      mFirstTimeBin = timeBinEvent;
-      std::cout << mFirstTimeBin << "\n";
-      reset();
-    }
+  reset();
+  mFirstTimeBin = timeBinEvent;
 }
 
 inline
