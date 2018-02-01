@@ -22,9 +22,18 @@
 #include "TPCSimulation/Digitizer.h"
 #include "TPCBase/Sector.h"
 #include "SimulationDataFormat/MCTruthContainer.h"
+#include "Steer/HitProcessingManager.h"
 
 namespace o2 {
 namespace TPC { 
+
+// an index to uniquely identify a single hit of TPC
+struct TPCHitGroupID {
+  TPCHitGroupID() = default;
+  TPCHitGroupID(int e, int gid) : entry{e}, groupID{gid} {}
+  int entry = -1;
+  int groupID = -1;
+};
 
 class Digitizer;
     
@@ -67,7 +76,27 @@ class DigitizerTask : public FairTask{
     /// Initialise the event times using a bunch train structure
     /// \param numberOfEvents number of event times to simulate
     void initBunchTrainStructure(const size_t numberOfEvents);
-  private:
+
+    void setData(const std::vector<std::vector<o2::TPC::HitGroup>*> *lefthits,
+    		     const std::vector<std::vector<o2::TPC::HitGroup>*> *righthits,
+				 const std::vector<o2::TPC::TPCHitGroupID>* leftids,
+				 const std::vector<o2::TPC::TPCHitGroupID>* rightids,
+				 const o2::steer::RunContext* context)
+    {
+      mAllSectorHitsLeft = lefthits;
+      mAllSectorHitsRight = righthits;
+      mHitIdsLeft = leftids;
+      mHitIdsRight = rightids;
+      mRunContext = context;
+    }
+
+    void setTimeRange(double tstart, double tend)
+    {
+      mStartTime = tstart;
+      mEndTime = tend;
+    }
+
+   private:
     Digitizer           *mDigitizer;    ///< Digitization process
     DigitContainer      *mDigitContainer;
 
@@ -82,6 +111,14 @@ class DigitizerTask : public FairTask{
 
     const std::vector<o2::TPC::HitGroup> *mSectorHitsArrayLeft;
     const std::vector<o2::TPC::HitGroup> *mSectorHitsArrayRight;
+
+    const std::vector<std::vector<o2::TPC::HitGroup>*>* mAllSectorHitsLeft = nullptr;
+    const std::vector<std::vector<o2::TPC::HitGroup>*>* mAllSectorHitsRight = nullptr;
+    const std::vector<o2::TPC::TPCHitGroupID>* mHitIdsLeft = nullptr;
+    const std::vector<o2::TPC::TPCHitGroupID>* mHitIdsRight = nullptr;
+    const o2::steer::RunContext* mRunContext = nullptr;
+    double mStartTime;// = tstart;
+    double mEndTime;// = tend;
 
     // Temporary stuff for bunch train structure simulation
     std::vector<float> mEventTimes; ///< Simulated event times in us
