@@ -44,9 +44,9 @@ void DigitGlobalPad::fillOutputContainer(std::vector<Digit> *output, dataformats
     const auto digiPos = output->size();
     output->emplace_back(cru, mADC, pad.getRow(), pad.getPad(), timeBin); /// create Digit and append to container
 
-//    for(auto &mcLabel : mMClabel) {
-//      mcTruth.addElement(digiPos, mcLabel.first); /// add MCTruth output
-//    }
+    for(auto &mcLabel : mMClabel) {
+      mcTruth.addElement(digiPos, mcLabel.first); /// add MCTruth output
+    }
 
     if(debug!=nullptr) {
       debug->emplace_back(mChargePad, commonMode, pedestal, noise); /// create DigitMCMetaData

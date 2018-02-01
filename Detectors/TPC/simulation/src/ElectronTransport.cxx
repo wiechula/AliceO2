@@ -12,7 +12,6 @@
 /// \brief Implementation of the electron transport
 /// \author Andi Mathis, TU München, andreas.mathis@ph.tum.de
 
-#include "TPCBase/ParameterDetector.h"
 #include "TPCSimulation/ElectronTransport.h"
 
 #include <cmath>

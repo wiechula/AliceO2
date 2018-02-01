@@ -54,7 +54,7 @@ template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-DigitContainer* Digitizer::Process(const int sector, const std::vector<o2::TPC::HitGroup>& hits, int eventID, float eventTime)
+DigitContainer* Digitizer::Process(const Sector &sector, const std::vector<o2::TPC::HitGroup>& hits, int eventID, float eventTime)
 {
 //  mDigitContainer->reset();
   const static Mapper& mapper = Mapper::instance();
@@ -72,10 +72,6 @@ DigitContainer* Digitizer::Process(const int sector, const std::vector<o2::TPC::
   static std::vector<float> signalArray;
   signalArray.resize(nShapedPoints);
 
-  std::cout << SAMPAProcessing::getTimeBinFromTime(eventTime) << "\n";
-
-  mDigitContainer->setUp(sector, SAMPAProcessing::getTimeBinFromTime(eventTime));
-
   static size_t hitCounter=0;
   for(auto& inputgroup : hits) {
     //    auto *inputgroup = static_cast<HitGroup*>(pointObject);
@@ -84,6 +80,10 @@ DigitContainer* Digitizer::Process(const int sector, const std::vector<o2::TPC::
       const auto& eh = inputgroup.getHit(hitindex);
 
       const GlobalPosition3D posEle(eh.GetX(), eh.GetY(), eh.GetZ());
+      if( electronTransport.isCompletelyOutOfSectorCourseElectronDrift(posEle, sector)) {
+          std::cout << "not processing hit \n";
+          continue;
+        }
 
       // The energy loss stored is really nElectrons
       const int nPrimaryElectrons = static_cast<int>(eh.GetEnergyLoss());
@@ -142,14 +142,14 @@ DigitContainer* Digitizer::Process(const int sector, const std::vector<o2::TPC::
           const float signal = signalArray[i];
           if (signal == 0) continue;
           const float time = absoluteTime + i * eleParam.getZBinWidth();
-          const auto digisector = (int)digiPos.getCRU().sector();
-          if (digisector == sector || digisector == DigitContainer::getSectorLeft(sector) ||
-              digisector == DigitContainer::getSectorRight(sector)) {
+          const auto digisector = digiPos.getCRU().sector();
+          if (digisector == sector || digisector == Sector::getLeft(sector) ||
+              digisector == Sector::getRight(sector)) {
             mDigitContainer->addDigit(eventID, MCTrackID, digiPos.getCRU(), SAMPAProcessing::getTimeBinFromTime(time),
                                       globalPad, signal);
           } else {
             LOG(INFO) << "WARNING: Digit in unexpected sector " << digisector
-            		<< " " << posEle.Z() << "\t" << posEleDiff.Z() << "\n";
+                << " " << posEle.Z() << "\t" << posEleDiff.Z() << "\n";
           }
           }
 

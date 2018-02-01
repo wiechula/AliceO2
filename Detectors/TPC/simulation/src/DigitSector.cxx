@@ -20,19 +20,18 @@ using namespace o2::TPC;
 
 void DigitSector::setDigit(size_t eventID, size_t hitID, const CRU &cru, TimeBin timeBin, GlobalPadNumber globalPad, float charge)
 {
-  mEffectiveTimeBin = timeBin - mFirstTimeBin;
-  if(mEffectiveTimeBin < 0.) {
+  const int effectiveTimeBin = timeBin - mFirstTimeBin;
+  if(effectiveTimeBin < 0.) {
     LOG(FATAL) << "TPC DigitSector buffer misaligned ";
     LOG(FATAL) << "for event " << eventID << " hit " << hitID << " CRU " <<cru << " TimeBin " << timeBin << " First TimeBin " << mFirstTimeBin << " Global Pad " << globalPad;
     LOG(FATAL) << FairLogger::endl;
     return;
   }
   /// If time bin outside specified range, the range of the vector is extended by one full drift time.
-  while(getSize() <= mEffectiveTimeBin) {
-    LOG(INFO) << "resizing time bins\n";
-	mTimeBins.resize(getSize() + mNTimeBins);
+  while(mTimeBins.size() <= effectiveTimeBin) {
+    mTimeBins.resize(mTimeBins.size() + mNTimeBins);
   }
-  mTimeBins[mEffectiveTimeBin].setDigit(eventID, hitID, cru, globalPad, charge);
+  mTimeBins[effectiveTimeBin].setDigit(eventID, hitID, cru, globalPad, charge);
 }
 
 void DigitSector::fillOutputContainer(std::vector<Digit> *output, dataformats::MCTruthContainer<MCCompLabel> &mcTruth,
@@ -40,7 +39,6 @@ void DigitSector::fillOutputContainer(std::vector<Digit> *output, dataformats::M
 {
   TimeBin time = mFirstTimeBin;
   for(auto &aTime : mTimeBins) {
-      /// GET TIME BIN INFORMATION
       aTime.fillOutputContainer(output, mcTruth, debug, sector, time++);
     }
   }

@@ -61,8 +61,6 @@ class DigitizerTask : public FairTask{
     /// Digitization
     /// \param option Option
     void Exec(Option_t *option) override;
-      
-    void FinishTask() override;
 
     /// Temporary stuff for bunch train simulation
     ///
@@ -82,7 +80,8 @@ class DigitizerTask : public FairTask{
     bool                mDigitDebugOutput;    ///< Switch for the debug output of the DigitMC
     int                 mHitSector=-1; ///< which sector to treat
 
-    const std::vector<o2::TPC::HitGroup> *mSectorHitsArray[Sector::MAXSECTOR];
+    const std::vector<o2::TPC::HitGroup> *mSectorHitsArrayLeft;
+    const std::vector<o2::TPC::HitGroup> *mSectorHitsArrayRight;
 
     // Temporary stuff for bunch train structure simulation
     std::vector<float> mEventTimes; ///< Simulated event times in us
