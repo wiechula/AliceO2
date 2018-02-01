@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+#include "TChain.h"
+
 namespace o2
 {
 namespace steer
@@ -120,10 +122,10 @@ inline void HitProcessingManager::run()
   }
 }
 
-template <typename Task_t>
+template <typename HitType, typename Task_t>
 std::function<void(const o2::steer::RunContext&)> defaultRunFunction(Task_t& task, std::string_view brname)
 {
-  using HitType = Task_t::InputType;
+  //using HitType = Task_t::InputType;
   return [&task, brname](const o2::steer::RunContext& c) {
     HitType* hittype = nullptr;
     auto br = c.getBranch(brname.data());

@@ -20,20 +20,13 @@
 #include "FairTask.h"
 #include "FairLogger.h"
 #include "TPCSimulation/Digitizer.h"
+#include "TPCSimulation/Point.h"
 #include "TPCBase/Sector.h"
 #include "SimulationDataFormat/MCTruthContainer.h"
 #include "Steer/HitProcessingManager.h"
 
 namespace o2 {
 namespace TPC { 
-
-// an index to uniquely identify a single hit of TPC
-struct TPCHitGroupID {
-  TPCHitGroupID() = default;
-  TPCHitGroupID(int e, int gid) : entry{e}, groupID{gid} {}
-  int entry = -1;
-  int groupID = -1;
-};
 
 class Digitizer;
     
@@ -53,6 +46,9 @@ class DigitizerTask : public FairTask{
     /// Inititializes the digitizer and connects input and output container
     InitStatus Init() override;
 
+    /// Inititializes the digitizer and connects input and output container
+    InitStatus Init2() override;
+
     /// Sets the debug flags for the sub-tasks
     /// \param debugsString String containing the debug flags
     ///        o PRFdebug - Debug output after application of the PRF
@@ -67,9 +63,18 @@ class DigitizerTask : public FairTask{
     /// \param nTimeBinsMax Maximal number of time bins to be written out
     void setMaximalTimeBinWriteOut(int i) { mTimeBinMax = i; }
       
+    /// Set the sector of interest
+    /// \param sector Sector of interest
+    void setSector(int sector) { mHitSector = sector; }
+
     /// Digitization
     /// \param option Option
     void Exec(Option_t *option) override;
+
+    /// Digitization
+    /// \param option Option
+    void Exec2(Option_t *option);
+
 
     /// Temporary stuff for bunch train simulation
     ///
@@ -117,8 +122,8 @@ class DigitizerTask : public FairTask{
     const std::vector<o2::TPC::TPCHitGroupID>* mHitIdsLeft = nullptr;
     const std::vector<o2::TPC::TPCHitGroupID>* mHitIdsRight = nullptr;
     const o2::steer::RunContext* mRunContext = nullptr;
-    double mStartTime;// = tstart;
-    double mEndTime;// = tend;
+    double mStartTime;// = tstart [ns]
+    double mEndTime;// = tend [ns]
 
     // Temporary stuff for bunch train structure simulation
     std::vector<float> mEventTimes; ///< Simulated event times in us

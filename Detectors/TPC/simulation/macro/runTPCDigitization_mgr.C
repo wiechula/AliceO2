@@ -12,9 +12,12 @@
 #include <Steer/HitProcessingManager.h>
 #include "ITSMFTSimulation/Hit.h"
 #include <cassert>
+#include "TPCSimulation/Point.h"
+#include "TPCBase/Sector.h"
+#include "TPCSimulation/SAMPAProcessing.h"
 
 
-void getHits(const o2::steer::RunContext& context, std::vector<std::vector<o2::TPC::HitGroup>*>& hitvectors, std::vector<TPCHitGroupID>& hitids,
+void getHits(const o2::steer::RunContext& context, std::vector<std::vector<o2::TPC::HitGroup>*>& hitvectors, std::vector<o2::TPC::TPCHitGroupID>& hitids,
 
              const char* branchname, float tmin /*NS*/, float tmax /*NS*/,
              std::function<float(float, float, float)>&& f)
@@ -51,14 +54,16 @@ void getHits(const o2::steer::RunContext& context, std::vector<std::vector<o2::T
     auto groups = hitvectors[entry];
     for (auto& singlegroup : *groups) {
       groupid++;
-      const auto zmax = singlegroup.mZAbsMax;
-      const auto zmin = singlegroup.mZAbsMin;
+      auto zmax = singlegroup.mZAbsMax;
+      auto zmin = singlegroup.mZAbsMin;
+      // in case of secondaries, the time ordering may be reversed
+      if(zmax < zmin) std::swap(zmax, zmin);
       assert(zmin <= zmax);
       // auto tof = singlegroup.
       float tmaxtrack = f(eventrecords[entry].timeNS, 0., zmin);
       float tmintrack = f(eventrecords[entry].timeNS, 0., zmax);
       std::cout << tmintrack << " & " << tmaxtrack << "\n";
-      assert(tmaxtrack > tmintrack);
+      assert(tmaxtrack >= tmintrack);
       if (tmin > tmaxtrack || tmax < tmintrack) {
         std::cout << "DISCARDING " << groupid << " OF ENTRY " << entry << "\n";
     	continue;
@@ -72,7 +77,7 @@ void getHits(const o2::steer::RunContext& context, std::vector<std::vector<o2::T
 // TPC hit selection lambda
 auto fTPC = [](float tNS, float tof, float z) {
   // returns time in NS
-  return tNS + o2::TPC::Digitizer::getTime(z) * 1000 + tof;
+  return tNS + o2::TPC::SAMPAProcessing::getDriftTime(z) * 1000 + tof;
 };
 
 void runTPCDigitization(const o2::steer::RunContext& context)
@@ -103,7 +108,7 @@ void runTPCDigitization(const o2::steer::RunContext& context)
       getHits(context, hitvectorsleft, hitidsleft, sectornamestreamleft.str().c_str(), tmin, tmax, fTPC);
 
       std::stringstream sectornamestreamright;
-      sectornamestreamright << "TPCHitsShiftedSector" << Shifted(s);
+      sectornamestreamright << "TPCHitsShiftedSector" << int(o2::TPC::Sector::getLeft(s));
       getHits(context, hitvectorsright, hitidsright, sectornamestreamright.str().c_str(), tmin, tmax, fTPC);
 
       task.setData(&hitvectorsleft,
@@ -111,9 +116,11 @@ void runTPCDigitization(const o2::steer::RunContext& context)
 				   &hitidsleft,
 				   &hitidsright,
     		       &context);
-      task.Exec("");
+      task.setTimeRange(tmin, tmax);
+      task.Exec2("");
 
-      hasData |= hitids.size();
+      hasData |= hitidsleft.size() || hitidsright.size();
+
     }
 
     // condition to end:
@@ -124,21 +131,21 @@ void runTPCDigitization(const o2::steer::RunContext& context)
   }
 }
 
-void runITSDigitization(const o2::steer::RunContext& context)
-{
-  std::vector<o2::ITSMFT::Hit>* hitvector = nullptr;
-  o2::ITS::DigitizerTask task(true);
-  task.Init();
-  auto br = context.getBranch("ITSHit");
-  assert(br);
-  br->SetAddress(&hitvector);
-  for (int entry = 0; entry < context.getNEntries(); ++entry) {
-    br->GetEntry(entry);
-    task.setData(hitvector, &context);
-    task.Exec("");
-  }
-  task.FinishTask();
-}
+//void runITSDigitization(const o2::steer::RunContext& context)
+//{
+//  std::vector<o2::ITSMFT::Hit>* hitvector = nullptr;
+//  o2::ITSMFT::DigitizerTask task(true);
+//  task.Init();
+//  auto br = context.getBranch("ITSHit");
+//  assert(br);
+//  br->SetAddress(&hitvector);
+//  for (int entry = 0; entry < context.getNEntries(); ++entry) {
+//    br->GetEntry(entry);
+//    task.setData(hitvector, &context);
+//    task.Exec("");
+//  }
+//  task.FinishTask();
+//}
 
 void runTPCDigitization_mgr()
 {
@@ -149,11 +156,11 @@ void runTPCDigitization_mgr()
   //hitrunmgr.registerRunFunction(runITSDigitization);
   using Data_t = std::vector<o2::ITSMFT::Hit>;
 
-  o2::ITS::DigitizerTask task;
-  TGeoManager::Import("O2geometry.root");
-  task.Init();
-  hitrunmgr.registerDefaultRunFunction(o2::steer::defaultRunFunction(
-	task, "ITSHit"));
+//  o2::ITS::DigitizerTask task;
+//  TGeoManager::Import("O2geometry.root");
+//  task.Init();
+//  hitrunmgr.registerDefaultRunFunction(o2::steer::defaultRunFunction(
+//	task, "ITSHit"));
 
 
   hitrunmgr.run();

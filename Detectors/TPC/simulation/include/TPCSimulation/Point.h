@@ -45,6 +45,15 @@ class ElementalHit {
   ClassDefNV(ElementalHit,1);
 };
 
+
+// an index to uniquely identify a single hit of TPC
+struct TPCHitGroupID {
+  TPCHitGroupID() = default;
+  TPCHitGroupID(int e, int gid) : entry{e}, groupID{gid} {}
+  int entry = -1;
+  int groupID = -1;
+};
+
 // a higher order hit class encapsulating
 // a set of elemental hits belonging to the same trackid (and sector)
 // construct used to do less MC truth linking and to save memory

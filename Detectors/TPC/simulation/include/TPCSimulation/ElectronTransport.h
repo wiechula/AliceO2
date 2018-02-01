@@ -43,7 +43,6 @@ class ElectronTransport
     /// \return GlobalPosition3D with position of the electrons after the drift taking into account diffusion
     GlobalPosition3D getElectronDrift(GlobalPosition3D posEle);
 
-
     /// Drift of electrons in electric field taking into account diffusion with 3 sigma of the width
     /// \param posEle GlobalPosition3D with start position of the electrons
     /// \return GlobalPosition3D with position of the electrons after the drift taking into account diffusion with 3 sigma of the width
@@ -53,7 +52,6 @@ class ElectronTransport
     /// \param driftTime Drift time of the electron
     /// \return Boolean whether the electron is attached (and lost) or not
     bool isElectronAttachment(float driftTime);
-
 
   private:
     /// Circular random buffer containing random values of the Gauss distribution to take into account diffusion of the electrons
@@ -145,6 +143,7 @@ bool ElectronTransport::isCompletelyOutOfSectorCourseElectronDrift(GlobalPositio
   }
   return false;
 }
+
 }
 }
 

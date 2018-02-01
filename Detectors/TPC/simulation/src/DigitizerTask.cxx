@@ -99,16 +99,41 @@ InitStatus DigitizerTask::Init()
   return kSUCCESS;
 }
 
+
+InitStatus DigitizerTask::Init2()
+{
+  /// Initialize the task and the input and output containers
+  FairRootManager *mgr = FairRootManager::Instance();
+  if(!mgr){
+    LOG(ERROR) << "Could not instantiate FairRootManager. Exiting ..." << FairLogger::endl;
+    return kERROR;
+  }
+
+  // Register output container
+  mDigitsArray = new std::vector<o2::TPC::Digit>;
+  mgr->RegisterAny(Form("TPCDigit_%i", mHitSector), mDigitsArray, kTRUE);
+
+  // Register MC Truth container
+  mMCTruthArray = new typename std::remove_pointer<decltype(mMCTruthArray)>::type;
+  mgr->RegisterAny(Form("TPCDigitMCTruth_%i", mHitSector), mMCTruthArray, kTRUE);
+
+  // Register additional (optional) debug output
+  if(mDigitDebugOutput) {
+    mDigitsDebugArray = new std::vector<o2::TPC::DigitMCMetaData>;
+    mgr->RegisterAny(Form("TPCDigitMCMetaData_%i", mHitSector), mDigitsDebugArray, kTRUE);
+  }
+
+  mDigitizer->init();
+  mDigitContainer = mDigitizer->getDigitContainer();
+  return kSUCCESS;
+}
+
 void DigitizerTask::Exec(Option_t *option)
 {
-  // FairRootManager *mgr = FairRootManager::Instance();
+  FairRootManager *mgr = FairRootManager::Instance();
 
   // time should be given in us
-  //float eventTime = static_cast<float>(mgr->GetEventTime() * 0.001);
-  mAllSectorHitsLeft;
-  mAllSectorHitsRight;
-  context
-
+  float eventTime = static_cast<float>(mgr->GetEventTime() * 0.001);
   if (mEventTimes.size()) {
     eventTime = mEventTimes[mCurrentEvent++];
     LOG(DEBUG) << "Event time taken from bunch simulation";
@@ -131,34 +156,20 @@ void DigitizerTask::Exec(Option_t *option)
 
 void DigitizerTask::Exec2(Option_t *option)
 {
-  // FairRootManager *mgr = FairRootManager::Instance();
-
-  // time should be given in us
-  //float eventTime = static_cast<float>(mgr->GetEventTime() * 0.001);
-  mAllSectorHitsLeft;
-  mAllSectorHitsRight;
-  context
-
-  mEndTime - mStartTime
-
-  if (mEventTimes.size()) {
-    eventTime = mEventTimes[mCurrentEvent++];
-    LOG(DEBUG) << "Event time taken from bunch simulation";
-  }
-  const int eventTimeBin = SAMPAProcessing::getTimeBinFromTime(eventTime);
-
-  LOG(DEBUG) << "Running digitization for sector " << mHitSector << "on new event at time " << eventTime << " us in time bin " << eventTimeBin << FairLogger::endl;
   mDigitsArray->clear();
   mMCTruthArray->clear();
   if(mDigitDebugOutput) {
     mDigitsDebugArray->clear();
   }
 
-  auto sec = Sector(mHitSector);
-  mDigitContainer->setup(sec, eventTimeBin, mStartTime, mEndTime);
-  mDigitContainer = mDigitizer->ProcessNEW(sec, *mAllSectorHitsLeft, mHitIdsLeft, mRunContext);
-  mDigitContainer = mDigitizer->ProcessNEW(sec, *mAllSectorHitsLeft, mHitIdsRight, mRunContext);
-  mDigitContainer->fillOutputContainer(mDigitsArray, *mMCTruthArray, mDigitsDebugArray, eventTimeBin, mIsContinuousReadout);
+  const auto sec = Sector(mHitSector);
+  const int startTimeBin = SAMPAProcessing::getTimeBinFromTime(mStartTime * 0.001f);
+  const int endTimeBin = SAMPAProcessing::getTimeBinFromTime(mEndTime * 0.001f);
+  std::cout << sec << " " << startTimeBin << " " << endTimeBin << "\n";
+  mDigitContainer->setup(sec, startTimeBin);
+  mDigitContainer = mDigitizer->ProcessNEW(sec, *mAllSectorHitsLeft, *mHitIdsLeft, *mRunContext);
+  mDigitContainer = mDigitizer->ProcessNEW(sec, *mAllSectorHitsRight, *mHitIdsRight, *mRunContext);
+  mDigitContainer->fillOutputContainer(mDigitsArray, *mMCTruthArray, mDigitsDebugArray, startTimeBin, mIsContinuousReadout);
 }
 
 void DigitizerTask::initBunchTrainStructure(const size_t numberOfEvents)
