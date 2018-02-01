@@ -18,6 +18,7 @@
 #include "TPCSimulation/DigitContainer.h"
 #include "TPCSimulation/PadResponse.h"
 #include "TPCSimulation/Point.h"
+#include "Steer/HitProcessingManager.h"
 
 #include "TPCBase/Mapper.h"
 
@@ -43,7 +44,8 @@ class DigitContainer;
 /// The such created Digits and then sorted in an intermediate Container (DigitContainer) and after processing of the full event/drift time summed up
 /// and sorted as Digits into a vector which is then passed further on
 
-class Digitizer {
+class Digitizer
+{
   public:
 
     /// Default constructor
@@ -58,30 +60,37 @@ class Digitizer {
     /// Steer conversion of points to digits
     /// \param points Container with TPC points
     /// \return digits container
-    DigitContainer* Process(const Sector &sector, const std::vector<o2::TPC::HitGroup>& hits, int eventID, float eventTime);
+    DigitContainer* Process(const Sector &sector, const std::vector<o2::TPC::HitGroup>& hits, int eventID,
+        float eventTime);
 
-    DigitContainer* ProcessNEW(const Sector &sector, const
-    		                std::vector<std::vector<o2::TPC::HitGroup>*> &hits,
-							std::vector<o2::TPC::TPCHitGroupID>& hitids /* to access hits + get eventid */,
-							const o2::steer::RunContext& context /* for event times */)
+    DigitContainer* ProcessNEW(const Sector &sector, const std::vector<std::vector<o2::TPC::HitGroup>*> &hits,
+        const std::vector<o2::TPC::TPCHitGroupID>& hitids /* to access hits + get eventid */,
+        const o2::steer::RunContext& context /* for event times */);
 
+    void ProcessHitGroup(const HitGroup &inputgroup, const Sector &sector, const float eventTime, const int eventID);
 
-    DigitContainer *getDigitContainer() const { return mDigitContainer; }
+    DigitContainer *getDigitContainer() const
+    {
+      return mDigitContainer;
+    }
 
     /// Switch for triggered / continuous readout
     /// \param isContinuous - false for triggered readout, true for continuous readout
-    static void setContinuousReadout(bool isContinuous) { mIsContinuous = isContinuous ; }
+    static void setContinuousReadout(bool isContinuous)
+    {
+      mIsContinuous = isContinuous;
+    }
 
   private:
     Digitizer(const Digitizer &);
     Digitizer &operator=(const Digitizer &);
 
-    DigitContainer          *mDigitContainer;   ///< Container for the Digits
+    DigitContainer *mDigitContainer;   ///< Container for the Digits
 
-    std::unique_ptr<TTree>  mDebugTreePRF;      ///< Output tree for the output after the PRF
-    static bool             mIsContinuous;      ///< Switch for continuous readout
+    std::unique_ptr<TTree> mDebugTreePRF;      ///< Output tree for the output after the PRF
+    static bool mIsContinuous;      ///< Switch for continuous readout
 
-  ClassDefNV(Digitizer, 1);
+    ClassDefNV(Digitizer, 1);
 };
 
 }

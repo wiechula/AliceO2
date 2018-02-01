@@ -77,7 +77,7 @@ DigitSector::DigitSector()
 inline
 void DigitSector::init(const TimeBin timeBinEvent)
 {
-  reset();
+  //reset();
   mFirstTimeBin = timeBinEvent;
 }
 

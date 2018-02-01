@@ -31,6 +31,3 @@ void DigitContainer::fillOutputContainer(std::vector<Digit> *output, dataformats
     mSector.fillOutputContainer(output, mcTruth, debug, mSectorID, eventTime, isContinuous);
     mSector.reset();
 }
-
-
-
