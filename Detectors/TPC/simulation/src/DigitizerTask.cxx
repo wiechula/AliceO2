@@ -102,27 +102,6 @@ InitStatus DigitizerTask::Init()
 
 InitStatus DigitizerTask::Init2()
 {
-  /// Initialize the task and the input and output containers
-  FairRootManager *mgr = FairRootManager::Instance();
-  if(!mgr){
-    LOG(ERROR) << "Could not instantiate FairRootManager. Exiting ..." << FairLogger::endl;
-    return kERROR;
-  }
-
-  // Register output container
-  mDigitsArray = new std::vector<o2::TPC::Digit>;
-  mgr->RegisterAny(Form("TPCDigit_%i", mHitSector), mDigitsArray, kTRUE);
-
-  // Register MC Truth container
-  mMCTruthArray = new typename std::remove_pointer<decltype(mMCTruthArray)>::type;
-  mgr->RegisterAny(Form("TPCDigitMCTruth_%i", mHitSector), mMCTruthArray, kTRUE);
-
-  // Register additional (optional) debug output
-  if(mDigitDebugOutput) {
-    mDigitsDebugArray = new std::vector<o2::TPC::DigitMCMetaData>;
-    mgr->RegisterAny(Form("TPCDigitMCMetaData_%i", mHitSector), mDigitsDebugArray, kTRUE);
-  }
-
   mDigitizer->init();
   mDigitContainer = mDigitizer->getDigitContainer();
   return kSUCCESS;

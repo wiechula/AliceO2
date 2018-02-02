@@ -47,7 +47,7 @@ class DigitizerTask : public FairTask{
     InitStatus Init() override;
 
     /// Inititializes the digitizer and connects input and output container
-    InitStatus Init2() override;
+    InitStatus Init2();
 
     /// Sets the debug flags for the sub-tasks
     /// \param debugsString String containing the debug flags
@@ -101,12 +101,19 @@ class DigitizerTask : public FairTask{
       mEndTime = tend;
     }
 
+    void setOutputData(std::vector<o2::TPC::Digit>* digitsArray,
+                       o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mcTruthArray)
+    {
+      mDigitsArray = digitsArray;
+      mMCTruthArray = mcTruthArray;
+    }
+
    private:
     Digitizer           *mDigitizer;    ///< Digitization process
     DigitContainer      *mDigitContainer;
 
     std::vector<o2::TPC::Digit> *mDigitsArray = nullptr;  ///< Array of the Digits, passed from the digitization
-    o2::dataformats::MCTruthContainer<o2::MCCompLabel> *mMCTruthArray = nullptr; ///< Array for MCTruth information associated to digits in mDigitsArrray. Passed from the digitization
+    o2::dataformats::MCTruthContainer<o2::MCCompLabel> *mMCTruthArray = nullptr; ///< Array for MCTruth information associated to digits in mDigitsArray. Passed from the digitization
     std::vector<o2::TPC::DigitMCMetaData> *mDigitsDebugArray = nullptr;  ///< Array of the Digits, for debugging purposes only, passed from the digitization
 
     int                 mTimeBinMax;   ///< Maximum time bin to be written out
