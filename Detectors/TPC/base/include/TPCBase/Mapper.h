@@ -47,6 +47,25 @@ public:
   //const GlobalPadNumber globalPadNumber(const PadPos& padPosition) const { return mMapPadPosGlobalPad.find(padPosition)->second; }
   GlobalPadNumber globalPadNumber(const PadPos& globalPadPosition) const { return mMapPadOffsetPerRow[globalPadPosition.getRow()] + globalPadPosition.getPad(); }
 
+  /// return the cru number from sector and global pad number
+  /// \param sec sector
+  /// \param globalPad global pad number in sector
+  /// \return global cru number
+  int getCRU(const Sector& sec, GlobalPadNumber globalPad)
+  {
+    const auto row = mMapGlobalPadToPadPos[globalPad].getRow();
+    const auto nCRUPerSector = mMapPadRegionInfo.size();
+    int region = 0;
+    for (auto i = 1; i < nCRUPerSector; ++i) {
+      if (row < mMapPadRegionInfo[i].getGlobalRowOffset()) {
+        break;
+      }
+      ++region;
+    }
+
+    return int(sec * nCRUPerSector + region);
+  }
+
   /// return the global pad number in ROC for PadROCPos (ROC, row, pad)
   /// \return global pad number of PadROCPos (ROC, row, pad)
   /// \todo add check for row and pad limits
