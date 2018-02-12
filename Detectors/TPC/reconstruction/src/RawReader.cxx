@@ -176,6 +176,7 @@ bool RawReader::addInputFile(int region, int link, int sampaVersion, std::string
     }
   }
 
+  LOG(INFO) << "Adding file: '" << path << "' with CRU: " << region << " link: " << link << " sampa version: " << sampaVersion << " for run: " << run << FairLogger::endl;
   return true;
 }
 

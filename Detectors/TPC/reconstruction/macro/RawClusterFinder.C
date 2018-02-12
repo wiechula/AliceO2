@@ -8,8 +8,10 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
+R__ADD_INCLUDE_PATH($O2_ROOT/../../ms_gsl/latest/include)
 #ifndef ALICEO2_TPC_CONVERTRAWCLUSTERS_C_
 #define ALICEO2_TPC_CONVERTRAWCLUSTERS_C_
+
 
 /// \file   RawClusterFinder.h
 /// \author Jens Wiechula, Jens.Wiechula@ikf.uni-frankfurt.de
@@ -19,11 +21,13 @@
 #include <memory>
 #include <fstream>
 
+#include "TTree.h"
 #include "Rtypes.h"
 #include "TFile.h"
 #include "TSystem.h"
 #include "TGraph.h"
 #include "TLinearFitter.h"
+#include "TObjString.h"
 
 #include "DataFormatsTPC/Defs.h"
 #include "TPCBase/CalDet.h"
@@ -66,6 +70,13 @@ class RawClusterFinder : public CalibRawBase
     {
       int run;
       float cherenkovValue;
+      int beamMomentum;
+      int powerSupply;
+      int HVSettings;
+      int trigger;
+      int dataType;
+      int driftFieldStrength;
+      int runType;
 
     };
 
@@ -147,42 +158,94 @@ void RawClusterFinder::processEvents(TString fileInfo, TString pedestalFile, TSt
   std::vector<o2::TPC::Cluster> *arrClusterBox = nullptr;
   float cherenkovValue = 0.;
   int runNumber = 0;
+  int beamMomentum = 0;
+  int powerSupply = 0;
+  int HVSettings = 0;
+  int trigger = 0;
+  int driftFieldStrength = 0;
+  int dataType = 0;
+  int runType = 0;
+
 
   TFile fout(outputFileName,"recreate");
-  TTree t("cbmsim","cbmsim");
-  t.Branch("TPCClusterHW", &arrCluster);
-  t.Branch("cherenkovValue", &cherenkovValue);
-  t.Branch("runNumber", &runNumber);
+  TTree t("o2sim","o2sim");
+  t.Branch("TPCClusterHW",           &arrCluster);
+  t.Branch("cherenkovValue",         &cherenkovValue);
+  t.Branch("runNumber",              &runNumber);
+  t.Branch("beamMomentum",           &beamMomentum);
+  t.Branch("powerSupply",             &powerSupply);
+  t.Branch("HVSettings",             &HVSettings);
+  t.Branch("trigger",                &trigger);
+  t.Branch("dataType",               &dataType);
+  t.Branch("driftFieldStrength",     &driftFieldStrength);                                                                                           
+  t.Branch("runType",                &runType);
+
 
   // ===| output track file and container |======================================
-  TFile foutTracks("tracksLinear.root", "recreate");
-  TTree tOut("events","events");
+  //TFile foutTracks("tracksLinear.root", "recreate");
+  //TTree tOut("events","events");
 
-  vector<TrackTPC> arrTracks;
-  EventHeader eventHeader;
+  //vector<TrackTPC> arrTracks;
+  //EventHeader eventHeader;
 
-  tOut.Branch("header", &eventHeader, "run/I:cherenkovValue/F");
-  tOut.Branch("Tracks", &arrTracks);
+
+  //tOut.Branch("header", &eventHeader, "run/I:cherenkovValue/F");
+  //tOut.Branch("Tracks", &arrTracks);
 
 
   // ===| input cherenkov file |================================================
   ifstream istr(cherenkovFile.Data());
 
   // ===| fill header |=========================================================
-  eventHeader.run = TString(gSystem->Getenv("RUN_NUMBER")).Atoi();
-  runNumber = eventHeader.run;
+  //eventHeader.run = TString(gSystem->Getenv("RUN_NUMBER")).Atoi();
+  //runNumber = eventHeader.run;
+  runNumber = TString(gSystem->Getenv("RUN_NUMBER")).Atoi();
+  TString logbookData;
+  const char* logbook = gSystem->Getenv("LOGBOOK");
+  printf("content of variable logbook is %s \n", logbook);
+
+  if (logbook)
+  {
+    logbookData = gSystem->GetFromPipe(TString::Format("awk '{if($1 == %d) print $3,$4,$5,$6,$7,$8,$9}' %s", runNumber, logbook));
+    TObjArray *arrData = logbookData.Tokenize(" ");
+    printf("in logbook are %d entries \n", arrData->GetEntriesFast()); 
+    if (arrData && arrData->GetEntriesFast()==7)
+    {
+      beamMomentum = ((TObjString*)arrData->At(0))->String().Atoi();
+      printf("the value of beamMomentum is %d \n", beamMomentum);
+      powerSupply = ((TObjString*)arrData->At(1))->String().Atoi();
+      HVSettings = ((TObjString*)arrData->At(2))->String().Atoi();
+      trigger = ((TObjString*)arrData->At(3))->String().Atoi();
+      dataType = ((TObjString*)arrData->At(4))->String().Atoi();
+      driftFieldStrength = ((TObjString*)arrData->At(5))->String().Atoi();
+      runType = ((TObjString*)arrData->At(6))->String().Atoi();
+    }
+    else 
+    {
+      printf("Error: Could not get logbook information for run %d", runNumber);
+    }
+  
+    delete arrData;
+   }
+   else
+   {
+      printf("Couldn't find the logbook! \n");
+   }
+
 
   // ===| cluster finder |======================================================
   // HW cluster finder
   std::unique_ptr<Clusterer> cl;
   if (clustererType == ClustererType::HW) {
     HwClusterer *hwCl = new HwClusterer(&arrCluster, nullptr, 0, 3);
+    //HwClusterer *hwCl = new HwClusterer(HwClusterer::Processing::Parallel, 0, 0, 4);
     hwCl->setContinuousReadout(false);
     hwCl->setPedestalObject(pedestal);
     cl = std::unique_ptr<Clusterer>(hwCl);
   }
   else if (clustererType == ClustererType::Box) {
     BoxClusterer *boxCl = new BoxClusterer(arrClusterBox);
+    //BoxClusterer *boxCl = new BoxClusterer;
     boxCl->setPedestals(pedestal);
     cl = std::unique_ptr<Clusterer>(boxCl);
   }
@@ -191,6 +254,7 @@ void RawClusterFinder::processEvents(TString fileInfo, TString pedestalFile, TSt
   }
     
   //cl->setRequirePositiveCharge(false);
+  cl->setMinQMax(3.);
 
   // Box cluster finder
   
@@ -205,7 +269,7 @@ void RawClusterFinder::processEvents(TString fileInfo, TString pedestalFile, TSt
   while (converter.processEvent() == CalibRawBase::ProcessStatus::Ok) {
     if (maxEvents>0 && events>=maxEvents) break;
 
-    printf("========| Event %4zu %d %d %d |========\n", converter.getPresentEventNumber(), events, maxEvents, status);
+    printf("========| Event %4zu %d %d %hhd |========\n", converter.getPresentEventNumber(), events, maxEvents, status);
 
     auto &arr = converter.getDigitVector();
     if (!arr.size()) {++events; continue;}
@@ -221,24 +285,24 @@ void RawClusterFinder::processEvents(TString fileInfo, TString pedestalFile, TSt
     }
     t.Fill();
 
-    printf("Found clusters: %d\n", arrCluster.size());
+    printf("Found clusters: %zu\n", arrCluster.size());
 
     Int_t nTries = -1; // defaults to number of clusters in the roc
     Int_t allowedMisses = 3;  //number of allowed holes in track before discarding
     Int_t minClusters = 10;
     Bool_t reverse = kFALSE; //start search from pad row opposite to beam entry side
-    TString TrackerOut = "tracksLinear.root";
+    //TString TrackerOut = "tracksLinear.root";
     //converter.TrackFinder(nTries, allowedMisses, minClusters, reverse, &arrCluster, arrTracks);
 
-    tOut.Fill();
+    //tOut.Fill();
     arrCluster.clear();
     ++events;
   }
 
   fout.Write();
   fout.Close();
-  foutTracks.Write();
-  foutTracks.Close();
+  //foutTracks.Write();
+  //foutTracks.Close();
 }
 
 void RawClusterFinder::TrackFinder(int nTries, int allowedMisses, int minClusters, bool reverse, std::vector<o2::TPC::Cluster> *pclusterArray, vector<TrackTPC> &arrTracks)
@@ -270,7 +334,7 @@ void RawClusterFinder::TrackFinder(int nTries, int allowedMisses, int minCluster
   uint nclustersUsed = 0;
 
   //loop over the n (given bu nTries) clusters and use iFirst as starting point for tracking
-  for(Int_t iFirst = 0; (iFirst<nTries&&iFirst<clusterArray.size()); iFirst++){
+  for(UInt_t iFirst = 0; (iFirst<nTries&&iFirst<clusterArray.size()); iFirst++){
 
     Int_t nClusters = clusterArray.size();
     Int_t searchIndexArray[1000]; //array of cluster indices to be used in the tracking

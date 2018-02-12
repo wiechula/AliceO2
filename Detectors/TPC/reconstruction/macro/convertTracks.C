@@ -43,6 +43,14 @@ struct OutputTrack {
 struct EventHeader {
   int run;
   float cherenkovValue;
+  int beamMomentum;
+  int powerSupply;
+  int HVSettings;
+  int trigger;
+  int dataType;
+  int driftFieldStrength;
+  int runType;
+        
 };
 
 void convertTracks(TString inputBinaryFile, TString inputClusters, TString cherenkovFile, TString outputFile)
@@ -53,12 +61,26 @@ void convertTracks(TString inputBinaryFile, TString inputClusters, TString chere
 
   float cherenkovValue = 0.;
   int runNumber = 0;
+  int beamMomentum = 0;
+  int powerSupply = 0;
+  int HVSettings = 0;
+  int trigger = 0;
+  int driftFieldStrength = 0;
+  int dataType = 0;
+  int runType = 0;
 
   std::vector<o2::TPC::Cluster>* clusters = nullptr;
   c.SetBranchAddress("TPCClusterHW", &clusters);
   // c.SetBranchAddress("TPC_Cluster", &clusters);
   c.SetBranchAddress("cherenkovValue", &cherenkovValue);
   c.SetBranchAddress("runNumber", &runNumber);
+  c.SetBranchAddress("beamMomentum",          &beamMomentum);
+  c.SetBranchAddress("powerSupply",           &powerSupply);
+  c.SetBranchAddress("HVSettings",            &HVSettings);
+  c.SetBranchAddress("trigger",               &trigger);
+  c.SetBranchAddress("dataType",              &dataType);
+  c.SetBranchAddress("driftFieldStrength",    &driftFieldStrength);
+  c.SetBranchAddress("runType",               &runType);
 
   // ===| output tree |=========================================================
   TFile fout(outputFile, "recreate");
@@ -71,6 +93,13 @@ void convertTracks(TString inputBinaryFile, TString inputClusters, TString chere
   EventHeader eventHeader;
   eventHeader.run = 0;
   eventHeader.cherenkovValue = 0;
+  eventHeader.beamMomentum = 0;
+  eventHeader.powerSupply = 0;
+  eventHeader.HVSettings = 0;
+  eventHeader.trigger = 0;
+  eventHeader.dataType = 0;
+  eventHeader.driftFieldStrength = 0;
+  eventHeader.runType = 0;
 
   tout.Branch("header", &eventHeader, "run/I:cherenkovValue/F");
   tout.Branch("Tracks", &arrTracks);
@@ -104,6 +133,14 @@ void convertTracks(TString inputBinaryFile, TString inputClusters, TString chere
     // ---| set event information from cluster file |---------------------------
     eventHeader.run = runNumber;
     eventHeader.cherenkovValue = cherenkovValue;
+    eventHeader.beamMomentum = beamMomentum;
+    eventHeader.powerSupply = powerSupply;
+    eventHeader.HVSettings = HVSettings;
+    eventHeader.trigger = trigger;
+    eventHeader.dataType = dataType;
+    eventHeader.driftFieldStrength = driftFieldStrength;
+    eventHeader.runType = runType;
+
 
     // ---| loop over tracks |--------------------------------------------------
     arrTracks.clear();
