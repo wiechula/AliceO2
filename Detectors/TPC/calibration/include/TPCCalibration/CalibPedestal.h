@@ -29,7 +29,6 @@ namespace o2
 namespace TPC
 {
 
-
 /// \brief Pedestal calibration class
 ///
 /// This class is used to produce pad wise pedestal and noise calibration data
@@ -39,75 +38,99 @@ namespace TPC
 
 class CalibPedestal : public CalibRawBase
 {
-  public:
-    using vectorType = std::vector<float>;
+ public:
+  using vectorType = std::vector<float>;
 
-    /// default constructor
-    CalibPedestal(PadSubset padSubset = PadSubset::ROC);
+  /// default constructor
+  CalibPedestal(PadSubset padSubset = PadSubset::ROC);
 
-    /// default destructor
-    ~CalibPedestal() override = default;
+  /// default destructor
+  ~CalibPedestal() override = default;
 
-    /// update function called once per digit
-    ///
-    /// \param roc readout chamber
-    /// \param row row in roc
-    /// \param pad pad in row
-    /// \param timeBin time bin
-    /// \param signal ADC signal
-    Int_t updateROC(const Int_t roc, const Int_t row, const Int_t pad,
-                    const Int_t timeBin, const Float_t signal) final;
+  /// update function called once per digit
+  ///
+  /// \param roc readout chamber
+  /// \param row row in roc
+  /// \param pad pad in row
+  /// \param timeBin time bin
+  /// \param signal ADC signal
+  Int_t updateROC(const Int_t roc, const Int_t row, const Int_t pad, const Int_t timeBin, const Float_t signal) final;
 
-    /// not used
-    Int_t updateCRU(const CRU& cru, const Int_t row, const Int_t pad,
-                    const Int_t timeBin, const Float_t signal) final { return 0;}
+  /// not used
+  Int_t updateCRU(const CRU& cru, const Int_t row, const Int_t pad, const Int_t timeBin, const Float_t signal) final
+  {
+    return 0;
+  }
 
-    /// Reset pedestal data
-    void resetData();
+  /// Reset pedestal data
+  void resetData();
 
-    /// set the adc range
-    void setADCRange(int minADC, int maxADC) { mADCMin = minADC; mADCMax = maxADC; mNumberOfADCs = mADCMax-mADCMin+1;}
+  /// set the adc range
+  void setADCRange(int minADC, int maxADC)
+  {
+    mADCMin = minADC;
+    mADCMax = maxADC;
+    mNumberOfADCs = mADCMax - mADCMin + 1;
+  }
 
-    /// set the time bin range to analyse
-    void setTimeBinRange(int first, int last) { mFirstTimeBin=first; mLastTimeBin=last; }
-    /// Analyse the buffered adc values and calculate noise and pedestal
-    void analyse();
+  /// set the time bin range to analyse
+  void setTimeBinRange(int first, int last)
+  {
+    mFirstTimeBin = first;
+    mLastTimeBin = last;
+  }
+  /// Analyse the buffered adc values and calculate noise and pedestal
+  void analyse();
 
-    /// Get the pedestal calibration object
-    ///
-    /// \return pedestal calibration object
-    const CalPad& getPedestal() const { return mPedestal; }
+  /// Get the pedestal calibration object
+  ///
+  /// \return pedestal calibration object
+  const CalPad& getPedestal() const { return mPedestal; }
 
-    /// Get the noise calibration object
-    ///
-    /// \return noise calibration object
-    const CalPad& getNoise() const { return mNoise; }
+  /// Get the noise calibration object
+  ///
+  /// \return noise calibration object
+  const CalPad& getNoise() const { return mNoise; }
 
-    /// Dump the relevant data to file
-    void dumpToFile(const std::string filename) final;
+  /// Dump the relevant data to file
+  void dumpToFile(const std::string filename) final;
 
-    /// Dummy end event
-    void endEvent() final {};
+  /// Dummy end event
+  void endEvent() final{};
 
-  private:
-    int        mFirstTimeBin; ///< first time bin used in analysis
-    int        mLastTimeBin;  ///< first time bin used in analysis
-    int        mADCMin;       ///< minimum adc value
-    int        mADCMax;       ///< maximum adc value
-    int        mNumberOfADCs; ///< number of adc values (mADCMax-mADCMin+1)
-    CalPad     mPedestal;     ///< CalDet object with pedestal information
-    CalPad     mNoise;        ///< CalDet object with noise
+  /// Use slow fit
+  void setUseSlowFit(bool useSlowFit) { mUseSlowFit = useSlowFit; }
 
-    std::vector<std::unique_ptr<vectorType>> mADCdata; //!< ADC data to calculate noise and pedestal
+  /// Write debug histos
+  void setWriteDebugHistos(bool writeDebugHistos) { mWriteDebugHistos = writeDebugHistos; }
 
-    /// return the value vector for a readout chamber
-    ///
-    /// \param roc readout chamber
-    /// \param create if to create the vector if it does not exist
-    vectorType* getVector(ROC roc, bool create=kFALSE);
+  /// Check if slow fit is set
+  bool hasUseSlowFit() const { return mUseSlowFit; }
 
-    /// dummy reset
-    void resetEvent() final {}
+  /// Check if to write debug histos
+  bool hasWriteDebugHistos() const { return mWriteDebugHistos; }
+
+ private:
+  int mFirstTimeBin;      ///< first time bin used in analysis
+  int mLastTimeBin;       ///< first time bin used in analysis
+  int mADCMin;            ///< minimum adc value
+  int mADCMax;            ///< maximum adc value
+  int mNumberOfADCs;      ///< number of adc values (mADCMax-mADCMin+1)
+  bool mUseSlowFit;       ///< if to use a slower but more robust fit
+  bool mWriteDebugHistos; ///< if to dump debug histograms to file
+  CalPad mPedestal;       ///< CalDet object with pedestal information
+  CalPad mNoise;          ///< CalDet object with noise
+
+  std::vector<std::unique_ptr<vectorType>> mADCdata; //!< ADC data to calculate noise and pedestal
+
+  /// return the value vector for a readout chamber
+  ///
+  /// \param roc readout chamber
+  /// \param create if to create the vector if it does not exist
+  vectorType* getVector(ROC roc, bool create = kFALSE);
+
+  /// dummy reset
+  void resetEvent() final {}
 };
 
 } // namespace TPC
