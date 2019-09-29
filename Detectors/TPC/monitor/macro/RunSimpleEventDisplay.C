@@ -285,15 +285,17 @@ void DrawPadSignal(TString type)
   //
   // type: name of canvas
   //
-
+printf("DrawPadSignal1\n");
   // check if an event was alreay loaded
   if (!mEvDisp.getNumberOfProcessedEvents())
     return;
+printf("DrawPadSignal2\n");
 
   //return if mouse is pressed to allow looking at one pad
   Int_t event = gPad->GetEvent();
   if (event != 51)
     return;
+printf("DrawPadSignal3\n");
 
   Int_t binx, biny;
   Float_t bincx, bincy;
@@ -310,7 +312,7 @@ void DrawPadSignal(TString type)
     return;
   const int nPads = mMapper.getNumberOfPadsInRowROC(roc, row);
   Int_t pad = cpad + nPads / 2;
-  //printf("row %d, cpad %d, pad %d, nPads %d\n", row, cpad, pad, nPads);
+  printf("roc %d, row %d, cpad %d, pad %d, nPads %d\n", roc, row, cpad, pad, nPads);
   if (pad < 0 || pad >= (Int_t)nPads)
     return;
   //   Int_t chn = tpcROC->GetRowIndexes(roc)[row]+pad;
@@ -324,11 +326,14 @@ void DrawPadSignal(TString type)
     c->Clear();
     c->cd();
     //mRawReader->Reset();
+printf("DrawPadSignal4\n");
     TH1D* h2 = mEvDisp.makePadSignals(roc, row, pad);
     if (h2) {
+printf("DrawPadSignal5\n");
       h2->GetXaxis()->SetRangeUser(0, mEvDisp.getNumberOfProcessedTimeBins() + 5);
       h2->Draw();
       h2->SetStats(0);
+      printf("Time bins: %d\n", mEvDisp.getNumberOfProcessedTimeBins());
 
       if (cFFT) {
         const bool init = (hFFT == nullptr);

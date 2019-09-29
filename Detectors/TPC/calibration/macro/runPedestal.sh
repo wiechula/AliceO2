@@ -60,8 +60,8 @@ while true; do
     -o|--outputFile) outputFile=$2; shift 2;;
     -t|--timeBins) timeBins=$2; shift 2;;
     -n|--nevents) nevents=$2; shift 2;;
-    -m|--adcMax) adcMin=$2; shift 2;;
-    -x|--adcMin) adcMin=$2; shift 2;;
+    -m|--adcMin) adcMin=$2; shift 2;;
+    -x|--adcMax) adcMax=$2; shift 2;;
     -s|--statType) statisticsType=$2; shift 2;;
     -v|--verbosity) verbosity=$2; shift 2;;
     -d|--debugLevel) debugLevel=$2; shift 2;;
@@ -84,6 +84,6 @@ else
 fi
 
 # ===| command building and execution |=========================================
-cmd="root.exe -b -q -l -n -x $O2_SRC/Detectors/TPC/calibration/macro/runPedestal.C'(\"$fileInfo\",\"$outputFile\", $nevents, $adcMin, $adcMax, $timeBins, $statisticsType, $verbosity, $debugLevel)'"
+cmd="root.exe -b -q -l -n -x $O2_SRC/Detectors/TPC/calibration/macro/runPedestal.C+g'(\"$fileInfo\",\"$outputFile\", $nevents, $adcMin, $adcMax, $timeBins, $statisticsType, $verbosity, $debugLevel)'"
 echo "running: $cmd"
 eval $cmd
