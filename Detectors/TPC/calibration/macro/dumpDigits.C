@@ -5,6 +5,10 @@ void dumpDigits(TString fileInfo, TString outputFileName = "", TString pedestalF
   dig.setupContainers(fileInfo, verbosity, debugLevel);
   dig.setDigitFileName(outputFileName.Data());
   dig.setPedestalAndNoiseFile(pedestalFileName.Data());
+  dig.addPadMask(0, 4, 42);
+  dig.addPadMask(0, 28, 60);
+  dig.addPadMask(0, 61, 69);
+
   //dig.setTimeBinRange(0, numberTimeBins);
 
   CalibRawBase::ProcessStatus status = CalibRawBase::ProcessStatus::Ok;
