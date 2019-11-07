@@ -6,4 +6,4 @@ add_subdirectory(MemoryResources)
 add_subdirectory(simulation)
 add_subdirectory(TimeFrame)
 add_subdirectory(Parameters)
-
+add_subdirectory(Analysis)
