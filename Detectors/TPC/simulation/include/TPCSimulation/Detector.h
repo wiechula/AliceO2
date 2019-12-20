@@ -81,6 +81,9 @@ class Detector : public o2::base::DetImpl<Detector>
   //     virtual Bool_t ProcessHitsOrig( FairVolume* v=0);
   Bool_t ProcessHits(FairVolume* v = nullptr) override;
 
+  /// Required for overrides for special simulations (e.g. Krypton)
+  void SetSpecialPhysicsCuts() override;
+
   /**       Registers the produced collections in FAIRRootManager.     */
   void Register() override;
 
