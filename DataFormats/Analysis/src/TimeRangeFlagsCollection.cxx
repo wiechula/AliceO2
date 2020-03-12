@@ -64,4 +64,36 @@ void TimeRangeFlagsCollection<time_type, bitmap_type>::streamTo(std::ostream& ou
   }
 }
 
+template <typename time_type, typename bitmap_type>
+void TimeRangeFlagsCollection<time_type, bitmap_type>::merge(TimeRangeFlagsCollection<time_type, bitmap_type> trfc)
+{
+
+  // method to merge two TimeRangeFlagsCollection objects
+  // we assume that the meaning of the same bit is the same for the two collections (--> same definition of reasons)
+  
+  for (DetID::ID id = 0; id < mTimeRangeFlagsCollection.size(); ++id) {
+    const auto& timeRangeDet = mTimeRangeFlagsCollection[id]; // returns the TimeRangeFlagsColl for index id
+    if (!timeRangeDet.size()) { // this detector for now had no reasons
+      // we copy the content of the collection to be merged
+      mTimeRangeFlagsCollection[id] = trfc.mTimeRangeFlagsCollection[id];
+    }
+    else {
+      for (auto& timeRange : mTimeRangeFlagsCollection[id]) {
+	auto startTime = timeRange.getStart();
+	auto endTime = timeRange.getEnd();
+	for (const auto& timeRangecmp : trfc.mTimeRangeFlagsCollection[id]) {
+	  if (timeRange.getFlags() == timeRangecmp.getFlags()) { // we need to extend the validity of this flag
+	    auto startTimecmp = timeRangecmp.getStart();
+	    auto endTimecmp = timeRangecmp.getEnd();
+	    startTime = std::min(startTime, startTimecmp);
+	    endTime = std::max(endTime, endTimecmp);
+	    timeRange.setStart(startTime);
+	    timeRange.setEnd(endTime);
+	  }
+	}
+      }
+    }
+  }
+}
+
 template class TimeRangeFlagsCollection<uint64_t>;

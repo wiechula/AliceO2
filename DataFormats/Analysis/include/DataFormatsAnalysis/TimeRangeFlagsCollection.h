@@ -55,6 +55,9 @@ class TimeRangeFlagsCollection
   /// write data to ostream
   void streamTo(std::ostream& output) const;
 
+  // merging functionality
+  void merge(TimeRangeFlagsCollection<time_type, bitmap_type> trfc);
+
   /// overloading output stream operator
   friend std::ostream& operator<<(std::ostream& output, const TimeRangeFlagsCollection& data)
   {
