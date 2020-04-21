@@ -68,19 +68,9 @@
 #ifndef ALICEO2_TPC_KrBoxClusterFinder_H_
 #define ALICEO2_TPC_KrBoxClusterFinder_H_
 
-//#pragma link C++ class std::vector < KrCluster> + ;
-
-#include "TCanvas.h"
-#include "TColor.h"
-#include "TFile.h"
-#include "TH1.h"
-#include "TTree.h"
-
 #include "TPCBase/Digit.h"
 #include "TPCReconstruction/KrCluster.h"
 
-#include <array>
-#include <iostream>
 #include <tuple>
 #include <vector>
 
@@ -88,21 +78,6 @@ namespace o2
 {
 namespace tpc
 {
-//
-// struct cluster {
-// public:
-//   float totCharge = 0;
-//   float maxCharge = 0;
-//   int size = 0;
-//   // means and sigmas are weighted averages/sigmas
-//   float meanPad = 0;
-//   float meanRow = 0;
-//   float meanTime = 0;
-//   float sigmaPad = 0;
-//   float sigmaRow = 0;
-//   float sigmaTime = 0;
-//   int sector = 0;
-// };
 
 /// KrBoxClusterFinder class can be used to analyze X-ray and Krypton data
 ///
@@ -111,11 +86,12 @@ namespace tpc
 /// Around these maxima, the cluster is then built with the function
 /// buildCluster. In a box around the center (defined by maxClusterSize....) it
 /// looks for digits that can be assigned to the cluster.
+
 class KrBoxClusterFinder
 {
  public:
   /// Constructor:
-  explicit KrBoxClusterFinder(std::vector<o2::tpc::Digit>* eventSector); // Creates 3D Map
+  explicit KrBoxClusterFinder(std::vector<o2::tpc::Digit>& eventSector); ///< Creates a 3D Map
 
   /// After the map is created, we look for local maxima with this function:
   std::vector<std::tuple<int, int, int>> findLocalMaxima();
@@ -141,9 +117,6 @@ class KrBoxClusterFinder
   int mQThreshold = 1;            ///< every charge which is added to a cluster must exceed this value or it is discarded
   int mMinNumberOfNeighbours = 1; ///< amount of direct neighbours required for a cluster maximum
 
-  /// Here the map is defined where all digits are temporarily stored
-  std::vector<std::vector<std::vector<int>>> mMapOfAllDigits;
-
   /// Maximum Map Dimensions
   /// Here is room for improvements
   int mMaxPads = 160;  ///< Size of the map in pad-direction
@@ -151,6 +124,10 @@ class KrBoxClusterFinder
   int mMaxTimes = 550; ///< Size of the map in time-direction
 
   KrCluster mTempCluster; ///< Used to save the cluster data
+
+  /// Here the map is defined where all digits are temporarily stored
+  std::vector<std::vector<std::vector<int>>> mMapOfAllDigits;
+
   /// To update the temporary cluster, i.e. all digits are added here
   void updateTempCluster(int temp_Charge, int temp_Pad, int temp_Row, int temp_Time);
   /// After all digits are assigned to the cluster, the mean and sigmas are calculated here
@@ -158,6 +135,8 @@ class KrBoxClusterFinder
 
   /// Returns sign of val (in a crazy way)
   int signnum(int val) { return (0 < val) - (val < 0); }
+
+  ClassDefNV(KrBoxClusterFinder, 0);
 };
 
 } // namespace tpc

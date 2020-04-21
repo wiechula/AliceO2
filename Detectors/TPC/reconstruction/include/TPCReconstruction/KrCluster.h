@@ -22,17 +22,33 @@ namespace tpc
 
 struct KrCluster {
  public:
-  float totCharge = 0;
-  float maxCharge = 0;
-  int size = 0;
-  // means and sigmas are weighted averages/sigmas
-  float meanPad = 0;
-  float meanRow = 0;
-  float meanTime = 0;
-  float sigmaPad = 0;
-  float sigmaRow = 0;
-  float sigmaTime = 0;
-  int sector = 0;
+  float totCharge = 0; ///< Total charge of the cluster (ADC counts)
+  float maxCharge = 0; ///< Maximum charge of the cluster (ADC counts)
+  int size = 0;        ///< Size of the cluster (TPCDigits)
+  float meanPad = 0;   ///< Center of gravity (Pad number)
+  float meanRow = 0;   ///< Center of gravity (Row number)
+  float meanTime = 0;  ///< Center of gravity (Time)
+  float sigmaPad = 0;  ///< RMS of cluster in pad direction
+  float sigmaRow = 0;  ///< RMS of cluster in row direction
+  float sigmaTime = 0; ///< RMS of cluster in time direction
+  int sector = 0;      ///< Sector number
+
+  /// Used to set all Cluster variables to zero.
+  void Reset()
+  {
+    totCharge = 0;
+    maxCharge = 0;
+    size = 0;
+    meanPad = 0;
+    meanRow = 0;
+    meanTime = 0;
+    sigmaPad = 0;
+    sigmaRow = 0;
+    sigmaTime = 0;
+    sector = 0;
+  }
+
+  ClassDefNV(KrCluster, 1);
 };
 
 } // namespace tpc
