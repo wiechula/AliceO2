@@ -98,14 +98,13 @@ class KrBoxClusterFinder
 
   /// After finding the local maxima, we can now build clusters around it.
   /// It works according to the explanation at the beginning of the header file.
-  KrCluster buildCluster(int clusterCenterPad, int iRow, int iTime);
+  KrCluster buildCluster(int clusterCenterPad, int clusterCenterRow, int clusterCenterTime);
 
  private:
   // These variables can be varied
-  int mMaxClusterSizeTime = 2; ///< The "radius" of a cluster in time direction
-  int mMaxClusterSizePad = 2;  ///< radius in pad direction
-
-  int mMaxClusterSizeRow = 2; ///< radius in row direction
+  int mMaxClusterSizeTime = 5; ///< The "radius" of a cluster in time direction
+  int mMaxClusterSizePad = 5;  ///< radius in pad direction
+  int mMaxClusterSizeRow = 4; ///< radius in row direction
 
   // Todo: Differentiate between different ROCS:
   // int mMaxClusterSizeRowIROC = 3;  // radius in row direction
@@ -113,23 +112,23 @@ class KrBoxClusterFinder
   // int mMaxClusterSizeRowOROC2 = 2; // radius in row direction
   // int mMaxClusterSizeRowOROC3 = 1; // radius in row direction
 
-  int mQThresholdMax = 10;        ///< the Maximum charge in a cluster must exceed this value or it is discarded
-  int mQThreshold = 1;            ///< every charge which is added to a cluster must exceed this value or it is discarded
+  float mQThresholdMax = 10.0;    ///< the Maximum charge in a cluster must exceed this value or it is discarded
+  float mQThreshold = 1.0;        ///< every charge which is added to a cluster must exceed this value or it is discarded
   int mMinNumberOfNeighbours = 1; ///< amount of direct neighbours required for a cluster maximum
 
   /// Maximum Map Dimensions
   /// Here is room for improvements
-  int mMaxPads = 160;  ///< Size of the map in pad-direction
-  int mMaxRows = 160;  ///< Size of the map in row-direction
-  int mMaxTimes = 550; ///< Size of the map in time-direction
+  static constexpr size_t MaxPads  = 138;  ///< Size of the map in pad-direction
+  static constexpr size_t MaxRows  = 152;  ///< Size of the map in row-direction
+  static constexpr size_t MaxTimes = 550; ///< Size of the map in time-direction
 
   KrCluster mTempCluster; ///< Used to save the cluster data
 
   /// Here the map is defined where all digits are temporarily stored
-  std::vector<std::vector<std::vector<int>>> mMapOfAllDigits;
+  std::array<std::array<std::array<float, MaxPads>, MaxRows>, MaxTimes> mMapOfAllDigits;
 
   /// To update the temporary cluster, i.e. all digits are added here
-  void updateTempCluster(int temp_Charge, int temp_Pad, int temp_Row, int temp_Time);
+  void updateTempCluster(float tempCharge, int tempPad, int tempRow, int tempTime);
   /// After all digits are assigned to the cluster, the mean and sigmas are calculated here
   void updateTempClusterFinal();
 

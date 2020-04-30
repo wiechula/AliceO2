@@ -34,7 +34,7 @@ struct KrCluster {
   int sector = 0;      ///< Sector number
 
   /// Used to set all Cluster variables to zero.
-  void Reset()
+  void reset()
   {
     totCharge = 0;
     maxCharge = 0;
