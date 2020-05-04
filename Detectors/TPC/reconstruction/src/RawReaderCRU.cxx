@@ -225,10 +225,18 @@ int RawReaderCRU::scanFile()
     //   triggerType == 0x10 in the firt packet
     //
     if (mManager) {
-      if (mManager->mDataType == DataType::TryToDetect) {
+      if (mManager->mDetectDataType) {
         const uint64_t triggerTypeForTriggeredData = 0x10;
         const uint64_t triggerType = rdh.triggerType;
         const uint64_t pageCnt = rdh.pageCnt;
+        const uint64_t linkID = rdh.linkID;
+
+        if (pageCnt == 0) {
+          if (linkID == 15) {
+            mManager->mRawDataType = RAWDataType::LinkZS;
+            mManager->mDetectDataType = false;
+          }
+        }
 
         if (pageCnt == 1) {
           if (triggerType == triggerTypeForTriggeredData) {
@@ -238,6 +246,7 @@ int RawReaderCRU::scanFile()
             mManager->mDataType = DataType::HBScaling;
             O2INFO("Detected HB scaling");
           }
+          mManager->mDetectDataType = false;
         }
       }
     }
