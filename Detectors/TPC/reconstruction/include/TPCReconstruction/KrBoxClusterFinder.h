@@ -102,9 +102,9 @@ class KrBoxClusterFinder
 
  private:
   // These variables can be varied
-  int mMaxClusterSizeTime = 5; ///< The "radius" of a cluster in time direction
-  int mMaxClusterSizePad = 5;  ///< radius in pad direction
-  int mMaxClusterSizeRow = 4; ///< radius in row direction
+  int mMaxClusterSizeTime = 3; ///< The "radius" of a cluster in time direction
+  int mMaxClusterSizePad = 3;  ///< radius in pad direction
+  int mMaxClusterSizeRow = 2;  ///< radius in row direction
 
   // Todo: Differentiate between different ROCS:
   // int mMaxClusterSizeRowIROC = 3;  // radius in row direction
@@ -118,8 +118,8 @@ class KrBoxClusterFinder
 
   /// Maximum Map Dimensions
   /// Here is room for improvements
-  static constexpr size_t MaxPads  = 138;  ///< Size of the map in pad-direction
-  static constexpr size_t MaxRows  = 152;  ///< Size of the map in row-direction
+  static constexpr size_t MaxPads = 138;  ///< Size of the map in pad-direction
+  static constexpr size_t MaxRows = 152;  ///< Size of the map in row-direction
   static constexpr size_t MaxTimes = 550; ///< Size of the map in time-direction
 
   KrCluster mTempCluster; ///< Used to save the cluster data

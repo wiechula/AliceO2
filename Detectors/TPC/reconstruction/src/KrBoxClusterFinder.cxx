@@ -22,9 +22,6 @@ using namespace o2::tpc;
 // filled with the charges
 KrBoxClusterFinder::KrBoxClusterFinder(std::vector<o2::tpc::Digit>& eventSector)
 {
-  std::vector<o2::tpc::Digit>::iterator cl = eventSector.begin();
-  std::vector<int> Rows, Pads, Times;
-
   if (eventSector.size() == 0) {
     // prevents a segementation fault if the envent contains no data
     // segementation fault would occure later when trying to dereference the
@@ -36,15 +33,11 @@ KrBoxClusterFinder::KrBoxClusterFinder(std::vector<o2::tpc::Digit>& eventSector)
     return;
   }
 
-  for (const auto& cli : eventSector) {
-    Times.emplace_back(cli.getTimeStamp());
-    Pads.emplace_back(cli.getPad());
-    Rows.emplace_back(cli.getRow());
-  }
-  // here a "mMapOfAllDigits" large enough to contain all data points of the envents is
-  // initialized and then filled
+  // Reset digits map to zeros
   mMapOfAllDigits = std::array<std::array<std::array<float, MaxPads>, MaxRows>, MaxTimes>{};
-  for (const auto& digit: eventSector) {
+
+  // Fill digits map
+  for (const auto& digit : eventSector) {
     mMapOfAllDigits[digit.getTimeStamp()][digit.getRow()][digit.getPad()] = digit.getChargeFloat();
   }
 }
@@ -69,7 +62,9 @@ void KrBoxClusterFinder::updateTempClusterFinal()
 // Function to update the temporal cluster.
 void KrBoxClusterFinder::updateTempCluster(float tempCharge, int tempPad, int tempRow, int tempTime)
 {
-  if (tempCharge >= mQThreshold) {
+  if (tempCharge < mQThreshold) {
+    LOGP(warning, "Update cluster was called but current charge is below mQThreshold");
+  } else {
     mTempCluster.size += 1;
     mTempCluster.totCharge += tempCharge;
 
@@ -84,8 +79,6 @@ void KrBoxClusterFinder::updateTempCluster(float tempCharge, int tempPad, int te
     if (tempCharge > mTempCluster.maxCharge) {
       mTempCluster.maxCharge = tempCharge;
     }
-  } else {
-    LOGP(warning, "Update cluster was called but current charge is below mQThreshold");
   }
 }
 
@@ -95,12 +88,12 @@ std::vector<std::tuple<int, int, int>> KrBoxClusterFinder::findLocalMaxima()
 {
   std::vector<std::tuple<int, int, int>> localMaximaCoords;
   // loop over whole mMapOfAllDigits the find clusers
-  for (size_t iRow = 0; iRow < MaxRows; iRow++) {
-    for (size_t iPad = 0; iPad < MaxPads; iPad++) {
-      for (size_t iTime = 0; iTime < MaxTimes; iTime++) {
+  for (size_t iTime = 0; iTime < MaxTimes; iTime++) {
+    for (size_t iRow = 0; iRow < MaxRows; iRow++) {
+      for (size_t iPad = 0; iPad < MaxPads; iPad++) {
 
         mTempCluster.reset();
-        const float qMax = mMapOfAllDigits.at(iTime).at(iRow).at(iPad);
+        const float qMax = mMapOfAllDigits[iTime][iRow][iPad];
 
         // cluster Maximum must at least be larger than Threshold
         if (qMax <= mQThresholdMax) {
