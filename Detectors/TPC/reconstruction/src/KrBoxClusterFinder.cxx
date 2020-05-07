@@ -64,21 +64,23 @@ void KrBoxClusterFinder::updateTempCluster(float tempCharge, int tempPad, int te
 {
   if (tempCharge < mQThreshold) {
     LOGP(warning, "Update cluster was called but current charge is below mQThreshold");
-  } else {
-    mTempCluster.size += 1;
-    mTempCluster.totCharge += tempCharge;
+    return;
+  }
 
-    mTempCluster.meanPad += tempPad * tempCharge;
-    mTempCluster.sigmaPad += tempPad * tempPad * tempCharge;
+  mTempCluster.size += 1;
+  mTempCluster.totCharge += tempCharge;
 
-    mTempCluster.meanRow += tempRow * tempCharge;
-    mTempCluster.sigmaRow += tempRow * tempRow * tempCharge;
+  mTempCluster.meanPad += tempPad * tempCharge;
+  mTempCluster.sigmaPad += tempPad * tempPad * tempCharge;
 
-    mTempCluster.meanTime += tempTime * tempCharge;
-    mTempCluster.sigmaTime += tempTime * tempTime * tempCharge;
-    if (tempCharge > mTempCluster.maxCharge) {
-      mTempCluster.maxCharge = tempCharge;
-    }
+  mTempCluster.meanRow += tempRow * tempCharge;
+  mTempCluster.sigmaRow += tempRow * tempRow * tempCharge;
+
+  mTempCluster.meanTime += tempTime * tempCharge;
+  mTempCluster.sigmaTime += tempTime * tempTime * tempCharge;
+
+  if (tempCharge > mTempCluster.maxCharge) {
+    mTempCluster.maxCharge = tempCharge;
   }
 }
 
