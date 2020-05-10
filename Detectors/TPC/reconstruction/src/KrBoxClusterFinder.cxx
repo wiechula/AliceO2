@@ -27,7 +27,7 @@ KrBoxClusterFinder::KrBoxClusterFinder(std::vector<o2::tpc::Digit>& eventSector)
     // segementation fault would occure later when trying to dereference the
     // max/min pointer (which are nullptr if data is empty) empty events should
     // be catched in the main function, hence, this "if" is no longer necessary
-    LOGP(warning, "Sector size amount of data points) in current run is 0!");
+    LOGP(warning, "Sector size (amount of data points) in current run is 0!");
     LOGP(warning, "mMapOfAllDigits with 0's is generated in order to prevent a segementation fault.");
 
     return;

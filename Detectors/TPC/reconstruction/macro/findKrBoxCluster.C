@@ -29,15 +29,14 @@
 
 void findKrBoxCluster()
 {
-
   // Read the digits:
   TFile* file = new TFile("tpcdigits.root");
   TTree* tree = (TTree*)file->Get("o2sim");
   Long64_t nEntries = tree->GetEntries();
-  std::cout << "The Tree has " + nEntries + " Entries." << std::endl;
+  std::cout << "The Tree has " << nEntries << " Entries." << std::endl;
 
   // Initialize File for later writing
-  TFile* f = new TFile("boxClusters554.root", "RECREATE", "Clusters");
+  TFile* f = new TFile("boxClustersDefault.root", "RECREATE", "Clusters");
   // Initialize Tree which will later be put into the root file
   // Maybe it is better to save each sector in a seperate tree
   TTree* T = new TTree("T", "Clusters");
