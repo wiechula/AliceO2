@@ -86,21 +86,24 @@ void findKrBoxCluster()
     // Each event consists of sectors (atm only two)
     for (auto sector : DigitizedSignal) {
       if (sector->size() != 0) {
-        // Initialize boxCluster Object
-        o2::tpc::KrBoxClusterFinder cluster(*sector);
-        // Find Cluster centers
-        std::vector<std::tuple<int, int, int>> localMaxima = cluster.findLocalMaxima();
+        // Create ClusterFinder Object on Heap since creation on stack fails
+        // Probably due to too much memory consumption
+        o2::tpc::KrBoxClusterFinder* cluster = new o2::tpc::KrBoxClusterFinder(*sector);
+        std::vector<std::tuple<int, int, int>> localMaxima = cluster->findLocalMaxima();
         // Loop over cluster centers
         for (const std::tuple<int, int, int>& coords : localMaxima) {
           int padMax = std::get<0>(coords);
           int rowMax = std::get<1>(coords);
           int timeMax = std::get<2>(coords);
           // Build total cluster
-          vCluster.push_back(cluster.buildCluster(padMax, rowMax, timeMax));
+          vCluster.push_back(cluster->buildCluster(padMax, rowMax, timeMax));
         }
         // Fill Tree
         T->Fill();
         vCluster.clear();
+
+        delete cluster;
+        cluster = nullptr;
       }
     }
   }

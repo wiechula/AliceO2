@@ -33,9 +33,6 @@ KrBoxClusterFinder::KrBoxClusterFinder(std::vector<o2::tpc::Digit>& eventSector)
     return;
   }
 
-  // Reset digits map to zeros
-  mMapOfAllDigits = std::array<std::array<std::array<float, MaxPads>, MaxRows>, MaxTimes>{};
-
   // Fill digits map
   for (const auto& digit : eventSector) {
     mMapOfAllDigits[digit.getTimeStamp()][digit.getRow()][digit.getPad()] = digit.getChargeFloat();
@@ -90,9 +87,9 @@ std::vector<std::tuple<int, int, int>> KrBoxClusterFinder::findLocalMaxima()
 {
   std::vector<std::tuple<int, int, int>> localMaximaCoords;
   // loop over whole mMapOfAllDigits the find clusers
-  for (size_t iTime = 0; iTime < MaxTimes; iTime++) {
-    for (size_t iRow = 0; iRow < MaxRows; iRow++) {
-      for (size_t iPad = 0; iPad < MaxPads; iPad++) {
+  for (int iTime = 0; iTime < MaxTimes; iTime++) {
+    for (int iRow = 0; iRow < MaxRows; iRow++) {
+      for (int iPad = 0; iPad < MaxPads; iPad++) {
 
         mTempCluster.reset();
         const float qMax = mMapOfAllDigits[iTime][iRow][iPad];

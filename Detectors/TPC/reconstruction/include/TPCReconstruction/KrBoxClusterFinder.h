@@ -125,7 +125,7 @@ class KrBoxClusterFinder
   KrCluster mTempCluster; ///< Used to save the cluster data
 
   /// Here the map is defined where all digits are temporarily stored
-  std::array<std::array<std::array<float, MaxPads>, MaxRows>, MaxTimes> mMapOfAllDigits;
+  std::array<std::array<std::array<float, MaxPads>, MaxRows>, MaxTimes> mMapOfAllDigits{};
 
   /// To update the temporary cluster, i.e. all digits are added here
   void updateTempCluster(float tempCharge, int tempPad, int tempRow, int tempTime);
