@@ -27,7 +27,7 @@
 #include <vector>
 #endif
 
-void findKrBoxCluster_dev()
+void findKrBoxCluster()
 {
   // Read the digits:
   TFile* file = new TFile("tpcdigits.root");
