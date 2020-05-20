@@ -27,7 +27,7 @@
 #include <vector>
 #endif
 
-void findKrBoxCluster()
+void findKrBoxCluster_dev()
 {
   // Read the digits:
   TFile* file = new TFile("tpcdigits.root");
@@ -36,47 +36,20 @@ void findKrBoxCluster()
   std::cout << "The Tree has " << nEntries << " Entries." << std::endl;
 
   // Initialize File for later writing
-  TFile* f = new TFile("boxClustersDefault.root", "RECREATE", "Clusters");
-  // Initialize Tree which will later be put into the root file
-  // Maybe it is better to save each sector in a seperate tree
+  TFile* f = new TFile("boxClustersSectors.root", "RECREATE", "Clusters");
   TTree* T = new TTree("T", "Clusters");
-  // Tree will be filled with a vector of clusters
-  std::vector<o2::tpc::KrCluster> vCluster{};
-  T->Branch("cluster", &vCluster);
 
-  // Probably an unnecessary complicated way of reading the evaluates
-  // Since the X-Ray runs were performed during pre-commissioning, we could
-  // only readout two sectors at once. In addition, the sectors changed for
-  // different runs. Hence, this way:
-  std::array<std::vector<o2::tpc::Digit>*, 2> DigitizedSignal; // this arry will hold the data of the tpc digits for 2 sectors
-  std::array<std::vector<o2::tpc::Digit>*, 2> DigitizedSignal1;
-
-  DigitizedSignal1[0] = nullptr;
-  DigitizedSignal1[1] = nullptr;
-  DigitizedSignal[0] = nullptr;
-  DigitizedSignal[1] = nullptr;
-
-  // this loop should find out which digits are non empty:
-  string digit1 = "TPCDigit_1";
-  string digit2 = "TPCDigit_1";
-  for (int i = 0; i <= 35; i++) {
-    string number = std::to_string(i);
-    number = "TPCDigit_" + number;
-    tree->SetBranchAddress(number.c_str(), &DigitizedSignal1[0]);
-    tree->GetEntry(0);
-    if (DigitizedSignal1[0]->size() != 0) {
-      if (digit1 == "TPCDigit_1") {
-        digit1 = number;
-      } else {
-        digit2 = number;
-        break;
-      }
-    }
+  // Create a Branch for each sector:
+  std::array<std::vector<o2::tpc::KrCluster>, 36> ClusterArray{};
+  for (int iSec = 0; iSec < ClusterArray.size(); ++iSec) {
+    T->Branch(Form("KrClusterSector_%d", iSec), &ClusterArray[iSec]);
   }
-  tree->SetBranchAddress(digit1.c_str(), &DigitizedSignal[0]);
-  tree->SetBranchAddress(digit2.c_str(), &DigitizedSignal[1]);
-  std::cout << digit1.c_str() << std::endl;
-  std::cout << digit2.c_str() << std::endl;
+
+  std::array<std::vector<o2::tpc::Digit>*, 36> DigitizedSignal;
+  for (int iSec = 0; iSec < DigitizedSignal.size(); ++iSec) {
+    DigitizedSignal[iSec] = nullptr;
+    tree->SetBranchAddress(Form("TPCDigit_%d", iSec), &DigitizedSignal[iSec]);
+  }
 
   // Now everything can get processed
   // Loop over all events
@@ -84,7 +57,8 @@ void findKrBoxCluster()
     std::cout << iEvent + 1 << "/" << nEntries << std::endl;
     tree->GetEntry(iEvent);
     // Each event consists of sectors (atm only two)
-    for (auto sector : DigitizedSignal) {
+    for (int i = 0; i < 36; i++) {
+      auto sector = DigitizedSignal[i];
       if (sector->size() != 0) {
         // Create ClusterFinder Object on Heap since creation on stack fails
         // Probably due to too much memory consumption
@@ -96,15 +70,16 @@ void findKrBoxCluster()
           int rowMax = std::get<1>(coords);
           int timeMax = std::get<2>(coords);
           // Build total cluster
-          vCluster.push_back(cluster->buildCluster(padMax, rowMax, timeMax));
+          o2::tpc::KrCluster tempCluster = cluster->buildCluster(padMax, rowMax, timeMax);
+          ClusterArray[i].push_back(tempCluster);
         }
-        // Fill Tree
-        T->Fill();
-        vCluster.clear();
-
+        // Clean up memory:
         delete cluster;
         cluster = nullptr;
       }
+      // Fill Tree
+      T->Fill();
+      ClusterArray = std::array<std::vector<o2::tpc::KrCluster>, 36>{};
     }
   }
   // Write Tree to file

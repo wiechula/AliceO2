@@ -1,12 +1,12 @@
-# Copyright CERN and copyright holders of ALICE O2. This software is distributed
-# under the terms of the GNU General Public License v3 (GPL Version 3), copied
-# verbatim in the file "COPYING".
+#Copyright CERN and copyright holders of ALICE O2.This software is distributed
+#under the terms of the GNU General Public License v3(GPL Version 3), copied
+#verbatim in the file "COPYING".
 #
-# See http://alice-o2.web.cern.ch/license for full licensing information.
+#See http: //alice-o2.web.cern.ch/license for full licensing information.
 #
-# In applying this license CERN does not waive the privileges and immunities
-# granted to it by virtue of its status as an Intergovernmental Organization or
-# submit itself to any jurisdiction.
+#In applying this license CERN does not waive the privileges and immunities
+#granted to it by virtue of its status as an Intergovernmental Organization or
+#submit itself to any jurisdiction.
 
 o2_add_library(TPCReconstruction
                SOURCES src/AdcClockMonitor.cxx
@@ -90,9 +90,9 @@ o2_add_test(HwClusterer
             SOURCES test/testTPCHwClusterer.cxx
             ENVIRONMENT O2_ROOT=${CMAKE_BINARY_DIR}/stage)
 
-# The FastTransform  test seems really slow in Debug mode, so use it only in
-# release mode (use CONFIGURATIONS keyword)
-# update: currently it is fast, switch the test on also for debug
+#The FastTransform test seems really slow in Debug mode, so use it only in
+#release mode(use CONFIGURATIONS keyword)
+#update : currently it is fast, switch the test on also for debug
 o2_add_test(FastTransform
             COMPONENT_NAME tpc
             LABELS tpc
@@ -100,10 +100,10 @@ o2_add_test(FastTransform
             SOURCES test/testTPCFastTransform.cxx
             ENVIRONMENT O2_ROOT=${CMAKE_BINARY_DIR}/stage) # CONFIGURATIONS RelWithDebInfo)
 
-# FIXME: should be moved to TPCCalibration as it requires O2::TPCCalibration
-# which is built after TPCReconstruction
-# o2_add_test_root_macro(macro/RawClusterFinder.C PUBLIC_LINK_LIBRARIES
-# O2::DataFormatsTPC O2::TPCBase O2::TPCCalibration O2::TPCReconstruction)
+#FIXME : should be moved to TPCCalibration as it requires O2::TPCCalibration
+#which is built after TPCReconstruction
+#o2_add_test_root_macro(macro / RawClusterFinder.C PUBLIC_LINK_LIBRARIES
+#O2::DataFormatsTPC O2::TPCBase O2::TPCCalibration O2::TPCReconstruction)
 
 o2_add_test_root_macro(macro/readClusters.C
                        PUBLIC_LINK_LIBRARIES O2::DataFormatsTPC
@@ -122,8 +122,11 @@ o2_add_test_root_macro(macro/createTPCSpaceChargeCorrection.C
                                              O2::TPCSpaceChargeBase
                        LABELS tpc)
 
+o2_add_test_root_macro(macro/findKrBoxCluster.C
+                      PUBLIC_LINK_LIBRARIES O2::TPCReconstruction
+                      LABELS tpc)
 
-# FIXME: should be moved to TPCSimulation as it requires O2::TPCSimulation
-# target which is built after reconstruction
-# o2_add_test_root_macro(macro/testTracks.C PUBLIC_LINK_LIBRARIES
-# ReconstructionDataFormats O2::TPCBase O2::DataFormatsTPC O2::TPCSimulation)
+#FIXME : should be moved to TPCSimulation as it requires O2::TPCSimulation
+#target which is built after reconstruction
+#o2_add_test_root_macro(macro / testTracks.C PUBLIC_LINK_LIBRARIES
+#ReconstructionDataFormats O2::TPCBase O2::DataFormatsTPC O2::TPCSimulation)
