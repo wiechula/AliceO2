@@ -132,6 +132,8 @@ void Detector::SetSpecialPhysicsCuts()
                              {ECut::kDCUTM, cutDefault},
                              {ECut::kPPCUTM, cutDefault},
                              {ECut::kTOFMAX, cutTofmax}});
+
+    SpecialProcesses(kDriftGas2, {{EProc::kLOSS, klossModel}});
   }
 }
 
