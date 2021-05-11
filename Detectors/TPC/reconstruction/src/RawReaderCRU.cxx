@@ -252,8 +252,8 @@ int RawReaderCRU::scanFile()
       file.seekg(offset, file.cur);
       ++currentPacket;
       currentPos = file.tellg();
-      continue;                                                               
-    }                                                                         
+      continue;
+    }
 
     // ===| try to detect data type if not already set |========================
     //
