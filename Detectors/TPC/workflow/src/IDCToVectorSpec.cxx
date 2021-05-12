@@ -257,7 +257,7 @@ class IDCToVectorDevice : public o2::framework::Task
       auto& infosCRU = mIDCInfos[cruID];
       infosCRU.clear();
       //for (auto& info : infosCRU) {
-        //info = IDCInfo{};
+      //info = IDCInfo{};
       //}
     }
   }
