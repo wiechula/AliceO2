@@ -10,107 +10,137 @@
 // or submit itself to any jurisdiction.
 
 /// \file CalibdEdx.h
-/// \brief This file provides the time dependent dE/dx calibrator, based on the MIP position.
+/// \brief This file provides the container used for time based dE/dx calibration.
 /// \author Thiago Badaró <thiago.saramela@usp.br>
 
 #ifndef ALICEO2_TPC_CALIBDEDX_H_
 #define ALICEO2_TPC_CALIBDEDX_H_
 
 #include <array>
-#include <cstdint>
+#include <bitset>
+#include <cstddef>
+#include <gsl/span>
 #include <string_view>
 
 // o2 includes
-#include "DataFormatsTPC/TrackTPC.h"
+#include "TPCCalibration/CalibdEdxDataContainer.h"
 #include "DataFormatsTPC/TrackCuts.h"
-#include "CCDB/CcdbObjectInfo.h"
-#include "DetectorsCalibration/TimeSlotCalibration.h"
-#include "DetectorsCalibration/TimeSlot.h"
-#include "TPCCalibration/dEdxHistos.h"
-#include "TPCCalibration/FastHisto.h"
-#include "CommonUtils/TreeStreamRedirector.h"
+
+// boost includes
+#include <boost/histogram.hpp>
+
+// root includes
+#include "TH2F.h"
 
 namespace o2::tpc
 {
 
-/// Container used to store the dE/dx calibration output
-struct CalibMIP {
-  double ASide;
-  double CSide;
-};
+// forward declaration
+class TrackTPC;
 
-/// dE/dx calibrator class
-class CalibdEdx final : public o2::calibration::TimeSlotCalibration<o2::tpc::TrackTPC, o2::tpc::dEdxHistos>
+/// Class that creates dE/dx histograms from a sequence of tracks objects
+class CalibdEdx
 {
-  using TFType = o2::calibration::TFType;
-  using Slot = o2::calibration::TimeSlot<dEdxHistos>;
-  using CcdbObjectInfoVector = std::vector<o2::ccdb::CcdbObjectInfo>;
-  using MIPVector = std::vector<CalibMIP>;
-
  public:
-  /// Contructor that enables track cuts
-  CalibdEdx(int nBins = 200, int minEntries = 100, float minP = 0.4, float maxP = 0.6, int minClusters = 60)
-    : mNBins{nBins}, mMinEntries{minEntries}, mCuts{minP, maxP, static_cast<float>(minClusters)}
-  {
-  }
+  enum HistAxis {
+    Sector = 1,
+    Side = 2,
+    Stack = 3,
+    Charge = 4,
+    Size = 5 ///< Number of axes
+  };
 
-  /// Destructor
-  ~CalibdEdx() final = default;
+  // Interger histogram axis identifying the GEM stacks, without under and overflow bins.
+  using HistIntAxis = boost::histogram::axis::integer<int, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
 
-  /// \return if there are enough data to compute the calibration
-  bool hasEnoughData(const Slot& slot) const final
-  {
-    return slot.getContainer()->getASideEntries() >= mMinEntries && slot.getContainer()->getCSideEntries() >= mMinEntries;
-  }
+  // Define histogram axes types
+  using HistAxesType = std::tuple<
+    boost::histogram::axis::regular<>, // dEdx
+    HistIntAxis,                       // sector
+    HistIntAxis,                       // side
+    HistIntAxis,                       // type
+    HistIntAxis                        // Charge
+    >;
 
-  /// Empty the output vectors
-  void initOutput() final;
+  using Hist = boost::histogram::histogram<HistAxesType>;
+  using CalibContainer = CalibdEdxDataContainer<float>;
 
-  /// Process time slot data and compute its calibration
-  void finalizeSlot(Slot& slot) final;
+  /// Default constructor
+  CalibdEdx() = default;
 
-  /// Creates new time slot
-  Slot& emplaceNewSlot(bool front, TFType tstart, TFType tend) final;
+  /// Constructor that enable tracks cuts.
+  CalibdEdx(int nBins, float mindEdx, float maxdEdx, const TrackCuts& cuts);
+
+  /// Constructor that enable tracks cuts, and creates a TrackCuts internally.
+  CalibdEdx(int nBins, float mindEdx = 5, float maxdEdx = 70, float minP = 0.4, float maxP = 0.6, int minClusters = 60)
+    : CalibdEdx(nBins, mindEdx, maxdEdx, {minP, maxP, static_cast<float>(minClusters)}) {}
+
+  /// Fill histograms using tracks data.
+  void fill(const gsl::span<const TrackTPC>);
+  void fill(const std::vector<TrackTPC>&);
+  void fill(const TrackTPC&);
+
+  /// Add counts from other container.
+  void merge(const CalibdEdx* other);
+
+  /// Compute MIP position from dEdx histograms, and save result in the calib container.
+  void finalize();
+
+  void setAxis(HistAxis axis, bool keep) { mAxisFlags.set(axis, keep); }
+  bool getAxis(HistAxis axis) const { return mAxisFlags[axis]; }
+
+  // Return the projected histogram, the unkept axis are summed over.
+  auto getHist() const;
+
+  // Return the projected histogram as a TH2F, the unkept axis are summed over.
+  TH2F getRootHist() const;
+
+  // Return the full, unprojected, histogram.
+  const Hist& getFullHist() const { return mHist; }
+  const CalibContainer& getCalib() const { return mCalib; }
+
+  /// \brief Check if there are enough data to compute the calibration.
+  /// \param minEntries in each histogram
+  /// \return false if any of the histograms has less entries than minEntries
+  bool hasEnoughData(float minEntries) const;
 
   void setApplyCuts(bool apply) { mApplyCuts = apply; }
-  bool getApplyCuts() { return mApplyCuts; }
+  bool getApplyCuts() const { return mApplyCuts; }
   void setCuts(const TrackCuts& cuts) { mCuts = cuts; }
 
-  /// \return the computed calibrations
-  const MIPVector& getMIPVector() const { return mMIPVector; }
+  /// Find the sector of a track at a given GEM stack type.
+  static int findTrackSector(const TrackTPC& track, GEMstack, bool& ok);
 
-  /// \return CCDB output informations
-  const CcdbObjectInfoVector& getInfoVector() const { return mInfoVector; }
+  /// Print the number of entries in each histogram.
+  void print() const;
 
-  /// Non const version
-  /// \return CCDB output informations
-  CcdbObjectInfoVector& getInfoVector() { return mInfoVector; }
-
-  /// Enable debug output to file of the time slots calibrations outputs and dE/dx histograms
-  void enableDebugOutput(std::string_view fileName);
-
-  /// Disable debug output to file. Also writes and closes stored time slots.
-  void disableDebugOutput();
-
-  /// \return if debug output is enabled
-  bool hasDebugOutput() const { return static_cast<bool>(mDebugOutputStreamer); }
-
-  /// Write debug output to file
-  void finalizeDebugOutput() const;
+  /// Save the histograms to a file.
+  void dumpToFile(std::string_view fileName) const;
 
  private:
-  int mNBins{};          ///< Number of bins in each time slot histogram
-  int mMinEntries{};     ///< Minimum amount of tracks in each time slot, to get enough statics
-  bool mApplyCuts{true}; ///< Flag to enable tracks cuts
-  TrackCuts mCuts;       ///< Cut object
+  std::bitset<HistAxis::Size> mAxisFlags{-1u}; ///< keep track of which histograms axis to keep. Default: keep all.
 
-  CcdbObjectInfoVector mInfoVector; ///< vector of CCDB Infos, each element is filled with the CCDB description of the accompanying MIP positions
-  MIPVector mMIPVector;             ///< vector of MIP positions, each element is filled in "process" when we finalize one slot (multiple can be finalized during the same "process", which is why we have a vector. Each element is to be considered the output of the device, and will go to the CCDB
+  bool mApplyCuts{true}; ///< Whether or not to apply tracks cuts
+  int mNBins;            ///< Number of dEdx bins
+  TrackCuts mCuts;       ///< Cut class
 
-  std::unique_ptr<o2::utils::TreeStreamRedirector> mDebugOutputStreamer; ///< Debug output streamer
+  Hist mHist;            ///< TotdEdx multidimensional histogram
+  CalibContainer mCalib; ///< Calibration output container
 
-  ClassDefOverride(CalibdEdx, 1);
+  ClassDefNV(CalibdEdx, 1);
 };
 
+inline auto CalibdEdx::getHist() const
+{
+  std::vector<int> keepAxis;
+  for (int i = 0; i < mAxisFlags.size(); ++i) {
+    if (mAxisFlags[i]) {
+      keepAxis.push_back(i);
+    }
+  }
+  return boost::histogram::algorithm::project(mHist, keepAxis);
+}
+
 } // namespace o2::tpc
+
 #endif
