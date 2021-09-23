@@ -66,11 +66,11 @@ enum class PadSubset : char {
 };
 
 // TPC dE/dx charge types
-enum dEdxCharge {
-  Tot = 0,
-  Max = 1
+enum ChargeType {
+  Max = 0,
+  Tot = 1
 };
-constexpr unsigned short DEDXCHARGETYPES = 2;
+constexpr unsigned short CHARGETYPES = 2;
 
 /// Statistics type
 enum class StatisticsType {

@@ -31,7 +31,7 @@ class CalibdEdxDataContainer
 {
  public:
   static const size_t stacksCount = SECTORSPERSIDE * SIDES * GEMSTACKSPERSECTOR;
-  static const size_t size = stacksCount * DEDXCHARGETYPES; // both Tot and Max charge data in a single array
+  static const size_t size = stacksCount * CHARGETYPES; // both Tot and Max charge data in a single array
   using Container = std::array<Entry, size>;
 
   /// Fill the undelying arrays with the passed value
@@ -39,10 +39,10 @@ class CalibdEdxDataContainer
 
   /// \brief Find the index of a stack.
   /// \param sector from 0 to 17
-  static size_t stackIndex(size_t sector, Side, GEMstack, dEdxCharge);
+  static size_t stackIndex(size_t sector, Side, GEMstack, ChargeType);
 
   /// \brief data from a specific stack.
-  Entry& at(size_t sector, Side side, GEMstack type, dEdxCharge charge)
+  Entry& at(size_t sector, Side side, GEMstack type, ChargeType charge)
   {
     const size_t index = stackIndex(sector, side, type, charge);
     return mEntries[index];
@@ -63,7 +63,7 @@ void CalibdEdxDataContainer<Entry>::init(const Entry& entry)
 }
 
 template <typename Entry>
-size_t CalibdEdxDataContainer<Entry>::stackIndex(size_t sector, const Side side, const GEMstack type, const dEdxCharge charge)
+size_t CalibdEdxDataContainer<Entry>::stackIndex(size_t sector, const Side side, const GEMstack type, const ChargeType charge)
 {
   // Limit sector value
   if (sector >= SECTORSPERSIDE) {
