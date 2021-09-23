@@ -43,23 +43,31 @@ class CalibdEdx
 {
  public:
   enum HistAxis {
+    dEdx = 0,
     Sector = 1,
     Side = 2,
     Stack = 3,
     Charge = 4,
-    Size = 5 ///< Number of axes
+    Tgl = 5,
+    Snp = 6,
+    Size = 7 ///< Number of axes
   };
 
   // Interger histogram axis identifying the GEM stacks, without under and overflow bins.
   using HistIntAxis = boost::histogram::axis::integer<int, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
+  // Float axis to store data, without under and overflow bins.
+  using HistFloatAxis = boost::histogram::axis::regular<float, boost::histogram::use_default, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
+  //  using HistFloatAxis = boost::histogram::axis::regular<>;
 
   // Define histogram axes types
   using HistAxesType = std::tuple<
-    boost::histogram::axis::regular<>, // dEdx
-    HistIntAxis,                       // sector
-    HistIntAxis,                       // side
-    HistIntAxis,                       // type
-    HistIntAxis                        // Charge
+    HistFloatAxis, // dEdx
+    HistIntAxis,   // sector
+    HistIntAxis,   // side
+    HistIntAxis,   // stack type
+    HistIntAxis,   // Charge
+    HistFloatAxis, // Tgl
+    HistFloatAxis  // Snp
     >;
 
   using Hist = boost::histogram::histogram<HistAxesType>;
@@ -86,17 +94,19 @@ class CalibdEdx
   /// Compute MIP position from dEdx histograms, and save result in the calib container.
   void finalize();
 
-  void setAxis(HistAxis axis, bool keep) { mAxisFlags.set(axis, keep); }
-  bool getAxis(HistAxis axis) const { return mAxisFlags[axis]; }
+  /// Return the full, unprojected, histogram.
+  const Hist& getHist() const { return mHist; }
+  /// Return the projected histogram, the projected axes are summed over.
+  auto getHist(const std::vector<int>& projected_axis) const
+  {
+    return boost::histogram::algorithm::project(mHist, projected_axis);
+  }
 
-  // Return the projected histogram, the unkept axis are summed over.
-  auto getHist() const;
-
-  // Return the projected histogram as a TH2F, the unkept axis are summed over.
+  /// Return the projected histogram as a TH2F, the unkept axis are summed over.
+  TH2F getRootHist(const std::vector<int>& projected_axis) const;
+  /// Keep all axes
   TH2F getRootHist() const;
 
-  // Return the full, unprojected, histogram.
-  const Hist& getFullHist() const { return mHist; }
   const CalibContainer& getCalib() const { return mCalib; }
 
   /// \brief Check if there are enough data to compute the calibration.
@@ -118,8 +128,6 @@ class CalibdEdx
   void dumpToFile(std::string_view fileName) const;
 
  private:
-  std::bitset<HistAxis::Size> mAxisFlags{-1u}; ///< keep track of which histograms axis to keep. Default: keep all.
-
   bool mApplyCuts{true}; ///< Whether or not to apply tracks cuts
   int mNBins;            ///< Number of dEdx bins
   TrackCuts mCuts;       ///< Cut class
@@ -129,17 +137,6 @@ class CalibdEdx
 
   ClassDefNV(CalibdEdx, 1);
 };
-
-inline auto CalibdEdx::getHist() const
-{
-  std::vector<int> keepAxis;
-  for (int i = 0; i < mAxisFlags.size(); ++i) {
-    if (mAxisFlags[i]) {
-      keepAxis.push_back(i);
-    }
-  }
-  return boost::histogram::algorithm::project(mHist, keepAxis);
-}
 
 } // namespace o2::tpc
 
