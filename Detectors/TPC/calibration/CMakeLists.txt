@@ -65,7 +65,6 @@ o2_target_root_dictionary(TPCCalibration
                                   include/TPCCalibration/IDCFourierTransformBase.h
                                   include/TPCCalibration/IDCFourierTransform.h
                                   include/TPCCalibration/IDCCCDBHelper.h
-                                  include/TPCCalibration/CalibdEdxDataContainer.h
                                   include/TPCCalibration/CalibdEdx.h
                                   include/TPCCalibration/CalibratordEdx.h)
 
