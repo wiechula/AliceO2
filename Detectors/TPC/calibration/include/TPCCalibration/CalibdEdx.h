@@ -16,15 +16,14 @@
 #ifndef ALICEO2_TPC_CALIBDEDX_H_
 #define ALICEO2_TPC_CALIBDEDX_H_
 
-#include <array>
-#include <bitset>
 #include <cstddef>
 #include <gsl/span>
 #include <string_view>
+#include <tuple>
 
 // o2 includes
-#include "TPCCalibration/CalibdEdxDataContainer.h"
 #include "DataFormatsTPC/TrackCuts.h"
+#include "DataFormatsTPC/Defs.h"
 
 // boost includes
 #include <boost/histogram.hpp>
@@ -38,6 +37,17 @@ namespace o2::tpc
 // forward declaration
 class TrackTPC;
 
+struct CalibdEdxData {
+  float mean{};
+  float stdm{};
+  int sector{};
+  Side side{};
+  GEMstack stack{};
+  float tgl{};
+  float snp{};
+  ChargeType charge{};
+};
+
 /// Class that creates dE/dx histograms from a sequence of tracks objects
 class CalibdEdx
 {
@@ -47,9 +57,9 @@ class CalibdEdx
     Sector = 1,
     Side = 2,
     Stack = 3,
-    Charge = 4,
-    Tgl = 5,
-    Snp = 6,
+    Tgl = 4,
+    Snp = 5,
+    Charge = 6,
     Size = 7 ///< Number of axes
   };
 
@@ -65,13 +75,13 @@ class CalibdEdx
     HistIntAxis,   // sector
     HistIntAxis,   // side
     HistIntAxis,   // stack type
-    HistIntAxis,   // Charge
     HistFloatAxis, // Tgl
-    HistFloatAxis  // Snp
+    HistFloatAxis, // Snp
+    HistIntAxis    // Charge
     >;
 
   using Hist = boost::histogram::histogram<HistAxesType>;
-  using CalibContainer = CalibdEdxDataContainer<float>;
+  using CalibContainer = std::vector<CalibdEdxData>;
 
   /// Default constructor
   CalibdEdx() = default;
@@ -127,13 +137,15 @@ class CalibdEdx
   /// Save the histograms to a file.
   void dumpToFile(std::string_view fileName) const;
 
+  void writeTTree(std::string_view fileName) const;
+
  private:
   bool mApplyCuts{true}; ///< Whether or not to apply tracks cuts
   int mNBins;            ///< Number of dEdx bins
   TrackCuts mCuts;       ///< Cut class
 
-  Hist mHist;            ///< TotdEdx multidimensional histogram
-  CalibContainer mCalib; ///< Calibration output container
+  Hist mHist;              ///< TotdEdx multidimensional histogram
+  CalibContainer mCalib{}; ///< Calibration output container
 
   ClassDefNV(CalibdEdx, 1);
 };

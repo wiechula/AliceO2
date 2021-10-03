@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstddef>
 #include <gsl/span>
+#include <limits>
 #include <numeric>
 #include <string_view>
 #include <utility>
@@ -31,6 +32,7 @@
 // root includes
 #include "TFile.h"
 #include "TH2F.h"
+#include "TTree.h"
 
 // boost includes
 #include <boost/histogram.hpp>
@@ -46,9 +48,9 @@ CalibdEdx::CalibdEdx(int nBins, float mindEdx, float maxdEdx, const TrackCuts& c
     HistIntAxis(0, SECTORSPERSIDE, "sector"),
     HistIntAxis(0, SIDES, "side"),
     HistIntAxis(0, GEMSTACKSPERSECTOR, "stack type"),
-    HistIntAxis(0, CHARGETYPES, "charge"),
     HistFloatAxis(18, -1, 1, "Tgl"),
-    HistFloatAxis(18, -1, 1, "Snp"));
+    HistFloatAxis(18, -1, 1, "Snp"),
+    HistIntAxis(0, CHARGETYPES, "charge"));
 }
 
 void CalibdEdx::fill(const TrackTPC& track)
@@ -85,8 +87,8 @@ void CalibdEdx::fill(const TrackTPC& track)
     o2::math_utils::bringTo02PiGen(phi);
     const auto sector = static_cast<int>(phi / SECPHIWIDTH);
 
-    mHist(dEdxMax[stack], sector, side, stack, ChargeType::Max, tgl, snp);
-    mHist(dEdxTot[stack], sector, side, stack, ChargeType::Tot, tgl, snp);
+    mHist(dEdxMax[stack], sector, side, stack, tgl, snp, ChargeType::Max);
+    mHist(dEdxTot[stack], sector, side, stack, tgl, snp, ChargeType::Tot);
   }
 }
 
@@ -109,21 +111,17 @@ void CalibdEdx::merge(const CalibdEdx* other)
 
 void CalibdEdx::finalize()
 {
+  mCalib.clear();
   std::vector<float> stackData(mNBins);
 
   const auto mindEdx = static_cast<float>(mHist.axis(0).begin()->lower());
   const auto maxdEdx = static_cast<float>(mHist.axis(0).end()->lower());
 
   // TODO: for now we ignore Tgl and Snp in this fit
-  auto projHist = bh::algorithm::project(mHist, std::vector<int>{0, 1, 2, 3, 4});
+  auto projHist = bh::algorithm::project(mHist, std::vector<int>{0, 1, 2, 3, 6});
   auto indexed = bh::indexed(projHist);
   auto entry = indexed.begin();
   while (entry != indexed.end()) {
-    const int sector = entry->bin(HistAxis::Sector).lower();
-    const auto side = static_cast<enum Side>(entry->bin(HistAxis::Side).lower());
-    const auto type = static_cast<GEMstack>(entry->bin(HistAxis::Stack).lower());
-    const auto charge = static_cast<ChargeType>(entry->bin(HistAxis::Charge).lower());
-
     // to use a fit function we fist copy the data to a vector of float
     // TODO: can we avoid this copy?
     for (auto& x : stackData) {
@@ -131,19 +129,29 @@ void CalibdEdx::finalize()
       ++entry;
     }
 
-    // TODO: the gauss fit wasn't good. Noise from low count bins?
-    // std::vector<float> fitValues(4);
-    // o2::math_utils::fitGaus(stackData.size(), stackData.data(), mindEdx, maxdEdx, fitValues);
-    // mCalib.at(sector, side, type, charge) = fitValues[1];
-
     const auto stats = o2::math_utils::getStatisticsData(stackData.data(), stackData.size(), mindEdx, maxdEdx);
-    mCalib.at(sector, side, type, charge) = stats.mCOG;
+    constexpr auto empty_float = std::numeric_limits<float>::max();
+    constexpr auto empty_int = std::numeric_limits<int>::max();
+
+    CalibdEdxData calib{};
+    calib.mean = stats.mCOG;
+    calib.stdm = stats.mStdDev / sqrt(stats.mSum);
+    calib.sector = entry->bin(HistAxis::Sector).lower();
+    calib.side = static_cast<enum Side>(entry->bin(HistAxis::Side).lower());
+    calib.stack = static_cast<GEMstack>(entry->bin(HistAxis::Stack).lower());
+    calib.charge = static_cast<ChargeType>(entry->bin(HistAxis::Charge).lower());
+    calib.tgl = empty_float;
+    calib.snp = empty_float;
+
+    mCalib.push_back(calib);
   }
 }
 
 bool CalibdEdx::hasEnoughData(float minEntries) const
 {
   using namespace bh::literals; // enables _c suffix
+
+  const auto meta = mHist.axis(0).metadata();
 
   // sum over the dEdx bins to find the number of entries per stack
   const auto projection = bh::algorithm::project(mHist, 1_c, 2_c, 3_c);
@@ -199,4 +207,29 @@ void CalibdEdx::dumpToFile(std::string_view fileName) const
   file.WriteObject(&rootHist, "CalibHists");
   file.WriteObject(&mCalib, "CalibData");
   file.Close();
+}
+
+void CalibdEdx::writeTTree(std::string_view fileName) const
+{
+  TFile f(fileName.data(), "recreate");
+
+  TTree tree("hist", "Saving boost histogram to TTree");
+
+  std::vector<float> row(mHist.rank());
+  for (int i = 0; i < mHist.rank(); ++i) {
+    // FIXME: infer axis type and remove the hardcoded float
+    tree.Branch(mHist.axis(i).metadata().c_str(), &row[i], "F");
+  }
+  float count = 0;
+  tree.Branch("counts", &count);
+
+  for (const auto& x : indexed(mHist)) {
+    for (int i = 0; i < mHist.rank(); ++i) {
+      row[i] = x.bin(i).lower();
+    }
+    count = *x;
+    tree.Fill();
+  }
+  f.Write();
+  f.Close();
 }
