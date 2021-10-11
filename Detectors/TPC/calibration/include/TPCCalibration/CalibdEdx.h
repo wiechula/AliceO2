@@ -19,11 +19,12 @@
 #include <cstddef>
 #include <gsl/span>
 #include <string_view>
-#include <tuple>
+#include <array>
 
 // o2 includes
 #include "DataFormatsTPC/TrackCuts.h"
 #include "DataFormatsTPC/Defs.h"
+#include "TPCCalibration/CalibdEdxCorrection.h"
 
 // boost includes
 #include <boost/histogram.hpp>
@@ -37,28 +38,17 @@ namespace o2::tpc
 // forward declaration
 class TrackTPC;
 
-struct CalibdEdxData {
-  float mean{};
-  float stdm{};
-  int sector{};
-  Side side{};
-  GEMstack stack{};
-  float tgl{};
-  float snp{};
-  ChargeType charge{};
-};
-
 /// Class that creates dE/dx histograms from a sequence of tracks objects
 class CalibdEdx
 {
  public:
   enum HistAxis {
     dEdx = 0,
-    Sector = 1,
-    Side = 2,
-    Stack = 3,
-    Tgl = 4,
-    Snp = 5,
+    Tgl = 1,
+    Snp = 2,
+    Sector = 3,
+    Side = 4,
+    Stack = 5,
     Charge = 6,
     Size = 7 ///< Number of axes
   };
@@ -67,21 +57,23 @@ class CalibdEdx
   using HistIntAxis = boost::histogram::axis::integer<int, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
   // Float axis to store data, without under and overflow bins.
   using HistFloatAxis = boost::histogram::axis::regular<float, boost::histogram::use_default, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
-  //  using HistFloatAxis = boost::histogram::axis::regular<>;
 
   // Define histogram axes types
+  // on changing the axis order also change the constructor and fill functions order in de .cxx
+  // and the HistAxis enum
   using HistAxesType = std::tuple<
     HistFloatAxis, // dEdx
+    HistFloatAxis, // Tgl
+    HistFloatAxis, // Snp
     HistIntAxis,   // sector
     HistIntAxis,   // side
     HistIntAxis,   // stack type
-    HistFloatAxis, // Tgl
-    HistFloatAxis, // Snp
     HistIntAxis    // Charge
     >;
 
   using Hist = boost::histogram::histogram<HistAxesType>;
-  using CalibContainer = std::vector<CalibdEdxData>;
+  using FitParams = std::array<std::array<float, 6>, 288>;
+  using FitChi2 = std::array<float, 288>;
 
   /// Default constructor
   CalibdEdx() = default;
@@ -102,9 +94,10 @@ class CalibdEdx
   void merge(const CalibdEdx* other);
 
   /// Compute MIP position from dEdx histograms, and save result in the calib container.
-  void finalize();
+  /// \param minEntries required to fit a 1D and 2D functions.
+  void finalize(std::array<float, 2> minEntries = {500, 5000});
 
-  /// Return the full, unprojected, histogram.
+  /// Return the full histogram.
   const Hist& getHist() const { return mHist; }
   /// Return the projected histogram, the projected axes are summed over.
   auto getHist(const std::vector<int>& projected_axis) const
@@ -117,11 +110,14 @@ class CalibdEdx
   /// Keep all axes
   TH2F getRootHist() const;
 
-  const CalibContainer& getCalib() const { return mCalib; }
+  const CalibdEdxCorrection& getCalib() const { return mCalib; }
+
+  ///< Return the number of hist entries of the gem stack with less statistics
+  float minStackEntries() const;
 
   /// \brief Check if there are enough data to compute the calibration.
   /// \param minEntries in each histogram
-  /// \return false if any of the histograms has less entries than minEntries
+  /// \return false if any of the GEM stacks has less entries than minEntries
   bool hasEnoughData(float minEntries) const;
 
   void setApplyCuts(bool apply) { mApplyCuts = apply; }
@@ -144,8 +140,8 @@ class CalibdEdx
   int mNBins;            ///< Number of dEdx bins
   TrackCuts mCuts;       ///< Cut class
 
-  Hist mHist;              ///< TotdEdx multidimensional histogram
-  CalibContainer mCalib{}; ///< Calibration output container
+  Hist mHist;                   ///< TotdEdx multidimensional histogram
+  CalibdEdxCorrection mCalib{}; ///< Calibration output
 
   ClassDefNV(CalibdEdx, 1);
 };

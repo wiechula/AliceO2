@@ -34,6 +34,7 @@ o2_add_library(TPCCalibration
                        src/RobustAverage.cxx
                        src/IDCCCDBHelper.cxx
                        src/CalibdEdx.cxx
+                       src/CalibdEdxCorrection.cxx
                        src/CalibratordEdx.cxx
                PUBLIC_LINK_LIBRARIES O2::DataFormatsTPC O2::TPCBase
                                      O2::TPCReconstruction ROOT::Minuit
@@ -66,6 +67,7 @@ o2_target_root_dictionary(TPCCalibration
                                   include/TPCCalibration/IDCFourierTransform.h
                                   include/TPCCalibration/IDCCCDBHelper.h
                                   include/TPCCalibration/CalibdEdx.h
+                                  include/TPCCalibration/CalibdEdxCorrection.h
                                   include/TPCCalibration/CalibratordEdx.h)
 
 o2_add_executable(dcs-sim-workflow
