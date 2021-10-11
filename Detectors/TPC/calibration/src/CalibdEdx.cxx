@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <array>
+#include <boost/histogram/indexed.hpp>
 #include <cmath>
 #include <cstddef>
 #include <gsl/span>
@@ -45,11 +46,11 @@ CalibdEdx::CalibdEdx(int nBins, float mindEdx, float maxdEdx, const TrackCuts& c
 {
   mHist = bh::make_histogram(
     HistFloatAxis(nBins, mindEdx, maxdEdx, "dEdx"),
-    HistIntAxis(0, SECTORSPERSIDE, "sector"),
-    HistIntAxis(0, SIDES, "side"),
-    HistIntAxis(0, GEMSTACKSPERSECTOR, "stack type"),
     HistFloatAxis(18, -1, 1, "Tgl"),
     HistFloatAxis(18, -1, 1, "Snp"),
+    HistIntAxis(0, SECTORSPERSIDE, "sector"),
+    HistIntAxis(0, SIDES, "side"),
+    HistIntAxis(0, GEMSTACKSPERSECTOR, "stacktype"),
     HistIntAxis(0, CHARGETYPES, "charge"));
 }
 
@@ -87,8 +88,8 @@ void CalibdEdx::fill(const TrackTPC& track)
     o2::math_utils::bringTo02PiGen(phi);
     const auto sector = static_cast<int>(phi / SECPHIWIDTH);
 
-    mHist(dEdxMax[stack], sector, side, stack, tgl, snp, ChargeType::Max);
-    mHist(dEdxTot[stack], sector, side, stack, tgl, snp, ChargeType::Tot);
+    mHist(dEdxMax[stack], tgl, snp, sector, side, stack, ChargeType::Max);
+    mHist(dEdxTot[stack], tgl, snp, sector, side, stack, ChargeType::Tot);
   }
 }
 
@@ -101,7 +102,9 @@ void CalibdEdx::fill(const gsl::span<const TrackTPC> tracks)
 
 void CalibdEdx::fill(const std::vector<TrackTPC>& tracks)
 {
-  fill(gsl::span(tracks.data(), tracks.size()));
+  for (const auto& track : tracks) {
+    fill(track);
+  }
 }
 
 void CalibdEdx::merge(const CalibdEdx* other)
@@ -109,54 +112,71 @@ void CalibdEdx::merge(const CalibdEdx* other)
   mHist += other->getHist();
 }
 
-void CalibdEdx::finalize()
+void CalibdEdx::finalize(std::array<float, 2> minEntries)
 {
+  const float entries = minStackEntries();
   mCalib.clear();
-  std::vector<float> stackData(mNBins);
 
-  const auto mindEdx = static_cast<float>(mHist.axis(0).begin()->lower());
-  const auto maxdEdx = static_cast<float>(mHist.axis(0).end()->lower());
+  TLinearFitter fit(2);
 
-  // TODO: for now we ignore Tgl and Snp in this fit
-  auto projHist = bh::algorithm::project(mHist, std::vector<int>{0, 1, 2, 3, 6});
-  auto indexed = bh::indexed(projHist);
-  auto entry = indexed.begin();
-  while (entry != indexed.end()) {
-    // to use a fit function we fist copy the data to a vector of float
-    // TODO: can we avoid this copy?
-    for (auto& x : stackData) {
-      x = *entry;
-      ++entry;
-    }
-
-    const auto stats = o2::math_utils::getStatisticsData(stackData.data(), stackData.size(), mindEdx, maxdEdx);
-    constexpr auto empty_float = std::numeric_limits<float>::max();
-    constexpr auto empty_int = std::numeric_limits<int>::max();
-
-    CalibdEdxData calib{};
-    calib.mean = stats.mCOG;
-    calib.stdm = stats.mStdDev / sqrt(stats.mSum);
-    calib.sector = entry->bin(HistAxis::Sector).lower();
-    calib.side = static_cast<enum Side>(entry->bin(HistAxis::Side).lower());
-    calib.stack = static_cast<GEMstack>(entry->bin(HistAxis::Stack).lower());
-    calib.charge = static_cast<ChargeType>(entry->bin(HistAxis::Charge).lower());
-    calib.tgl = empty_float;
-    calib.snp = empty_float;
-
-    mCalib.push_back(calib);
+  // Choose the fit dimension based on the available statistics
+  if (entries >= minEntries[1]) {
+    fit.SetFormula("1 ++ x ++ x*x ++ y ++ x*y ++ y*y");
+    mCalib.setDims(2);
+  } else if (entries >= minEntries[0]) {
+    fit.SetFormula("1 ++ x ++ x*x");
+    mCalib.setDims(1);
+  } else {
+    fit.SetFormula("1");
+    mCalib.setDims(0);
   }
+
+  const int stack_bins = mHist.axis(0).size() * mHist.axis(1).size() * mHist.axis(2).size();
+  auto entry = bh::indexed(mHist).begin();
+  for (size_t stack = 0; stack < 288; ++stack) {
+    CalibdEdxCorrection::StackID stackID{
+      static_cast<int>(entry->bin(HistAxis::Sector).lower()),
+      static_cast<enum Side>(entry->bin(HistAxis::Side).lower()),
+      static_cast<GEMstack>(entry->bin(HistAxis::Stack).lower())};
+    const auto charge = static_cast<ChargeType>(entry->bin(HistAxis::Charge).lower());
+
+    for (int bin = 0; bin < stack_bins; ++bin, ++entry) {
+      const float counts = *entry;
+      if (counts == 0) {
+        continue;
+      }
+      const double dedx_val = entry->bin(HistAxis::dEdx).center();
+      // take account of dedx resolution ~ 5%
+      const double perr = dedx_val / sqrt(counts) * 0.05;
+      std::array<double, 2> angles{entry->bin(HistAxis::Tgl).center(),
+                                   entry->bin(HistAxis::Snp).center()};
+      fit.AddPoint(angles.data(), dedx_val, perr);
+    }
+    fit.Eval();
+
+    CalibdEdxCorrection::Params params{0};
+    for (int param = 0; param < fit.GetNumberFreeParameters(); ++param) {
+      params[param] = fit.GetParameter(param);
+    }
+    mCalib.setParams(stackID, charge, params);
+    mCalib.setChi2(stackID, charge, fit.GetChisquare());
+  }
+}
+
+float CalibdEdx::minStackEntries() const
+{
+  // sum over the dEdx bins to get the number of entries per stack
+  auto projection = bh::algorithm::project(mHist, std::vector<int>{HistAxis::Sector, HistAxis::Side, HistAxis::Stack});
+  auto dEdxCounts = bh::indexed(projection);
+  // find the stack with the least number of entries
+  auto min_it = std::min_element(dEdxCounts.begin(), dEdxCounts.end());
+  // the count is doubled since we sum qMax and qTot entries
+  return static_cast<float>(*min_it / 2);
 }
 
 bool CalibdEdx::hasEnoughData(float minEntries) const
 {
-  using namespace bh::literals; // enables _c suffix
-
-  const auto meta = mHist.axis(0).metadata();
-
-  // sum over the dEdx bins to find the number of entries per stack
-  const auto projection = bh::algorithm::project(mHist, 1_c, 2_c, 3_c);
-  auto dEdxCounts = bh::indexed(projection);
-  return std::all_of(dEdxCounts.begin(), dEdxCounts.end(), [minEntries](const auto& x) { return x >= minEntries; });
+  return minStackEntries() >= minEntries;
 }
 
 TH2F CalibdEdx::getRootHist(const std::vector<int>& projected_axis) const
@@ -205,7 +225,6 @@ void CalibdEdx::dumpToFile(std::string_view fileName) const
   TFile file(fileName.data(), "recreate");
   const auto rootHist = getRootHist();
   file.WriteObject(&rootHist, "CalibHists");
-  file.WriteObject(&mCalib, "CalibData");
   file.Close();
 }
 
@@ -218,18 +237,19 @@ void CalibdEdx::writeTTree(std::string_view fileName) const
   std::vector<float> row(mHist.rank());
   for (int i = 0; i < mHist.rank(); ++i) {
     // FIXME: infer axis type and remove the hardcoded float
-    tree.Branch(mHist.axis(i).metadata().c_str(), &row[i], "F");
+    tree.Branch(mHist.axis(i).metadata().c_str(), &row[i]);
   }
   float count = 0;
   tree.Branch("counts", &count);
 
   for (const auto& x : indexed(mHist)) {
     for (int i = 0; i < mHist.rank(); ++i) {
-      row[i] = x.bin(i).lower();
+      row[i] = x.bin(i).center();
     }
     count = *x;
     tree.Fill();
   }
+
   f.Write();
   f.Close();
 }

@@ -16,7 +16,7 @@
 #include <memory>
 #include <string_view>
 
-//o2 includes
+// o2 includes
 #include "CommonUtils/MemFileHelper.h"
 #include "CommonUtils/TreeStreamRedirector.h"
 #include "CCDB/CcdbApi.h"
@@ -30,7 +30,7 @@ void CalibratordEdx::initOutput()
 {
   // Here we initialize the vector of our output objects
   mInfoVector.clear();
-  mMIPVector.clear();
+  mCalibVector.clear();
 }
 
 void CalibratordEdx::finalizeSlot(Slot& slot)
@@ -40,12 +40,11 @@ void CalibratordEdx::finalizeSlot(Slot& slot)
   // compute calibration values from histograms
   CalibdEdx* container = slot.getContainer();
   container->finalize();
-  const auto& mips = container->getCalib();
+  const auto& calib = container->getCalib();
 
-  // print some thing informative about CalibMIP
   slot.print();
 
-  const auto className = o2::utils::MemFileHelper::getClassName(mips);
+  const auto className = o2::utils::MemFileHelper::getClassName(calib);
   const auto fileName = o2::ccdb::CcdbApi::generateFileName(className);
   const std::map<std::string, std::string> metaData;
 
@@ -53,16 +52,14 @@ void CalibratordEdx::finalizeSlot(Slot& slot)
   // to become an absolute time.
   TFType timeFrame = slot.getTFStart();
   mInfoVector.emplace_back("TPC/Calib/MIPS", className, fileName, metaData, timeFrame, 99999999999999);
-  mMIPVector.push_back(mips);
+  mCalibVector.push_back(calib);
 
   if (mDebugOutputStreamer) {
     LOGP(info, "Dumping time slot data to file");
-    auto rootHist = container->getRootHist();
-    auto nonConstMip = mips;
+    auto nonConstCalib = calib;
     *mDebugOutputStreamer << "mipPosition"
-                          << "timeFrame=" << timeFrame   // Initial time frame of time slot
-                          << "calibData=" << nonConstMip // dE/dx calibration data
-                          << "calibHists=" << rootHist   // dE/dx histograms
+                          << "timeFrame=" << timeFrame      // Initial time frame of time slot
+                          << "correction=" << nonConstCalib // dE/dx corretion
                           << "\n";
   }
 }

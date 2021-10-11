@@ -67,6 +67,7 @@
 #pragma link C++ class o2::tpc::IDCCCDBHelper<char> +;
 #pragma link C++ enum o2::tpc::AveragingMethod;
 #pragma link C++ class o2::tpc::CalibdEdx + ;
+#pragma link C++ class o2::tpc::CalibdEdxCorrection + ;
 #pragma link C++ class o2::tpc::CalibratordEdx + ;
 #pragma link C++ class o2::calibration::TimeSlot < o2::tpc::CalibdEdx> + ;
 #pragma link C++ class o2::calibration::TimeSlotCalibration < o2::tpc::TrackTPC, o2::tpc::CalibdEdx> + ;

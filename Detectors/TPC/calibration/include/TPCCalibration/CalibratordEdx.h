@@ -39,7 +39,7 @@ class CalibratordEdx final : public o2::calibration::TimeSlotCalibration<o2::tpc
   using TFType = o2::calibration::TFType;
   using Slot = o2::calibration::TimeSlot<CalibdEdx>;
   using CcdbObjectInfoVector = std::vector<o2::ccdb::CcdbObjectInfo>;
-  using MIPVector = std::vector<CalibdEdx::CalibContainer>;
+  using CalibVector = std::vector<CalibdEdxCorrection>;
 
  public:
   /// Contructor that enables track cuts
@@ -69,7 +69,7 @@ class CalibratordEdx final : public o2::calibration::TimeSlotCalibration<o2::tpc
   void setCuts(const TrackCuts& cuts) { mCuts = cuts; }
 
   /// \return the computed calibrations
-  const MIPVector& getMIPVector() const { return mMIPVector; }
+  const CalibVector& getMIPVector() const { return mCalibVector; }
 
   /// \return CCDB output informations
   const CcdbObjectInfoVector& getInfoVector() const { return mInfoVector; }
@@ -99,7 +99,7 @@ class CalibratordEdx final : public o2::calibration::TimeSlotCalibration<o2::tpc
   TrackCuts mCuts;       ///< Cut object
 
   CcdbObjectInfoVector mInfoVector; ///< vector of CCDB Infos, each element is filled with the CCDB description of the accompanying MIP positions
-  MIPVector mMIPVector;             ///< vector of MIP positions, each element is filled in "process" when we finalize one slot (multiple can be finalized during the same "process", which is why we have a vector. Each element is to be considered the output of the device, and will go to the CCDB
+  CalibVector mCalibVector;         ///< vector of MIP positions, each element is filled in "process" when we finalize one slot (multiple can be finalized during the same "process", which is why we have a vector. Each element is to be considered the output of the device, and will go to the CCDB
 
   std::unique_ptr<o2::utils::TreeStreamRedirector> mDebugOutputStreamer; ///< Debug output streamer
 
