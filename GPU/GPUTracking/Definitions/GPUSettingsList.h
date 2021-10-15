@@ -399,6 +399,7 @@ AddOption(synchronousProcessing, bool, false, "", 0, "Apply performance shortcut
 AddOption(dump, int, 0, "", 0, "Dump events for standalone benchmark: 1 = dump events, 2 = dump events and skip processing in workflow")
 AddOption(display, bool, false, "", 0, "Enable standalone gpu tracking visualizaion")
 AddOption(dEdxFile, std::string, "", "", 0, "File name of dEdx Splines file")
+AddOption(dEdxCorrFile, std::string, "", "", 0, "File name of dEdx residual correction file")
 AddOption(transformationFile, std::string, "", "", 0, "File name of TPC fast transformation map")
 AddOption(matLUTFile, std::string, "", "", 0, "File name of material LUT file")
 AddOption(gainCalibFile, std::string, "", "", 0, "File name of TPC pad gain calibration")

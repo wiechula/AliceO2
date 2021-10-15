@@ -24,13 +24,13 @@
 // o2 includes
 #include "DataFormatsTPC/TrackCuts.h"
 #include "DataFormatsTPC/Defs.h"
-#include "TPCCalibration/CalibdEdxCorrection.h"
+#include "DataFormatsTPC/CalibdEdxCorrection.h"
 
 // boost includes
 #include <boost/histogram.hpp>
 
-// root includes
-#include "TH2F.h"
+// forward declarations
+class TH2F;
 
 namespace o2::tpc
 {
@@ -42,48 +42,49 @@ class TrackTPC;
 class CalibdEdx
 {
  public:
-  enum HistAxis {
-    dEdx = 0,
-    Tgl = 1,
-    Snp = 2,
-    Sector = 3,
-    Side = 4,
-    Stack = 5,
-    Charge = 6,
-    Size = 7 ///< Number of axes
+  enum Axis {
+    dEdx,
+    Z,
+    Tgl,
+    // Snp,
+    Sector,
+    Stack,
+    Charge,
+    Size ///< Number of axes
   };
 
   // Interger histogram axis identifying the GEM stacks, without under and overflow bins.
-  using HistIntAxis = boost::histogram::axis::integer<int, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
+  using IntAxis = boost::histogram::axis::integer<int, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
   // Float axis to store data, without under and overflow bins.
-  using HistFloatAxis = boost::histogram::axis::regular<float, boost::histogram::use_default, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
+  using FloatAxis = boost::histogram::axis::regular<float, boost::histogram::use_default, boost::histogram::use_default, boost::histogram::axis::option::none_t>;
 
   // Define histogram axes types
   // on changing the axis order also change the constructor and fill functions order in de .cxx
   // and the HistAxis enum
-  using HistAxesType = std::tuple<
-    HistFloatAxis, // dEdx
-    HistFloatAxis, // Tgl
-    HistFloatAxis, // Snp
-    HistIntAxis,   // sector
-    HistIntAxis,   // side
-    HistIntAxis,   // stack type
-    HistIntAxis    // Charge
+  using AxesType = std::tuple<
+    FloatAxis, // dEdx
+    FloatAxis, // Z
+    FloatAxis, // Tgl
+    // FloatAxis, // Snp
+    IntAxis, // sector
+    IntAxis, // stackType
+    IntAxis  // Charge
     >;
 
-  using Hist = boost::histogram::histogram<HistAxesType>;
-  using FitParams = std::array<std::array<float, 6>, 288>;
-  using FitChi2 = std::array<float, 288>;
+  using Hist = boost::histogram::histogram<AxesType>;
+  using FitCuts = std::array<int, 3>;
 
-  /// Default constructor
-  CalibdEdx() = default;
+  CalibdEdx(float mindEdx = 5, float maxdEdx = 70, int dEdxBins = 100, int zBins = 20, int angularBins = 18);
 
-  /// Constructor that enable tracks cuts.
-  CalibdEdx(int nBins, float mindEdx, float maxdEdx, const TrackCuts& cuts);
+  void setCuts(const TrackCuts& cuts) { mCuts = cuts; }
+  void setApplyCuts(bool apply) { mApplyCuts = apply; }
+  bool getApplyCuts() const { return mApplyCuts; }
 
-  /// Constructor that enable tracks cuts, and creates a TrackCuts internally.
-  CalibdEdx(int nBins, float mindEdx = 5, float maxdEdx = 70, float minP = 0.4, float maxP = 0.6, int minClusters = 60)
-    : CalibdEdx(nBins, mindEdx, maxdEdx, {minP, maxP, static_cast<float>(minClusters)}) {}
+  float getField() const { return mField; };
+  void setField(float field) { mField = field; }
+
+  FitCuts getFitCuts() const { return mFitCuts; }
+  void setFitCuts(const FitCuts& cuts) { mFitCuts = cuts; }
 
   /// Fill histograms using tracks data.
   void fill(const gsl::span<const TrackTPC>);
@@ -94,8 +95,8 @@ class CalibdEdx
   void merge(const CalibdEdx* other);
 
   /// Compute MIP position from dEdx histograms, and save result in the calib container.
-  /// \param minEntries required to fit a 1D and 2D functions.
-  void finalize(std::array<float, 2> minEntries = {500, 5000});
+  /// \param minEntries required to fit the mean, 1D and 2D functions.
+  void finalize();
 
   /// Return the full histogram.
   const Hist& getHist() const { return mHist; }
@@ -120,25 +121,22 @@ class CalibdEdx
   /// \return false if any of the GEM stacks has less entries than minEntries
   bool hasEnoughData(float minEntries) const;
 
-  void setApplyCuts(bool apply) { mApplyCuts = apply; }
-  bool getApplyCuts() const { return mApplyCuts; }
-  void setCuts(const TrackCuts& cuts) { mCuts = cuts; }
-
   /// Find the sector of a track at a given GEM stack type.
   static int findTrackSector(const TrackTPC& track, GEMstack, bool& ok);
 
   /// Print the number of entries in each histogram.
   void print() const;
 
-  /// Save the histograms to a file.
-  void dumpToFile(std::string_view fileName) const;
-
+  /// Save the histograms to a TTree.
   void writeTTree(std::string_view fileName) const;
 
  private:
-  bool mApplyCuts{true}; ///< Whether or not to apply tracks cuts
-  int mNBins;            ///< Number of dEdx bins
-  TrackCuts mCuts;       ///< Cut class
+  constexpr static float mipScale = 1.0 / 50.0; ///< Target value for MIP dE/dx
+
+  float mField = -5;                ///< Magnetic field in kG, used for track propagation
+  bool mApplyCuts{true};            ///< Wether or not to apply tracks cuts
+  TrackCuts mCuts{0.4, 0.6, 60};    ///< Cut values
+  FitCuts mFitCuts{100, 500, 2500}; ///< Minimum entries per stack to perform a mean, 1D and 2D fit, for each GEM stack
 
   Hist mHist;                   ///< TotdEdx multidimensional histogram
   CalibdEdxCorrection mCalib{}; ///< Calibration output

@@ -72,6 +72,18 @@ enum ChargeType {
 };
 constexpr unsigned short CHARGETYPES = 2;
 
+/// GEM stack identification
+struct StackID {
+  int sector{};
+  GEMstack type{};
+
+  /// Single number identification for the stacks
+  int index() const
+  {
+    return sector + type * SECTORSPERSIDE * SIDES;
+  }
+};
+
 /// Statistics type
 enum class StatisticsType {
   GausFit,     ///< Use slow gaus fit (better fit stability)

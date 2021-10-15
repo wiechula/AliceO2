@@ -17,6 +17,8 @@
 
 // o2 includes
 #include "DataFormatsTPC/TrackTPC.h"
+#include "DataFormatsParameters/GRPObject.h"
+#include "DetectorsCommonDataFormats/NameConf.h"
 #include "DetectorsCalibration/Utils.h"
 #include "Framework/Task.h"
 #include "Framework/DataProcessorSpec.h"
@@ -33,19 +35,30 @@ class CalibdEdxDevice : public Task
  public:
   void init(framework::InitContext& ic) final
   {
-    const int nbins = std::max(10, ic.options().get<int>("nbins"));
-    const int mindEdx = std::max(0.0f, ic.options().get<float>("min-dedx"));
-    const int maxdEdx = std::max(10.0f, ic.options().get<float>("max-dedx"));
-    const bool applyCuts = ic.options().get<bool>("apply-cuts");
-    const float minP = ic.options().get<float>("min-momentum");
-    const float maxP = ic.options().get<float>("max-momentum");
-    const int minClusters = std::max(10, ic.options().get<int>("min-clusters"));
-    const bool dumpData = ic.options().get<bool>("direct-file-dump");
+    const int minEntriesSector = std::max(10, ic.options().get<int>("min-entries-sector"));
+    const int minEntries1D = std::max(10, ic.options().get<int>("min-entries-1d"));
+    const int minEntries2D = std::max(10, ic.options().get<int>("min-entries-2d"));
 
-    assert(minP < maxP);
+    const int dEdxBins = std::max(10, ic.options().get<int>("dedxbins"));
+    const int zBins = std::max(10, ic.options().get<int>("zbins"));
+    const int angularBins = std::max(10, ic.options().get<int>("angularbins"));
+    const float mindEdx = std::max(0.0f, ic.options().get<float>("min-dedx"));
+    const float maxdEdx = std::max(mindEdx, ic.options().get<float>("max-dedx"));
 
-    mCalib = std::make_unique<CalibdEdx>(nbins, mindEdx, maxdEdx, minP, maxP, minClusters);
-    mCalib->setApplyCuts(applyCuts);
+    const bool dumpData = ic.options().get<bool>("file-dump");
+    float field = ic.options().get<float>("field");
+
+    const auto inputGRP = o2::base::NameConf::getGRPFileName();
+    const auto grp = o2::parameters::GRPObject::loadFrom(inputGRP);
+    if (grp != nullptr) {
+      field = 5.00668f * grp->getL3Current() / 30000.;
+      LOGP(info, "Using GRP to set the magnetic field to {} kG", field);
+    }
+
+    auto container = std::make_unique<CalibdEdx>(mindEdx, maxdEdx, dEdxBins, zBins, angularBins);
+    container->setApplyCuts(false);
+    container->setFitCuts({minEntriesSector, minEntries1D, minEntries2D});
+    container->setField(field);
 
     mDumpToFile = dumpData;
   }
@@ -69,7 +82,7 @@ class CalibdEdxDevice : public Task
     // sendOutput(eos.outputs());
 
     if (mDumpToFile) {
-      mCalib->dumpToFile("calibdEdx.root");
+      mCalib->getCalib().saveFile("calibdEdx.root");
     }
   }
 
@@ -97,14 +110,18 @@ DataProcessorSpec getCalibdEdxSpec()
     outputs,
     adaptFromTask<CalibdEdxDevice>(),
     Options{
-      {"apply-cuts", VariantType::Bool, false, {"enable tracks filter using cut values passed as options"}},
-      {"min-momentum", VariantType::Float, 0.4f, {"minimum momentum cut"}},
-      {"max-momentum", VariantType::Float, 0.6f, {"maximum momentum cut"}},
-      {"min-clusters", VariantType::Int, 60, {"minimum number of clusters in a track"}},
-      {"nbins", VariantType::Int, 100, {"number of bins for the dEdx histograms"}},
+      {"min-entries-sector", VariantType::Int, 100, {"minimum entries per stack to fit each GEM stack individually, bellow this all sectors are integrated"}},
+      {"min-entries-1d", VariantType::Int, 500, {"minimum entries per stack to fit 1D correction"}},
+      {"min-entries-2d", VariantType::Int, 2500, {"minimum entries per stack to fit 2D correction"}},
+
+      {"dedxbins", VariantType::Int, 100, {"number of dEdx bins"}},
+      {"zbins", VariantType::Int, 20, {"number of Z bins"}},
+      {"angularbins", VariantType::Int, 18, {"number of bins for angular data, like Tgl and Snp"}},
       {"min-dedx", VariantType::Float, 5.0f, {"minimum value for the dEdx histograms"}},
       {"max-dedx", VariantType::Float, 100.0f, {"maximum value for the dEdx histograms"}},
-      {"direct-file-dump", VariantType::Bool, false, {"directly dump calibration to file"}}}};
+
+      {"field", VariantType::Float, 5.f, {"magnetic field"}},
+      {"file-dump", VariantType::Bool, false, {"directly dump calibration to file"}}}};
 }
 
 } // namespace o2::tpc
