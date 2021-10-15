@@ -9,8 +9,8 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-/// \file CalibdEdx.h
-/// \brief This file provides the time dependent dE/dx calibrator, based on the MIP position.
+/// \file CalibratordEdx.h
+/// \brief This file provides the time dependent dE/dx calibrator, tracking the MIP position over time.
 /// \author Thiago Badaró <thiago.saramela@usp.br>
 
 #ifndef ALICEO2_TPC_CALIBRATORDEDX_H_
@@ -42,14 +42,22 @@ class CalibratordEdx final : public o2::calibration::TimeSlotCalibration<o2::tpc
   using CalibVector = std::vector<CalibdEdxCorrection>;
 
  public:
-  /// Contructor that enables track cuts
-  CalibratordEdx(int nBins = 100, float mindEdx = 10, float maxdEdx = 100, int minEntries = 100, float minP = 0.4, float maxP = 0.6, int minClusters = 60)
-    : mNBins{nBins}, mMindEdx{mindEdx}, mMaxdEdx{maxdEdx}, mMinEntries{minEntries}, mCuts{minP, maxP, static_cast<float>(minClusters)}
-  {
-  }
+  CalibratordEdx() = default;
 
-  /// Destructor
-  ~CalibratordEdx() final = default;
+  void setHistParams(float mindEdx, float maxdEdx, int dEdxBins, int zBins, int angularBins)
+  {
+    mMindEdx = mindEdx;
+    mMaxdEdx = maxdEdx;
+    mdEdxBins = dEdxBins;
+    mZBins = zBins;
+    mAngularBins = angularBins;
+  }
+  void setCuts(const TrackCuts& cuts) { mCuts = cuts; }
+  void setField(float field) { mField = field; }
+  void setMinEntries(int minEntries) { mMinEntries = minEntries; }
+  void setFitCuts(const CalibdEdx::FitCuts& cuts) { mFitCuts = cuts; }
+  void setApplyCuts(bool apply) { mApplyCuts = apply; }
+  bool getApplyCuts() { return mApplyCuts; }
 
   /// \brief Check if there are enough data to compute the calibration.
   /// \return false if any of the histograms has less entries than mMinEntries
@@ -63,10 +71,6 @@ class CalibratordEdx final : public o2::calibration::TimeSlotCalibration<o2::tpc
 
   /// Creates new time slot
   Slot& emplaceNewSlot(bool front, TFType tstart, TFType tend) final;
-
-  void setApplyCuts(bool apply) { mApplyCuts = apply; }
-  bool getApplyCuts() { return mApplyCuts; }
-  void setCuts(const TrackCuts& cuts) { mCuts = cuts; }
 
   /// \return the computed calibrations
   const CalibVector& getMIPVector() const { return mCalibVector; }
@@ -91,12 +95,16 @@ class CalibratordEdx final : public o2::calibration::TimeSlotCalibration<o2::tpc
   void finalizeDebugOutput() const;
 
  private:
-  int mNBins{};          ///< Number of bins in each time slot histogram
-  float mMindEdx{};      ///< Minimum value for the dEdx histograms
-  float mMaxdEdx{};      ///< Maximum value for the dEdx histograms
-  int mMinEntries{};     ///< Minimum amount of tracks in each time slot, to get enough statics
-  bool mApplyCuts{true}; ///< Flag to enable tracks cuts
-  TrackCuts mCuts;       ///< Cut object
+  int mdEdxBins{};               ///< Number of dEdx bins
+  int mZBins{};                  ///< Number of Z bins
+  int mAngularBins{};            ///< Number of bins for angular data, like Tgl and Snp
+  float mMindEdx{};              ///< Minimum value for the dEdx histograms
+  float mMaxdEdx{};              ///< Maximum value for the dEdx histograms
+  int mMinEntries{};             ///< Minimum amount of tracks in each time slot, to get enough statics
+  CalibdEdx::FitCuts mFitCuts{}; ///< Minimum entries per stack to perform a 1D and 2D fit
+  float mField{};                ///< Magnetic field
+  bool mApplyCuts{true};         ///< Flag to enable tracks cuts
+  TrackCuts mCuts;               ///< Cut object
 
   CcdbObjectInfoVector mInfoVector; ///< vector of CCDB Infos, each element is filled with the CCDB description of the accompanying MIP positions
   CalibVector mCalibVector;         ///< vector of MIP positions, each element is filled in "process" when we finalize one slot (multiple can be finalized during the same "process", which is why we have a vector. Each element is to be considered the output of the device, and will go to the CCDB

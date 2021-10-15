@@ -50,15 +50,17 @@ void CalibratordEdx::finalizeSlot(Slot& slot)
 
   // TODO: the timestamp is now given with the TF index, but it will have
   // to become an absolute time.
-  TFType timeFrame = slot.getTFStart();
-  mInfoVector.emplace_back("TPC/Calib/MIPS", className, fileName, metaData, timeFrame, 99999999999999);
+  TFType startTF = slot.getTFStart();
+  TFType endTF = slot.getTFEnd();
+  mInfoVector.emplace_back("TPC/Calib/dEdx", className, fileName, metaData, startTF, 99999999999999);
   mCalibVector.push_back(calib);
 
   if (mDebugOutputStreamer) {
     LOGP(info, "Dumping time slot data to file");
     auto nonConstCalib = calib;
-    *mDebugOutputStreamer << "mipPosition"
-                          << "timeFrame=" << timeFrame      // Initial time frame of time slot
+    *mDebugOutputStreamer << "CalibdEdx"
+                          << "startTF=" << startTF          // Initial time frame of time slot
+                          << "endTF=" << endTF              // Final time frame of time slot
                           << "correction=" << nonConstCalib // dE/dx corretion
                           << "\n";
   }
@@ -69,8 +71,11 @@ CalibratordEdx::Slot& CalibratordEdx::emplaceNewSlot(bool front, TFType tstart, 
   auto& cont = getSlots();
   auto& slot = front ? cont.emplace_front(tstart, tend) : cont.emplace_back(tstart, tend);
 
-  auto container = std::make_unique<CalibdEdx>(mNBins, mMindEdx, mMaxdEdx, mCuts);
+  auto container = std::make_unique<CalibdEdx>(mMindEdx, mMaxdEdx, mdEdxBins, mZBins, mAngularBins);
   container->setApplyCuts(mApplyCuts);
+  container->setCuts(mCuts);
+  container->setFitCuts(mFitCuts);
+  container->setField(mField);
 
   slot.setContainer(std::move(container));
   return slot;
