@@ -70,7 +70,6 @@ void CalibdEdx::fill(const TrackTPC& track)
 
   for (const GEMstack stack : {IROCgem, OROC1gem, OROC2gem, OROC3gem}) {
     // These are the x value in cm of the center of the stacks (IROC, OROC1, ...) in the local frame.
-    // FIXME: these values are only approximations.
     constexpr std::array<float, 4> xks{108.475f, 152.2f, 189.4f, 228.4f};
 
     bool ok = cpTrack.propagateTo(xks[stack], mField);
@@ -80,13 +79,11 @@ void CalibdEdx::fill(const TrackTPC& track)
       continue;
     }
 
-    float phi = cpTrack.getAlpha();
-    float z = abs(cpTrack.getZ());
-    float tgl = cpTrack.getTgl();
-    // float snp = cpTrack.getSnp();
-
-    o2::math_utils::bringTo02PiGen(phi);
-    const auto sector = static_cast<int>(phi / SECPHIWIDTH) + sideOffset;
+    const float z = abs(cpTrack.getZ());
+    const float tgl = cpTrack.getTgl();
+    // const float snp = cpTrack.getSnp();
+    const float alpha = o2::math_utils::to02PiGen(cpTrack.getAlpha());
+    const auto sector = static_cast<int>(alpha / SECPHIWIDTH) + sideOffset;
 
     mHist(dEdxMax[stack] * mipScale, z, tgl, /* snp ,*/ sector, stack, ChargeType::Max);
     mHist(dEdxTot[stack] * mipScale, z, tgl, /* snp ,*/ sector, stack, ChargeType::Tot);
@@ -100,16 +97,11 @@ void CalibdEdx::fill(const gsl::span<const TrackTPC> tracks)
   }
 }
 
-void CalibdEdx::fill(const std::vector<TrackTPC>& tracks)
-{
-  for (const auto& track : tracks) {
-    fill(track);
-  }
-}
-
 void CalibdEdx::merge(const CalibdEdx* other)
 {
-  mHist += other->getHist();
+  if (other != nullptr) {
+    mHist += other->getHist();
+  }
 }
 
 template <typename Hist>
