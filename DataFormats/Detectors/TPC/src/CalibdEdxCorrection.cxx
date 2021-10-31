@@ -25,14 +25,7 @@
 
 using namespace o2::tpc;
 
-size_t CalibdEdxCorrection::stackIndex(const StackID& stack, ChargeType charge)
-{
-  auto index = static_cast<size_t>(stack.index());
-  index += static_cast<size_t>(charge * SECTORSPERSIDE * SIDES * GEMSTACKSPERSECTOR);
-  return index;
-}
-
-float CalibdEdxCorrection::correction(const StackID& stack, ChargeType charge, float z, float tgl) const
+float CalibdEdxCorrection::getCorrection(const StackID& stack, ChargeType charge, float z, float tgl) const
 {
   const auto& p = getParams(stack, charge);
   float corr = p[0];
@@ -57,14 +50,15 @@ void CalibdEdxCorrection::clear()
 
 void CalibdEdxCorrection::saveFile(std::string_view fileName) const
 {
-  TFile file(fileName.data(), "recreate");
-  file.WriteObject(this, "CalibdEdxCorrection");
-  file.Close();
+  std::unique_ptr<TFile> file(TFile::Open(fileName.data(), "recreate"));
+  file->WriteObject(this, "CalibdEdxCorrection");
 }
 
 void CalibdEdxCorrection::loadFile(std::string_view fileName)
 {
-  TFile file(fileName.data());
-  auto corr = file.Get<CalibdEdxCorrection>("CalibdEdxCorrection");
-  *this = *corr;
+  std::unique_ptr<TFile> file(TFile::Open(fileName.data()));
+  auto tmp = file->Get<CalibdEdxCorrection>("CalibdEdxCorrection");
+  if (tmp != nullptr) {
+    *this = *tmp;
+  }
 }

@@ -87,9 +87,9 @@ class CalibdEdx
   void setFitCuts(const FitCuts& cuts) { mFitCuts = cuts; }
 
   /// Fill histograms using tracks data.
+  void fill(const TrackTPC& tracks);
   void fill(const gsl::span<const TrackTPC>);
-  void fill(const std::vector<TrackTPC>&);
-  void fill(const TrackTPC&);
+  void fill(const std::vector<TrackTPC>& tracks) { fill(gsl::span(tracks)); }
 
   /// Add counts from other container.
   void merge(const CalibdEdx* other);

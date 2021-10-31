@@ -32,7 +32,7 @@ class CalibdEdxCorrection
   CalibdEdxCorrection() { clear(); }
   CalibdEdxCorrection(std::string_view fileName) { loadFile(fileName); }
 
-  float correction(const StackID&, ChargeType, float z = 0, float tgl = 0) const;
+  float getCorrection(const StackID&, ChargeType, float z = 0, float tgl = 0) const;
 
   const Params& getParams(const StackID& stack, ChargeType charge) const { return mParams[stackIndex(stack, charge)]; }
   float getChi2(const StackID& stack, ChargeType charge) const { return mChi2[stackIndex(stack, charge)]; }
@@ -48,7 +48,10 @@ class CalibdEdxCorrection
   void loadFile(std::string_view fileName);
 
  private:
-  static size_t stackIndex(const StackID&, ChargeType);
+  static size_t stackIndex(const StackID& stack, ChargeType charge)
+  {
+    return static_cast<size_t>(stack.index() + charge * SECTORSPERSIDE * SIDES * GEMSTACKSPERSECTOR);
+  }
 
   std::array<Params, 288> mParams{};
   std::array<float, 288> mChi2{};
