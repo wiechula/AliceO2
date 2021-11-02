@@ -135,7 +135,8 @@ void fitHist(const Hist& hist, CalibdEdxCorrection& corr, TLinearFitter& fitter)
       }
       const double dEdx = entry->bin(Axis::dEdx).center();
       constexpr float dEdxResolution = 0.05;
-      const double error = dEdx * dEdxResolution / sqrt(counts);
+      // const double error = dEdx * dEdxResolution / sqrt(counts);
+      const double error = 1. / sqrt(counts);
       std::array<double, 2> values{entry->bin(1).center(),
                                    entry->bin(2).center()};
       fitter.AddPoint(values.data(), dEdx, error);

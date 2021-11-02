@@ -78,7 +78,7 @@ struct StackID {
   GEMstack type{};
 
   /// Single number identification for the stacks
-  int index() const
+  GPUdi() int index() const
   {
     return sector + type * SECTORSPERSIDE * SIDES;
   }

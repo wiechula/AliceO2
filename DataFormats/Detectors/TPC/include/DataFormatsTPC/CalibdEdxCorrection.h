@@ -15,9 +15,12 @@
 #ifndef ALICEO2_TPC_CALIBDEDXCORRECTION_H_
 #define ALICEO2_TPC_CALIBDEDXCORRECTION_H_
 
+#include "GPUCommonDef.h"
+#ifndef GPUCA_ALIGPUCODE
 #include <cstddef>
 #include <array>
 #include <string_view>
+#endif
 
 // o2 includes
 #include "DataFormatsTPC/Defs.h"
@@ -29,13 +32,42 @@ class CalibdEdxCorrection
 {
  public:
   using Params = std::array<float, 6>;
-  CalibdEdxCorrection() { clear(); }
+#if !defined(GPUCA_GPUCODE)
+  CalibdEdxCorrection()
+  {
+    clear();
+  }
   CalibdEdxCorrection(std::string_view fileName) { loadFile(fileName); }
+#else
+  CalibdEdxCorrection() CON_DEFAULT;
+#endif
+  ~CalibdEdxCorrection() CON_DEFAULT;
 
-  float getCorrection(const StackID&, ChargeType, float z = 0, float tgl = 0) const;
+  GPUd() float getCorrection(const StackID& stack, ChargeType charge, float z = 0, float tgl = 0) const
+  {
+    // by default return 1 if no correction was loaded
+    if (mDims < 0) {
+      return 1;
+    }
 
-  const Params& getParams(const StackID& stack, ChargeType charge) const { return mParams[stackIndex(stack, charge)]; }
-  float getChi2(const StackID& stack, ChargeType charge) const { return mChi2[stackIndex(stack, charge)]; }
+    const auto& p = mParams[stackIndex(stack, charge)];
+    float corr = p[0];
+
+    if (mDims > 0) {
+      corr += p[1] * z + p[2] * z * z;
+      if (mDims > 1) {
+        corr += p[3] * tgl + p[4] * z * tgl + p[5] * tgl * tgl;
+      }
+    }
+
+    return corr;
+  }
+
+#if !defined(GPUCA_GPUCODE)
+  float getChi2(const StackID& stack, ChargeType charge) const
+  {
+    return mChi2[stackIndex(stack, charge)];
+  }
   int getDims() const { return mDims; }
 
   void setParams(const StackID& stack, ChargeType charge, const Params& params) { mParams[stackIndex(stack, charge)] = params; }
@@ -46,16 +78,17 @@ class CalibdEdxCorrection
 
   void saveFile(std::string_view fileName) const;
   void loadFile(std::string_view fileName);
+#endif
 
  private:
-  static size_t stackIndex(const StackID& stack, ChargeType charge)
+  GPUd() static size_t stackIndex(const StackID& stack, ChargeType charge)
   {
     return static_cast<size_t>(stack.index() + charge * SECTORSPERSIDE * SIDES * GEMSTACKSPERSECTOR);
   }
 
   std::array<Params, 288> mParams{};
   std::array<float, 288> mChi2{};
-  int mDims{}; ///< Fit dimension
+  int mDims{-1}; ///< Fit dimension
 };
 
 } // namespace o2::tpc

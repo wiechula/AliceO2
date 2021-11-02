@@ -265,7 +265,7 @@ DataProcessorSpec getGPURecoWorkflowSpec(gpuworkflow::CompletionPolicyData* poli
         LOGP(info, "Loading dEdx correction file: {}", confParam.dEdxCorrFile);
         processAttributes->dEdxCorrection.reset(new o2::tpc::CalibdEdxCorrection(confParam.dEdxCorrFile));
       } else {
-        processAttributes->dEdxCorrection.reset();
+        processAttributes->dEdxCorrection.reset(new o2::tpc::CalibdEdxCorrection());
       }
       config.configCalib.dEdxCorrection = processAttributes->dEdxCorrection.get();
 
@@ -543,7 +543,8 @@ DataProcessorSpec getGPURecoWorkflowSpec(gpuworkflow::CompletionPolicyData* poli
               if (verbosity) {
                 end = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed_seconds = end - start;
-                LOG(INFO) << "Allocation time for " << name << " (" << size << " bytes)" << ": " << elapsed_seconds.count() << "s";
+                LOG(INFO) << "Allocation time for " << name << " (" << size << " bytes)"
+                          << ": " << elapsed_seconds.count() << "s";
               }
               return (buffer.second = buffer.first->get().data()) + offset;
             };

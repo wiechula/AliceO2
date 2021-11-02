@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <limits>
 #include <string_view>
 
 // o2 includes
@@ -25,27 +24,13 @@
 
 using namespace o2::tpc;
 
-float CalibdEdxCorrection::getCorrection(const StackID& stack, ChargeType charge, float z, float tgl) const
-{
-  const auto& p = getParams(stack, charge);
-  float corr = p[0];
-  if (mDims > 0) {
-    corr += p[1] * z + p[2] * z * z;
-    if (mDims > 1) {
-      corr += p[3] * tgl + p[4] * z * tgl + p[5] * tgl * tgl;
-    }
-  }
-
-  return corr;
-}
-
 void CalibdEdxCorrection::clear()
 {
   for (auto& x : mParams) {
     std::fill(x.begin(), x.end(), 0.0);
   }
   std::fill(mChi2.begin(), mChi2.end(), 0.0);
-  mDims = std::numeric_limits<int>::min();
+  mDims = -1;
 }
 
 void CalibdEdxCorrection::saveFile(std::string_view fileName) const
