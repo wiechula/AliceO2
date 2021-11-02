@@ -15,6 +15,7 @@
 #ifndef ALICEO2_TPC_CALIBDEDXCORRECTION_H_
 #define ALICEO2_TPC_CALIBDEDXCORRECTION_H_
 
+#include "GPUCommonDef.h"
 #include <cstddef>
 #include <array>
 #include <string_view>
@@ -29,12 +30,24 @@ class CalibdEdxCorrection
 {
  public:
   using Params = std::array<float, 6>;
-  CalibdEdxCorrection() { clear(); }
+#if !defined(GPUCA_GPUCODE)
+  CalibdEdxCorrection()
+  {
+    clear();
+  }
   CalibdEdxCorrection(std::string_view fileName) { loadFile(fileName); }
+#else
+  CalibdEdxCorrection() CON_DEFAULT;
+#endif
+  ~CalibdEdxCorrection() CON_DEFAULT;
 
-  float getCorrection(const StackID&, ChargeType, float z = 0, float tgl = 0) const;
+  GPUd() float getCorrection(const StackID&, ChargeType, float z = 0, float tgl = 0) const {return 1.f};
 
-  const Params& getParams(const StackID& stack, ChargeType charge) const { return mParams[stackIndex(stack, charge)]; }
+#if !defined(GPUCA_GPUCODE)
+  const Params& getParams(const StackID& stack, ChargeType charge) const
+  {
+    return mParams[stackIndex(stack, charge)];
+  }
   float getChi2(const StackID& stack, ChargeType charge) const { return mChi2[stackIndex(stack, charge)]; }
   int getDims() const { return mDims; }
 
@@ -46,9 +59,10 @@ class CalibdEdxCorrection
 
   void saveFile(std::string_view fileName) const;
   void loadFile(std::string_view fileName);
+#endif
 
  private:
-  static size_t stackIndex(const StackID& stack, ChargeType charge)
+  GPUd() static size_t stackIndex(const StackID& stack, ChargeType charge)
   {
     return static_cast<size_t>(stack.index() + charge * SECTORSPERSIDE * SIDES * GEMSTACKSPERSECTOR);
   }

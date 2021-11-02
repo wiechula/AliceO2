@@ -25,7 +25,7 @@
 
 using namespace o2::tpc;
 
-float CalibdEdxCorrection::getCorrection(const StackID& stack, ChargeType charge, float z, float tgl) const
+GPUd() float CalibdEdxCorrection::getCorrection(const StackID& stack, ChargeType charge, float z, float tgl) const
 {
   const auto& p = getParams(stack, charge);
   float corr = p[0];
@@ -39,6 +39,7 @@ float CalibdEdxCorrection::getCorrection(const StackID& stack, ChargeType charge
   return corr;
 }
 
+#if !defined(GPUCA_GPUCODE)
 void CalibdEdxCorrection::clear()
 {
   for (auto& x : mParams) {
@@ -62,3 +63,4 @@ void CalibdEdxCorrection::loadFile(std::string_view fileName)
     *this = *tmp;
   }
 }
+#endif
