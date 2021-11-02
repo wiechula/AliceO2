@@ -35,15 +35,15 @@ class CalibdEdxDevice : public Task
  public:
   void init(framework::InitContext& ic) final
   {
-    const int minEntriesSector = std::max(10, ic.options().get<int>("min-entries-sector"));
-    const int minEntries1D = std::max(10, ic.options().get<int>("min-entries-1d"));
-    const int minEntries2D = std::max(10, ic.options().get<int>("min-entries-2d"));
+    const int minEntriesSector = ic.options().get<int>("min-entries-sector");
+    const int minEntries1D = ic.options().get<int>("min-entries-1d");
+    const int minEntries2D = ic.options().get<int>("min-entries-2d");
 
-    const int dEdxBins = std::max(10, ic.options().get<int>("dedxbins"));
-    const int zBins = std::max(10, ic.options().get<int>("zbins"));
-    const int angularBins = std::max(10, ic.options().get<int>("angularbins"));
-    const float mindEdx = std::max(0.0f, ic.options().get<float>("min-dedx"));
-    const float maxdEdx = std::max(mindEdx, ic.options().get<float>("max-dedx"));
+    const int dEdxBins = ic.options().get<int>("dedxbins");
+    const int zBins = ic.options().get<int>("zbins");
+    const int angularBins = ic.options().get<int>("angularbins");
+    const float mindEdx = ic.options().get<float>("min-dedx");
+    const float maxdEdx = ic.options().get<float>("max-dedx");
 
     const bool dumpData = ic.options().get<bool>("file-dump");
     float field = ic.options().get<float>("field");
@@ -52,13 +52,13 @@ class CalibdEdxDevice : public Task
     const auto grp = o2::parameters::GRPObject::loadFrom(inputGRP);
     if (grp != nullptr) {
       field = 5.00668f * grp->getL3Current() / 30000.;
-      LOGP(info, "Using GRP to set the magnetic field to {} kG", field);
+      LOGP(info, "Using GRP file to set the magnetic field to {} kG", field);
     }
 
-    auto container = std::make_unique<CalibdEdx>(mindEdx, maxdEdx, dEdxBins, zBins, angularBins);
-    container->setApplyCuts(false);
-    container->setFitCuts({minEntriesSector, minEntries1D, minEntries2D});
-    container->setField(field);
+    mCalib = std::make_unique<CalibdEdx>(mindEdx, maxdEdx, dEdxBins, zBins, angularBins);
+    mCalib->setApplyCuts(false);
+    mCalib->setFitCuts({minEntriesSector, minEntries1D, minEntries2D});
+    mCalib->setField(field);
 
     mDumpToFile = dumpData;
   }
