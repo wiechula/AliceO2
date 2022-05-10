@@ -125,7 +125,6 @@ std::string painter::getROCTitle(const int rocNumber)
   return fmt::format("{} {}{:02}", type, side, rocNumber % 18);
 }
 
-
 template <class T>
 TCanvas* painter::draw(const CalDet<T>& calDet, int nbins1D, float xMin1D, float xMax1D, TCanvas* outputCanvas)
 {
