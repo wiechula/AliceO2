@@ -25,6 +25,7 @@
 #include "Framework/Task.h"
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/ConfigParamRegistry.h"
+#include "Framework/ControlService.h"
 #include "TPCCalibration/CalibdEdx.h"
 #include "TPCWorkflow/ProcessingHelpers.h"
 
@@ -43,6 +44,7 @@ class CalibdEdxDevice : public Task
     const auto minEntries2D = ic.options().get<int>("min-entries-2d");
     const auto fitPasses = ic.options().get<int>("fit-passes");
     const auto fitThreshold = ic.options().get<float>("fit-threshold");
+    mQuitOnEnoughData = ic.options().get<bool>("quit-on-enough-data");
 
     const auto dEdxBins = ic.options().get<int>("dedxbins");
     const auto mindEdx = ic.options().get<float>("min-dedx");
@@ -50,7 +52,7 @@ class CalibdEdxDevice : public Task
     const auto angularBins = ic.options().get<int>("angularbins");
     const auto fitSnp = ic.options().get<bool>("fit-snp");
 
-    mDumpToFile = ic.options().get<bool>("file-dump");
+    mDumpToFile = ic.options().get<int>("file-dump");
     auto field = ic.options().get<float>("field");
 
     if (field <= -10.f) {
@@ -79,6 +81,11 @@ class CalibdEdxDevice : public Task
     LOGP(info, "Processing TF {} with {} tracks", tfcounter, tracks.size());
     mRunNumber = processing_helpers::getRunNumber(pc);
     mCalib->fill(tracks);
+
+    if (mQuitOnEnoughData && mCalib->hasEnoughData(mCalib->getSnpFitThreshold())) {
+      pc.services().get<ControlService>().endOfStream();
+      pc.services().get<ControlService>().readyToQuit(QuitRequest::All);
+    }
   }
 
   void endOfStream(EndOfStreamContext& eos) final
@@ -88,8 +95,26 @@ class CalibdEdxDevice : public Task
     mCalib->print();
     sendOutput(eos.outputs());
 
-    if (mDumpToFile) {
-      mCalib->getCalib().writeToFile("calibdEdx.root");
+    if (mDumpToFile >= -1) {
+      int minStatistics = 0;
+      switch (mDumpToFile) {
+        case 0:
+          minStatistics = mCalib->getSectorFitThreshold();
+          break;
+        case 1:
+          minStatistics = mCalib->getTglFitThreshold();
+          break;
+        case 2:
+          minStatistics = mCalib->getSnpFitThreshold();
+          ;
+          break;
+      }
+
+      if ((mDumpToFile < 0) || mCalib->hasEnoughData(minStatistics)) {
+        mCalib->getCalib().writeToFile("calibdEdx.root");
+      } else {
+        LOGP(warning, "Not dumping file, not enough statistics for {}: {} < {}", mDumpToFile, mCalib->minStackEntries(), minStatistics);
+      }
     }
   }
 
@@ -120,8 +145,9 @@ class CalibdEdxDevice : public Task
     output.snapshot(Output{o2::calibration::Utils::gDataOriginCDBWrapper, "TPC_CalibdEdx", 0}, info);
   }
 
-  bool mDumpToFile{};
+  int mDumpToFile{-2};
   uint64_t mRunNumber{0}; ///< processed run number
+  bool mQuitOnEnoughData{false};
   std::unique_ptr<CalibdEdx> mCalib;
 };
 
@@ -144,6 +170,7 @@ DataProcessorSpec getCalibdEdxSpec()
       {"min-entries-2d", VariantType::Int, 50000, {"minimum entries per stack to fit 2D correction"}},
       {"fit-passes", VariantType::Int, 3, {"number of fit iterations"}},
       {"fit-threshold", VariantType::Float, 0.2f, {"dEdx width around the MIP peak used in the fit"}},
+      {"quit-on-enough-data", VariantType::Bool, false, {"quit processing after enough statistics for stack-wise 2D fit is reached was reached"}},
 
       {"dedxbins", VariantType::Int, 60, {"number of dEdx bins"}},
       {"min-dedx", VariantType::Float, 20.0f, {"minimum value for dEdx histograms"}},
@@ -152,7 +179,7 @@ DataProcessorSpec getCalibdEdxSpec()
       {"fit-snp", VariantType::Bool, false, {"enable Snp correction"}},
 
       {"field", VariantType::Float, -100.f, {"magnetic field"}},
-      {"file-dump", VariantType::Bool, false, {"directly dump calibration to file"}}}};
+      {"file-dump", VariantType::Int, -2, {"directly dump calibration to file; -2: no file dump; -1: dump always; 0: only dump if min-entries-sector; 1: only dump if min-entries-1D; 2: only dump if min-entries-2D"}}}};
 }
 
 } // namespace o2::tpc
