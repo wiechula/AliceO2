@@ -43,9 +43,11 @@ void DigitContainer::fillOutputContainer(std::vector<Digit>& output,
   // Without this we might get crashes in the clusterization step.
   static const int maxTimeBinForTimeFrame = o2::conf::DigiParams::Instance().maxOrbitsToDigitize != -1 ? ((o2::conf::DigiParams::Instance().maxOrbitsToDigitize * 3564 + 2 * 8 - 2) / 8) : -1;
 
+  auto& cdb = CDBInterface::instance();
+
   // ion tail per pad parameters
   const CalPad* padParams[3] = {nullptr, nullptr, nullptr};
-  auto& cdb = CDBInterface::instance();
+
   if (eleParam.doIonTailPerPad) {
     const auto& itSettings = IonTailSettings::Instance();
     if (itSettings.padITCorrFile.size()) {
@@ -64,6 +66,21 @@ void DigitContainer::fillOutputContainer(std::vector<Digit>& output,
   // TODO: make creation conditional
   if (needsPrevDigArray && !mPrevDigArr) {
     mPrevDigArr = std::make_unique<DigitTime::PrevDigitInfoArray>();
+  }
+
+  // dead channel map
+  const CalDet<bool>* deadMap = {nullptr};
+  if (eleParam.applyDeadMap) {
+    deadMap = &cdb.getDeadChannelMap();
+  }
+
+  static bool reportedSettings = false;
+  if (!reportedSettings) {
+    reportSettings();
+    if (deadMap) {
+      LOGP(info, "Using dead map with {} masked pads", deadMap->getSum<int>());
+    }
+    reportedSettings = true;
   }
 
   for (auto& time : mTimeBins) {
@@ -115,6 +132,17 @@ void DigitContainer::fillOutputContainer(std::vector<Digit>& output,
           time->fillOutputContainer<DigitzationMode::PropagateADC>(output, mcTruth, commonModeOutput, sector, timeBin, mPrevDigArr.get(), debugStream, padParams);
           break;
         }
+        case DigitzationMode::Auto: {
+          const auto& feeConfig = cdb.getFEEConfig();
+          if (feeConfig.isCMCEnabled()) {
+            LOGP(info, "Auto mode: CMCorr");
+            time->fillOutputContainer<DigitzationMode::ZeroSuppressionCMCorr>(output, mcTruth, commonModeOutput, sector, timeBin, mPrevDigArr.get(), debugStream, padParams);
+          } else {
+            LOGP(info, "Auto mode: CM full");
+            time->fillOutputContainer<DigitzationMode::ZeroSuppression>(output, mcTruth, commonModeOutput, sector, timeBin, mPrevDigArr.get(), debugStream, padParams);
+          }
+          break;
+        }
       }
     }
 
@@ -130,4 +158,14 @@ void DigitContainer::fillOutputContainer(std::vector<Digit>& output,
       delete popped;
     }
   }
+}
+
+void DigitContainer::reportSettings()
+{
+  auto& cdb = CDBInterface::instance();
+  const auto& eleParam = ParameterElectronics::Instance();
+  const auto& feeConfig = cdb.getFEEConfig();
+  LOGP(info, "ParameterElectronics:  doIonTail={}, doIonTailPerPad={}, doCommonModePerPad={}, doSaturationTail={}, doNoiseEmptyPads={}, applyDeadMap={}, commonModeCoupling={}, DigiMode={}, ",
+       eleParam.doIonTail, eleParam.doIonTailPerPad, eleParam.doCommonModePerPad, eleParam.doSaturationTail, eleParam.doNoiseEmptyPads, eleParam.applyDeadMap, eleParam.commonModeCoupling, (int)eleParam.DigiMode);
+  feeConfig.printShort();
 }
