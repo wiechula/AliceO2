@@ -39,13 +39,11 @@ class ParameterElectronics;
 class ParameterGas;
 class ParameterGEM;
 
-
 /// Upload intervention type
 enum class CDBIntervention {
   Manual,    ///< Upload from manual intervention
   Automatic, ///< Automatic upload
 };
-
 
 /// Poor enum reflection ...
 const std::unordered_map<CDBIntervention, std::string> CDBInterventionMap{
