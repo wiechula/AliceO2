@@ -85,7 +85,6 @@ struct Data {
 
   uint32_t getLinkValue(const uint32_t link) const
   {
-    const auto valPtr = dataWords;
     const uint32_t offset = link * IDCvalueBits;
     const uint32_t selectedWord = offset / 8;
     const uint32_t requiredShift = offset % 8;

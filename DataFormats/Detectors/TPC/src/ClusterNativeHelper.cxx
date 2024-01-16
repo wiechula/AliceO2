@@ -63,7 +63,7 @@ std::unique_ptr<ClusterNativeAccess> ClusterNativeHelper::createClusterNativeInd
 {
   std::unique_ptr<ClusterNativeAccess> retVal(new ClusterNativeAccess);
   memset(retVal.get(), 0, sizeof(*retVal));
-  for (int i = 0; i < clusters.size(); i++) {
+  for (size_t i = 0; i < clusters.size(); i++) {
     if (retVal->nClusters[clusters[i].sector][clusters[i].globalPadRow]) {
       LOG(error) << "Received two containers for the same sector / row";
       return std::unique_ptr<ClusterNativeAccess>();
@@ -77,7 +77,7 @@ std::unique_ptr<ClusterNativeAccess> ClusterNativeHelper::createClusterNativeInd
   }
   retVal->clustersLinear = buffer.get();
   retVal->setOffsetPtrs();
-  for (int i = 0; i < clusters.size(); i++) {
+  for (size_t i = 0; i < clusters.size(); i++) {
     memcpy(&buffer[retVal->clusterOffset[clusters[i].sector][clusters[i].globalPadRow]], clusters[i].clusters.data(), sizeof(*retVal->clustersLinear) * clusters[i].clusters.size());
     if (mcTruth) {
       for (unsigned int j = 0; j < clusters[i].clusters.size(); j++) {
@@ -87,7 +87,7 @@ std::unique_ptr<ClusterNativeAccess> ClusterNativeHelper::createClusterNativeInd
       }
     }
   }
-  return (std::move(retVal));
+  return retVal;
 }
 
 ClusterNativeHelper::Reader::~Reader()

@@ -36,7 +36,7 @@ class LaserTrack : public o2::track::TrackPar
   static constexpr std::array<float, 4> CoarseBundleZPos{243.5, 165.5, 82, 11.5};              ///< coarse z-position of the laser bundles
 
   LaserTrack() = default;
-  LaserTrack(int id, float x, float alpha, const std::array<float, o2::track::kNParams>& par) : mID(id), o2::track::TrackPar(x, alpha, par) { ; }
+  LaserTrack(int id, float x, float alpha, const std::array<float, o2::track::kNParams>& par) : o2::track::TrackPar(x, alpha, par), mID(id) {}
   LaserTrack(LaserTrack const&) = default;
 
   /// set laser track ID
