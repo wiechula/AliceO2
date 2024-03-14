@@ -31,7 +31,7 @@ template <class T>
 class ConstMCTruthContainer;
 template <class T>
 class ConstMCTruthContainerView;
-}
+} // namespace dataformats
 } // namespace o2
 
 namespace o2

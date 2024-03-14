@@ -20,6 +20,7 @@
 
 #include "DataFormatsTPC/Defs.h"
 #include "DataFormatsTPC/ClusterNative.h"
+#include "DataFormatsTPC/VDriftCorrFact.h"
 #include "TPCBase/Mapper.h"
 #include "TPCCalibration/TrackDump.h"
 
@@ -27,7 +28,7 @@ using namespace o2::tpc;
 using namespace o2::tpc::constants;
 namespace fs = std::filesystem;
 
-o2::gpu::CorrectionMapsHelper o2::tpc::TrackDump::ClusterNativeAdd::sCorrHelper{};
+o2::tpc::CorrectionMapsLoader o2::tpc::TrackDump::ClusterNativeAdd::sCorrHelper{};
 
 void TrackDump::filter(const gsl::span<const TrackTPC> tracks, ClusterNativeAccess const& clusterIndex, const gsl::span<const o2::tpc::TPCClRefElem> clRefs, const gsl::span<const o2::MCCompLabel> mcLabels)
 {
@@ -238,11 +239,53 @@ float TrackDump::ClusterNativeAdd::zc(float vertexTime) const
   return z;
 }
 
-void TrackDump::ClusterNativeAdd::loadCorrMaps(std::string_view corrMapFile, std::string_view corrMapFileRef)
+void TrackDump::ClusterNativeAdd::updateVDrift(float vdrift, float timeOffset)
+{
+  if (!sCorrHelper.getCorrMap()) {
+    LOGP(error, "Correction map not set, cannot update drift velocity");
+    return;
+  }
+  sCorrHelper.updateVDrift(1, vdrift, timeOffset);
+}
+
+void TrackDump::ClusterNativeAdd::loadVDrift(std::string_view vdriftFile)
+{
+  if (!sCorrHelper.getCorrMap()) {
+    LOGP(error, "Correction map not set, cannot update drift velocity");
+    return;
+  }
+  std::unique_ptr<TFile> fVd(TFile::Open(vdriftFile.data()));
+  const auto vd = fVd->Get<VDriftCorrFact>("ccdb_object");
+  vd->normalize();
+  sCorrHelper.updateVDrift(1, vd->getVDrift(), vd->getTimeOffset());
+  LOGP(info, "updating vdrift {}, time offset {}", vd->getVDrift(), vd->getTimeOffset());
+}
+void TrackDump::ClusterNativeAdd::loadCorrMaps(std::string_view corrMapFile, std::string_view corrMapFileRef, int scaleMode)
 {
   sCorrHelper.setOwner(true);
-  sCorrHelper.setCorrMap(gpu::TPCFastTransform::loadFromFile(corrMapFile.data()));
-  if (!corrMapFileRef.empty()) {
-    sCorrHelper.setCorrMapRef(gpu::TPCFastTransform::loadFromFile(corrMapFileRef.data()));
+  sCorrHelper.setCorrMap(gpu::TPCFastTransform::loadFromFile(corrMapFile.data(), "ccdb_object"));
+  if (sCorrHelper.getCorrMap()) {
+    sCorrHelper.setMeanLumi(sCorrHelper.getCorrMap()->getLumi());
+    LOGP(info, "setting mean lumi from correction map to {}", sCorrHelper.getCorrMap()->getLumi());
   }
+
+  if (!corrMapFileRef.empty()) {
+    sCorrHelper.setCorrMapRef(gpu::TPCFastTransform::loadFromFile(corrMapFileRef.data(), "ccdb_object"));
+    if (sCorrHelper.getCorrMapRef()) {
+      sCorrHelper.setMeanLumiRef(sCorrHelper.getCorrMapRef()->getLumi());
+      LOGP(info, "setting mean lumi ref from correction map to {}", sCorrHelper.getCorrMapRef()->getLumi());
+    }
+  }
+}
+
+void TrackDump::ClusterNativeAdd::setLumi(float meanLumi, float meanLumiRef, float instLumi, int scaleMode)
+{
+  if (!sCorrHelper.getCorrMap() || !sCorrHelper.getCorrMapRef()) {
+    LOGP(error, "Correction map and/or ref map not set, cannot update drift velocity");
+    return;
+  }
+  sCorrHelper.setLumiScaleMode(scaleMode);
+  sCorrHelper.setMeanLumi(meanLumi);
+  sCorrHelper.setMeanLumiRef(meanLumiRef);
+  sCorrHelper.setInstLumi(instLumi);
 }

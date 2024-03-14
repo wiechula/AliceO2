@@ -24,7 +24,7 @@
 #include "SimulationDataFormat/MCCompLabel.h"
 #include "CommonUtils/TreeStreamRedirector.h"
 #include "DataFormatsTPC/Constants.h"
-#include "CorrectionMapsHelper.h"
+#include "TPCCalibration/CorrectionMapsLoader.h"
 
 /// \file TrackDump.h
 /// \author Jens Wiechula (Jens.Wiechula@ikf.uni-frankfurt.de)
@@ -77,8 +77,11 @@ class TrackDump
     float gyc(float vertexTime = 0) const;
     float zc(float vertexTime = 0) const;
 
-    static gpu::CorrectionMapsHelper sCorrHelper;
-    static void loadCorrMaps(std::string_view corrMapFile, std::string_view corrMapFileRef = "");
+    static CorrectionMapsLoader sCorrHelper;
+    static void loadCorrMaps(std::string_view corrMapFile, std::string_view corrMapFileRef = "", int scaleMode = 0);
+    static void loadVDrift(std::string_view vdriftFile);
+    static void updateVDrift(float vdrift, float timeOffset);
+    static void setLumi(float meanLumi, float meanLumiRef, float instLumi, int scaleMode);
     ClassDefNV(ClusterNativeAdd, 1);
   };
 
