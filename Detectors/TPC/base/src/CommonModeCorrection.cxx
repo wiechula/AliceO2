@@ -15,6 +15,7 @@
 #include <random>
 #include <algorithm>
 #include <thread>
+#include <mutex>
 #include "CCDB/CcdbApi.h"
 #include "TPCBase/CommonModeCorrection.h"
 #include "TPCBase/Mapper.h"
@@ -22,12 +23,16 @@
 #include "TPCBase/CRUCalibHelpers.h"
 #include "TChain.h"
 #include "TFile.h"
+#include "MathUtils/RandomRing.h"
 #include "CommonUtils/TreeStreamRedirector.h"
 
 using namespace o2::tpc;
 using namespace o2::tpc::cru_calib_helpers;
 CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const float> values, gsl::span<const float> cmKValues, gsl::span<const float> pedestals) const
 {
+  if (values.size() == 0) {
+    return CMInfo{};
+  }
   // sanity check
   if (values.size() != cmKValues.size() || values.size() != pedestals.size()) {
     LOGP(error, "vector sizes of input values, cmKValues and pedestals don't match: {}, {}, {}", values.size(), cmKValues.size(), pedestals.size());
@@ -36,41 +41,68 @@ CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const
   std::mt19937 rng(std::time(nullptr));
   std::uniform_int_distribution<std::mt19937::result_type> dist(0, values.size() - 1);
 
-  std::vector<float> adcCM; //< ADC values used for common mode calculation
+  static math_utils::RandomRing random(math_utils::RandomRing<>::RandomType::Flat);
+  std::vector<std::vector<float>> adcCM(sNThreads); //< ADC values used for common mode calculation
 
-  for (size_t iPad = 0; iPad < values.size(); ++iPad) {
-    const float kCM = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[iPad])) : cmKValues[iPad];
-    const float pedestal = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[iPad])) : pedestals[iPad];
-    const float adcPad = values[iPad] - pedestal;
-    const float adcPadNorm = adcPad / kCM;
+  auto thread = [&](int iThread) {
+    for (size_t iPad = iThread; iPad < values.size(); iPad += sNThreads) {
+      const float kCM = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[iPad])) : cmKValues[iPad];
+      const float pedestal = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[iPad])) : pedestals[iPad];
+      const float adcPad = values[iPad] - pedestal;
+      const float adcPadNorm = adcPad / kCM;
 
-    if (adcPad > mQEmpty) {
-      continue;
-    }
-
-    int nPadsOK = 0;
-
-    for (int iRnd = 0; iRnd < mNPadsCompRamdom; ++iRnd) {
-      int padRnd = dist(rng);
-      while (padRnd == iPad) {
-        padRnd = dist(rng);
+      if (adcPad > mQEmpty) {
+        continue;
       }
-      const float kCMRnd = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[padRnd])) : cmKValues[padRnd];
-      const float pedestalRnd = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[padRnd])) : pedestals[padRnd];
-      const float adcPadRnd = values[padRnd] - pedestalRnd;
-      if (std::abs(adcPadNorm - adcPadRnd / kCMRnd) < mQComp) {
-        ++nPadsOK;
+
+      int nPadsOK = 0;
+
+      for (int iRnd = 0; iRnd < mNPadsCompRamdom; ++iRnd) {
+        // int padRnd = dist(rng);
+        int padRnd = 0;
+        do {
+          // padRnd = dist(rng);
+          // static std::mutex rand_mutex;
+          // std::lock_guard lock{rand_mutex};
+          padRnd = int(random.getNextValue() * (values.size() - 1));
+        } while (padRnd == iPad);
+        const float kCMRnd = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[padRnd])) : cmKValues[padRnd];
+        const float pedestalRnd = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[padRnd])) : pedestals[padRnd];
+        const float adcPadRnd = values[padRnd] - pedestalRnd;
+        if (std::abs(adcPadNorm - adcPadRnd / kCMRnd) < mQComp) {
+          ++nPadsOK;
+        }
+      }
+
+      if (nPadsOK >= mNPadsCompMin) {
+        adcCM[iThread].emplace_back(adcPadNorm);
       }
     }
+  };
 
-    if (nPadsOK >= mNPadsCompMin) {
-      adcCM.emplace_back(adcPadNorm);
-    }
+  // start threads
+  std::vector<std::thread> threads(sNThreads);
+
+  for (int i = 0; i < sNThreads; i++) {
+    threads[i] = std::thread(thread, i);
   }
 
-  const float entriesCM = adcCM.size();
-  const float commonMode = (entriesCM > 0) ? std::accumulate(adcCM.begin(), adcCM.end(), 0.f) / entriesCM : 0.f;
-  return CMInfo{commonMode, int(adcCM.size())};
+  // wait for the threads to finish
+  for (auto& th : threads) {
+    th.join();
+  }
+
+  int entriesCM = 0;
+  float commonMode = 0.f;
+  for (const auto& adcs : adcCM) {
+    entriesCM += int(adcs.size());
+    commonMode += std::accumulate(adcs.begin(), adcs.end(), 0.f);
+  }
+
+  if (entriesCM > 0) {
+    commonMode /= float(entriesCM);
+  }
+  return CMInfo{commonMode, entriesCM};
 }
 
 void CommonModeCorrection::loadDefaultPadMaps(FEEConfig::Tags tag)
@@ -136,11 +168,8 @@ int CommonModeCorrection::correctDigits(std::vector<Digit>& digits, std::vector<
       if (cmValuesCRU.size() <= lastTimeBin) {
         cmValuesCRU.resize(cmValuesCRU.size() + 500);
       }
-      size_t entries;
-      const auto cmVal = getCommonMode(data.adcValues, data.cmKValues, data.pedestals, &entries);
+      cmValuesCRU[lastTimeBin] = getCommonMode(data.adcValues, data.cmKValues, data.pedestals);
       // LOGP(info, "processing CRU {}, timeBin {}, CM = {}", lastCRU, lastTimeBin, cmVal);
-      cmValuesCRU[lastTimeBin].cmValue = cmVal;
-      cmValuesCRU[lastTimeBin].nPadsUsed = int(entries);
 
       data.clear();
     }
@@ -158,11 +187,8 @@ int CommonModeCorrection::correctDigits(std::vector<Digit>& digits, std::vector<
     if (cmValuesCRU.size() <= lastTimeBin) {
       cmValuesCRU.resize(cmValuesCRU.size() + 500);
     }
-    size_t entries;
-    const auto cmVal = getCommonMode(data.adcValues, data.cmKValues, data.pedestals, &entries);
+    cmValuesCRU[lastTimeBin] = getCommonMode(data.adcValues, data.cmKValues, data.pedestals);
     // LOGP(info, "processing CRU {}, timeBin {}, CM = {}", lastCRU, lastTimeBin, cmVal);
-    cmValuesCRU[lastTimeBin].cmValue = cmVal;
-    cmValuesCRU[lastTimeBin].nPadsUsed = int(entries);
     data.clear();
   }
 
@@ -263,13 +289,17 @@ bool CommonModeCorrection::padMapExists(const std::string& calibName)
   return true;
 }
 
-void CommonModeCorrection::loadCMkValues(std::string_view fileName, std::string_view name)
+void CommonModeCorrection::loadCalPad(std::string_view fileName, std::string_view nameInFile, std::string_view namePadMap)
 {
-  auto pads = o2::tpc::utils::readCalPads(fileName, name);
+  auto pads = o2::tpc::utils::readCalPads(fileName, nameInFile);
   if (pads.size() == 0) {
-    LOGP(error, "Could not load object {} from file {}", name, fileName);
+    LOGP(error, "Could not load object {} from file {}", nameInFile, fileName);
     return;
   }
 
-  mPadMaps["CMkValues"] = *pads[0];
+  if (namePadMap.size() == 0) {
+    namePadMap = nameInFile;
+  }
+
+  mPadMaps[namePadMap.data()] = *pads[0];
 }

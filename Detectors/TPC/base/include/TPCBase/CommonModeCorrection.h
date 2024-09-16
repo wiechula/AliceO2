@@ -20,9 +20,8 @@
 #include <string_view>
 #include <vector>
 
-#include <DataFormatsTPC/Digit.h>
-#include <TPCBase/FEEConfig.h>
-#include <TPCBase/CRU.h>
+#include "DataFormatsTPC/Digit.h"
+#include "TPCBase/FEEConfig.h"
 
 namespace o2::tpc
 {
@@ -93,7 +92,7 @@ class CommonModeCorrection
   void loadPedestals(std::string_view fileName) { loadCalPad(fileName, "Pedestals"); }
 
   /// Custom setting of CalPad, overwriting what was set in mPadMaps
-  void setPedestals(const CalPad& calPad, std::string_view name) { mPadMaps[name.data()] = calPad; }
+  void setCalPad(const CalPad& calPad, std::string_view name) { mPadMaps[name.data()] = calPad; }
 
   /// load the Pad maps from CCDB
   void loadDefaultPadMaps(FEEConfig::Tags feeTag = FEEConfig::Tags::Physics30sigma);
