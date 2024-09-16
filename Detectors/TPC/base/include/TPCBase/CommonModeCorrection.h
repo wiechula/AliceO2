@@ -17,6 +17,7 @@
 #define AliceO2_TPC_CommonModeCorrection_H_
 
 #include <gsl/span>
+#include <string_view>
 #include <vector>
 
 #include <DataFormatsTPC/Digit.h>
@@ -33,24 +34,36 @@ namespace o2::tpc
 class CommonModeCorrection
 {
  public:
+  struct CMdata {
+    std::vector<float> adcValues;
+    std::vector<float> cmKValues;
+    std::vector<float> pedestals;
+
+    void clear()
+    {
+      adcValues.clear();
+      cmKValues.clear();
+      pedestals.clear();
+    }
+  };
+
+  struct CMInfo {
+    float cmValue{};
+    int nPadsUsed{};
+  };
+
   using CalPadMapType = std::unordered_map<std::string, CalPad>;
 
   /// Calculation of the common mode value
   ///
-  /// \param value Charge values ordered per row and pad, the order is mendatory
-  /// \param cru cru the charge values belong to
-  float getCommonMode(gsl::span<const float> values, int cru) const;
-  float getCommonMode(const std::vector<float>& values, int cru) const;
+  /// \param value pad-by-pad charge values
+  /// \param cmKValues corresponding pad-by-pad common mode k-factors
+  /// \param pedestals corresponding pad-by-pad pedestals
+  /// \param
+  CMInfo getCommonMode(gsl::span<const float> values, gsl::span<const float> cmKValues, gsl::span<const float> pedestals) const;
+  CMInfo getCommonMode(const std::vector<float>& values, const std::vector<float>& cmKValues, const std::vector<float>& pedestals) const { return getCommonMode(gsl::span(values), gsl::span(cmKValues), gsl::span(pedestals)); }
 
-  /// Calculate common mode for all CRUs in one sector
-  /// \param digits raw digits of one sector, not zero suppressed
-  /// \param timeBin time bin to analyse
-  /// \return vector of size 10 containing the CM of all CRUs
-  std::vector<float> getCommonMode(const std::vector<Digit>& digits, int timeBin);
-
-  /// Apply the common mode correction to all values of one sector
-  /// \param digits raw digits of one sector, not zero suppressed
-  void applyCommonModeCorrection(std::vector<Digit>& digits, bool subtractPedestal = false);
+  CMInfo getCommonMode(const CMdata& cmData) const { return getCommonMode(std::span(cmData.adcValues), std::span(cmData.cmKValues), std::span(cmData.pedestals)); }
 
   void setNPadsCompRandom(int n) { mNPadsCompRamdom = n; }
   int getNPadsCompRandom() const { return mNPadsCompRamdom; }
@@ -64,30 +77,65 @@ class CommonModeCorrection
   void setQComp(float q) { mQComp = q; }
   float getQComp() const { return mQComp; }
 
-  void setITCorr(float corr) { mITCorr = corr; }
-  float getITCorr() const { return mITCorr; }
-
   /// Pad maps loaded from FEEConfig
   void setPadMaps(CalPadMapType& padMaps) { mPadMaps = padMaps; }
 
-  /// Custom pedestals, overwriting what was set in the padMaps
-  void setPedestals(const CalPad& pedestals) { mPadMaps["Pedestals"] = pedestals; }
+  /// load a CalPad from file and add it to the local mPadMaps
+  /// \param fileName input file name
+  /// \param nameInFile name of the CalPad object in the file
+  /// \param namePadMap name under which to store the object in the mPadMaps, if empty use the same as nameInFile
+  void loadCalPad(std::string_view fileName, std::string_view nameInFile, std::string_view namePadMap = "");
 
+  /// load CMkValues from file, assuming it is stored under the name "CMkValues
+  void loadCMkValues(std::string_view fileName) { loadCalPad(fileName, "CMkValues"); }
+
+  /// load Pedestals from file, assuming it is stored under the name "Pedestals
+  void loadPedestals(std::string_view fileName) { loadCalPad(fileName, "Pedestals"); }
+
+  /// Custom setting of CalPad, overwriting what was set in mPadMaps
+  void setPedestals(const CalPad& calPad, std::string_view name) { mPadMaps[name.data()] = calPad; }
+
+  /// load the Pad maps from CCDB
   void loadDefaultPadMaps(FEEConfig::Tags feeTag = FEEConfig::Tags::Physics30sigma);
 
+  CMdata collectCMdata(const std::vector<Digit>& digits, int cru, int timeBin);
+
+  /// corret digits for common mode
+  /// \param cmValues will contain CM information for each CRU and time bin
+  /// \param negativeOnly only correct negative common mode signals
+  /// \return maximum
+  int correctDigits(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly = false) const;
+
+  void correctDigits(std::string_view digiFileIn, Long64_t maxEntries = -1, std::string_view digitFileOut = "tpcdigit_cmcorr.root", bool negativeOnly = false);
+
+  void limitKFactorPrecision(bool limit = true) { mLimitKFactor = limit; }
+  void limitPedestalPrecision(bool limit = true) { mLimitPedestal = limit; }
+
+  /// set the number of threads used for CM calculation
+  /// \param nThreads number of threads
+  static void setNThreads(const int nThreads) { sNThreads = nThreads; }
+
+  /// \return returns the number of threads used for decoding
+  static int getNThreads() { return sNThreads; }
+
  private:
-  int mNPadsCompRamdom{10}; /// Number of random pads to compare with to check if the present pad is empty
-  int mNPadsCompMin{7};     /// Minimum number of neighbouring pads with q close to present pad to define this as empty
-  float mQEmpty{2};         ///< Threshold to enter check for empty pad
-  float mQComp{1};          ///< Threshold for comparison with random pads
-  float mITCorr{1.f};       ///< Ion tail scaling value
-  CalPadMapType mPadMaps;   ///< Pad-by-pad CRU configuration values (Pedestal, Noise, ITF + CM parameters)
+  inline static int sNThreads{1}; /// Number of parallel threads for the CM calculation
+  int mNPadsCompRamdom{10};       /// Number of random pads to compare with to check if the present pad is empty
+  int mNPadsCompMin{7};           /// Minimum number of neighbouring pads with q close to present pad to define this as empty
+  float mQEmpty{2};               ///< Threshold to enter check for empty pad
+  float mQComp{1};                ///< Threshold for comparison with random pads
+  bool mLimitKFactor{false};      ///< Limit the k-factor precision to 2I6F
+  bool mLimitPedestal{false};     ///< Limit the preestal precision to 10I2F
+
+  CalPadMapType mPadMaps; ///< Pad-by-pad CRU configuration values (Pedestal, Noise, ITF + CM parameters)
 
   /// Return the value stored in mPadMaps["calibName"]
   /// \param calibName name of calibraion in mPadMaps
   /// \param cru CRU number
   /// \param pad Pad number within the CRU
   float getCalPadValue(const std::string calibName, int icru, int pad) const;
+
+  bool padMapExists(const std::string& calibName);
 
   ClassDefNV(CommonModeCorrection, 0);
 };
