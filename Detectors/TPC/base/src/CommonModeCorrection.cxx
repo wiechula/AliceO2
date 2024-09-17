@@ -38,66 +38,41 @@ CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const
     LOGP(error, "vector sizes of input values, cmKValues and pedestals don't match: {}, {}, {}", values.size(), cmKValues.size(), pedestals.size());
     return CMInfo{};
   }
-  std::mt19937 rng(std::time(nullptr));
-  std::uniform_int_distribution<std::mt19937::result_type> dist(0, values.size() - 1);
-
   static math_utils::RandomRing random(math_utils::RandomRing<>::RandomType::Flat);
-  std::vector<std::vector<float>> adcCM(sNThreads); //< ADC values used for common mode calculation
+  std::vector<float> adcCM; //< ADC values used for common mode calculation
 
-  auto thread = [&](int iThread) {
-    for (size_t iPad = iThread; iPad < values.size(); iPad += sNThreads) {
-      const float kCM = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[iPad])) : cmKValues[iPad];
-      const float pedestal = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[iPad])) : pedestals[iPad];
-      const float adcPad = values[iPad] - pedestal;
-      const float adcPadNorm = adcPad / kCM;
+  for (size_t iPad = 0; iPad < values.size(); ++iPad) {
+    const float kCM = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[iPad])) : cmKValues[iPad];
+    const float pedestal = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[iPad])) : pedestals[iPad];
+    const float adcPad = values[iPad] - pedestal;
+    const float adcPadNorm = adcPad / kCM;
 
-      if (adcPad > mQEmpty) {
-        continue;
-      }
+    if (adcPad > mQEmpty) {
+      continue;
+    }
 
-      int nPadsOK = 0;
+    int nPadsOK = 0;
 
-      for (int iRnd = 0; iRnd < mNPadsCompRamdom; ++iRnd) {
-        // int padRnd = dist(rng);
-        int padRnd = 0;
-        do {
-          // padRnd = dist(rng);
-          // static std::mutex rand_mutex;
-          // std::lock_guard lock{rand_mutex};
-          padRnd = int(random.getNextValue() * (values.size() - 1));
-        } while (padRnd == iPad);
-        const float kCMRnd = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[padRnd])) : cmKValues[padRnd];
-        const float pedestalRnd = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[padRnd])) : pedestals[padRnd];
-        const float adcPadRnd = values[padRnd] - pedestalRnd;
-        if (std::abs(adcPadNorm - adcPadRnd / kCMRnd) < mQComp) {
-          ++nPadsOK;
-        }
-      }
-
-      if (nPadsOK >= mNPadsCompMin) {
-        adcCM[iThread].emplace_back(adcPadNorm);
+    for (int iRnd = 0; iRnd < mNPadsCompRamdom; ++iRnd) {
+      int padRnd = 0;
+      do {
+        padRnd = int(random.getNextValue() * (values.size() - 1));
+      } while (padRnd == iPad);
+      const float kCMRnd = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[padRnd])) : cmKValues[padRnd];
+      const float pedestalRnd = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[padRnd])) : pedestals[padRnd];
+      const float adcPadRnd = values[padRnd] - pedestalRnd;
+      if (std::abs(adcPadNorm - adcPadRnd / kCMRnd) < mQComp) {
+        ++nPadsOK;
       }
     }
-  };
 
-  // start threads
-  std::vector<std::thread> threads(sNThreads);
-
-  for (int i = 0; i < sNThreads; i++) {
-    threads[i] = std::thread(thread, i);
+    if (nPadsOK >= mNPadsCompMin) {
+      adcCM.emplace_back(adcPadNorm);
+    }
   }
 
-  // wait for the threads to finish
-  for (auto& th : threads) {
-    th.join();
-  }
-
-  int entriesCM = 0;
-  float commonMode = 0.f;
-  for (const auto& adcs : adcCM) {
-    entriesCM += int(adcs.size());
-    commonMode += std::accumulate(adcs.begin(), adcs.end(), 0.f);
-  }
+  const int entriesCM = int(adcCM.size());
+  float commonMode = std::accumulate(adcCM.begin(), adcCM.end(), 0.f);
 
   if (entriesCM > 0) {
     commonMode /= float(entriesCM);
@@ -205,7 +180,7 @@ int CommonModeCorrection::correctDigits(std::vector<Digit>& digits, std::vector<
   return maxTimeBin;
 }
 
-void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t maxEntries, std::string_view digitFileOut, bool negativeOnly)
+void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t maxEntries, std::string_view digitFileOut, std::string_view cmFileOut, bool negativeOnly, int nThreads, bool writeOnlyCM)
 {
 
   TChain* tree = o2::tpc::utils::buildChain(fmt::format("ls {}", digiFileIn), "o2sim", "o2sim");
@@ -214,17 +189,28 @@ void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t m
     nEntries = std::min(nEntries, maxEntries);
   }
 
-  std::unique_ptr<TFile> fOut{TFile::Open(digitFileOut.data(), "RECREATE")};
-  TTree tOut("o2sim", "o2sim");
+  if (mPadMaps.find("Pedestals") == mPadMaps.end()) {
+    LOGP(info, "Using empty pedestals");
+    mPadMaps["Pedestals"] = CalPad("Pedestals");
+  }
+
+  std::unique_ptr<TFile> fOut;
+  std::unique_ptr<TTree> tOut;
+  if (!writeOnlyCM) {
+    fOut.reset(TFile::Open(digitFileOut.data(), "RECREATE"));
+    tOut = std::make_unique<TTree>("o2sim", "o2sim");
+  }
 
   std::array<std::vector<o2::tpc::Digit>*, 36> digitizedSignal;
   for (size_t iSec = 0; iSec < digitizedSignal.size(); ++iSec) {
     digitizedSignal[iSec] = nullptr;
     tree->SetBranchAddress(Form("TPCDigit_%zu", iSec), &digitizedSignal[iSec]);
-    tOut.Branch(Form("TPCDigit_%zu", iSec), &digitizedSignal[iSec]);
+    if (tOut) {
+      tOut->Branch(Form("TPCDigit_%zu", iSec), &digitizedSignal[iSec]);
+    }
   }
 
-  o2::utils::TreeStreamRedirector pcstream("CommonModeValues.root", "recreate");
+  o2::utils::TreeStreamRedirector pcstream(cmFileOut.data(), "recreate");
 
   for (Long64_t iTF = 0; iTF < nEntries; ++iTF) {
     tree->GetEntry(iTF);
@@ -234,15 +220,36 @@ void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t m
     cmValues.resize(CRU::MaxCRU);
     int maxTimeBin = -1;
 
-    for (size_t iSector = 0; iSector < 36; ++iSector) {
-      auto digits = digitizedSignal[iSector];
-      if (!digits || (digits->size() == 0)) {
-        continue;
+    auto worker = [&](int iTread) {
+      // for (size_t iSector = 0; iSector < 36; ++iSector) {
+      for (size_t iSector = iTread; iSector < 36; iSector += nThreads) {
+        auto digits = digitizedSignal[iSector];
+        if (!digits || (digits->size() == 0)) {
+          continue;
+        }
+        const int maxTimeBinSector = correctDigits(*digits, cmValues, negativeOnly);
+        {
+          static std::mutex maxMutex;
+          std::lock_guard lock{maxMutex};
+          maxTimeBin = std::max(maxTimeBin, maxTimeBinSector);
+        }
       }
-      const int maxTimeBinSector = correctDigits(*digits, cmValues, negativeOnly);
-      maxTimeBin = std::max(maxTimeBin, maxTimeBinSector);
+    };
+
+    std::vector<std::thread> threads(nThreads);
+
+    for (int i = 0; i < threads.size(); i++) {
+      threads[i] = std::thread(worker, i);
     }
-    tOut.Fill();
+
+    // wait for the threads to finish
+    for (auto& th : threads) {
+      th.join();
+    }
+
+    if (tOut) {
+      tOut->Fill();
+    }
 
     for (int iCRU = 0; iCRU < cmValues.size(); ++iCRU) {
       int maxTBCRU = std::min(maxTimeBin, int(cmValues[iCRU].size()));
@@ -259,9 +266,12 @@ void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t m
   }
 
   pcstream.Close();
-  fOut->cd();
-  tOut.Write();
-  fOut->Close();
+  if (fOut && tOut) {
+    fOut->cd();
+    tOut->Write();
+    tOut.reset();
+    fOut->Close();
+  }
 }
 
 float CommonModeCorrection::getCalPadValue(const std::string calibName, int icru, int pad) const
@@ -291,8 +301,12 @@ bool CommonModeCorrection::padMapExists(const std::string& calibName)
 
 void CommonModeCorrection::loadCalPad(std::string_view fileName, std::string_view nameInFile, std::string_view namePadMap)
 {
+  if (fileName.size() == 0) {
+    return;
+  }
+
   auto pads = o2::tpc::utils::readCalPads(fileName, nameInFile);
-  if (pads.size() == 0) {
+  if ((pads.size() == 0) || (pads.at(0) == nullptr)) {
     LOGP(error, "Could not load object {} from file {}", nameInFile, fileName);
     return;
   }

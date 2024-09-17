@@ -105,7 +105,7 @@ class CommonModeCorrection
   /// \return maximum
   int correctDigits(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly = false) const;
 
-  void correctDigits(std::string_view digiFileIn, Long64_t maxEntries = -1, std::string_view digitFileOut = "tpcdigit_cmcorr.root", bool negativeOnly = false);
+  void correctDigits(std::string_view digiFileIn, Long64_t maxEntries = -1, std::string_view digitFileOut = "tpcdigit_cmcorr.root", std::string_view cmFileOut = "CommonModeValues.root", bool negativeOnly = false, int nThreads = 1, bool writeOnlyCM = false);
 
   void limitKFactorPrecision(bool limit = true) { mLimitKFactor = limit; }
   void limitPedestalPrecision(bool limit = true) { mLimitPedestal = limit; }
