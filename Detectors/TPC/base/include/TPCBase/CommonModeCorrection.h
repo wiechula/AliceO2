@@ -48,7 +48,13 @@ class CommonModeCorrection
 
   struct CMInfo {
     float cmValue{};
+    float cmValueStd{};
     int nPadsUsed{};
+  };
+
+  struct CMDebug {
+    std::vector<uint8_t> nPadsOk{};
+    std::vector<uint16_t> adcDist{};
   };
 
   using CalPadMapType = std::unordered_map<std::string, CalPad>;
@@ -59,7 +65,7 @@ class CommonModeCorrection
   /// \param cmKValues corresponding pad-by-pad common mode k-factors
   /// \param pedestals corresponding pad-by-pad pedestals
   /// \param
-  CMInfo getCommonMode(gsl::span<const float> values, gsl::span<const float> cmKValues, gsl::span<const float> pedestals) const;
+  CMInfo getCommonMode(gsl::span<const float> values, gsl::span<const float> cmKValues, gsl::span<const float> pedestals, CMDebug* cmDebug = nullptr) const;
   CMInfo getCommonMode(const std::vector<float>& values, const std::vector<float>& cmKValues, const std::vector<float>& pedestals) const { return getCommonMode(gsl::span(values), gsl::span(cmKValues), gsl::span(pedestals)); }
 
   CMInfo getCommonMode(const CMdata& cmData) const { return getCommonMode(std::span(cmData.adcValues), std::span(cmData.cmKValues), std::span(cmData.pedestals)); }
@@ -75,6 +81,14 @@ class CommonModeCorrection
 
   void setQComp(float q) { mQComp = q; }
   float getQComp() const { return mQComp; }
+
+  /// The mQComp will be set to (cm - mQCompScaleThreshold) * mQCompScale, if cm > mQCompScaleThreshold
+  void setQCompScaleThreshold(float q) { mQCompScaleThreshold = q; }
+  float getQCompScaleThreshold() const { return mQCompScaleThreshold; }
+
+  /// The mQComp will be set to (cm - mQCompScaleThreshold) * mQCompScale, if cm > mQCompScaleThreshold
+  void setQCompScale(float q) { mQCompScale = q; }
+  float getQCompScale() const { return mQCompScale; }
 
   /// Pad maps loaded from FEEConfig
   void setPadMaps(CalPadMapType& padMaps) { mPadMaps = padMaps; }
@@ -103,9 +117,9 @@ class CommonModeCorrection
   /// \param cmValues will contain CM information for each CRU and time bin
   /// \param negativeOnly only correct negative common mode signals
   /// \return maximum
-  int correctDigits(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly = false) const;
+  int correctDigits(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly = false, std::vector<std::vector<CMDebug>>* cmDebug = nullptr, int minTimeBin = -1, int maxTimeBin = -1) const;
 
-  void correctDigits(std::string_view digiFileIn, Long64_t maxEntries = -1, std::string_view digitFileOut = "tpcdigit_cmcorr.root", std::string_view cmFileOut = "CommonModeValues.root", bool negativeOnly = false, int nThreads = 1, bool writeOnlyCM = false);
+  void correctDigits(std::string_view digiFileIn, Long64_t maxEntries = -1, std::string_view digitFileOut = "tpcdigit_cmcorr.root", std::string_view cmFileOut = "CommonModeValues.root", bool negativeOnly = false, int nThreads = 1, bool writeOnlyCM = false, bool writeDebug = false, int minTimeBin = -1, int maxTimeBin = -1);
 
   void limitKFactorPrecision(bool limit = true) { mLimitKFactor = limit; }
   void limitPedestalPrecision(bool limit = true) { mLimitPedestal = limit; }
@@ -117,14 +131,20 @@ class CommonModeCorrection
   /// \return returns the number of threads used for decoding
   static int getNThreads() { return sNThreads; }
 
+  /// add artificial common mode, only works when using the 'correctDigits' function
+  void addCommonMode(float cm) { mArtificialCM = cm; }
+
  private:
-  inline static int sNThreads{1}; /// Number of parallel threads for the CM calculation
-  int mNPadsCompRamdom{10};       /// Number of random pads to compare with to check if the present pad is empty
-  int mNPadsCompMin{7};           /// Minimum number of neighbouring pads with q close to present pad to define this as empty
+  inline static int sNThreads{1}; ///< Number of parallel threads for the CM calculation
+  int mNPadsCompRamdom{10};       ///< Number of random pads to compare with to check if the present pad is empty
+  int mNPadsCompMin{7};           ///< Minimum number of neighbouring pads with q close to present pad to define this as empty
   float mQEmpty{2};               ///< Threshold to enter check for empty pad
   float mQComp{1};                ///< Threshold for comparison with random pads
+  float mQCompScaleThreshold{0};  ///< Charge threshold from which on to increase mQComp
+  float mQCompScale{0};           ///< Slope with which to increase mQComp if below mQCompScaleThreshold
   bool mLimitKFactor{false};      ///< Limit the k-factor precision to 2I6F
   bool mLimitPedestal{false};     ///< Limit the preestal precision to 10I2F
+  float mArtificialCM{};          ///< artificial common mode signals
 
   CalPadMapType mPadMaps; ///< Pad-by-pad CRU configuration values (Pedestal, Noise, ITF + CM parameters)
 

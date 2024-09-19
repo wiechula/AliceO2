@@ -12,7 +12,7 @@
 /// \file   CommonModeCorrection.cxx
 /// \brief  Calculate the common mode correction factor
 
-#include <random>
+// #include <random>
 #include <algorithm>
 #include <thread>
 #include <mutex>
@@ -28,7 +28,7 @@
 
 using namespace o2::tpc;
 using namespace o2::tpc::cru_calib_helpers;
-CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const float> values, gsl::span<const float> cmKValues, gsl::span<const float> pedestals) const
+CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const float> values, gsl::span<const float> cmKValues, gsl::span<const float> pedestals, CMDebug* cmDebug) const
 {
   if (values.size() == 0) {
     return CMInfo{};
@@ -41,6 +41,12 @@ CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const
   static math_utils::RandomRing random(math_utils::RandomRing<>::RandomType::Flat);
   std::vector<float> adcCM; //< ADC values used for common mode calculation
 
+  CMInfo cmInfo;
+  if (cmDebug) {
+    cmDebug->nPadsOk.resize(mNPadsCompRamdom + 1);
+    cmDebug->adcDist.resize(10);
+  }
+
   for (size_t iPad = 0; iPad < values.size(); ++iPad) {
     const float kCM = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[iPad])) : cmKValues[iPad];
     const float pedestal = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[iPad])) : pedestals[iPad];
@@ -49,6 +55,12 @@ CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const
 
     if (adcPad > mQEmpty) {
       continue;
+    }
+
+    float qCompAdd = 0;
+    if ((mQCompScaleThreshold < 0) && (adcPadNorm < mQCompScaleThreshold)) {
+      qCompAdd = (mQCompScaleThreshold - adcPadNorm) * mQCompScale;
+      LOGP(info, "Setting qCompAdd to {} for {}", qCompAdd, adcPadNorm);
     }
 
     int nPadsOK = 0;
@@ -61,9 +73,18 @@ CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const
       const float kCMRnd = mLimitKFactor ? fixedSizeToFloat<6>(floatToFixedSize<8, 6>(cmKValues[padRnd])) : cmKValues[padRnd];
       const float pedestalRnd = mLimitPedestal ? fixedSizeToFloat(floatToFixedSize(pedestals[padRnd])) : pedestals[padRnd];
       const float adcPadRnd = values[padRnd] - pedestalRnd;
-      if (std::abs(adcPadNorm - adcPadRnd / kCMRnd) < mQComp) {
+      const float adcDist = std::abs(adcPadNorm - adcPadRnd / kCMRnd);
+      if (cmDebug) {
+        const size_t distPos = std::min(cmDebug->adcDist.size() - 1, size_t(adcDist / 0.5));
+        ++cmDebug->adcDist[distPos];
+      }
+      if (adcDist < mQComp) {
         ++nPadsOK;
       }
+    }
+
+    if (cmDebug) {
+      ++cmDebug->nPadsOk[nPadsOK];
     }
 
     if (nPadsOK >= mNPadsCompMin) {
@@ -72,12 +93,21 @@ CommonModeCorrection::CMInfo CommonModeCorrection::getCommonMode(gsl::span<const
   }
 
   const int entriesCM = int(adcCM.size());
-  float commonMode = std::accumulate(adcCM.begin(), adcCM.end(), 0.f);
+  float commonMode = 0; // std::accumulate(adcCM.begin(), adcCM.end(), 0.f);
+  float commonModeStd = 0;
 
   if (entriesCM > 0) {
+    std::for_each(adcCM.begin(), adcCM.end(), [&commonMode, &commonModeStd](const auto val) {
+      commonMode += val;
+      commonModeStd += val * val;
+    });
     commonMode /= float(entriesCM);
+    commonModeStd = std::sqrt(std::abs(commonModeStd / entriesCM - commonMode * commonMode));
   }
-  return CMInfo{commonMode, entriesCM};
+  cmInfo.cmValue = commonMode;
+  cmInfo.cmValueStd = commonModeStd;
+  cmInfo.nPadsUsed = entriesCM;
+  return cmInfo;
 }
 
 void CommonModeCorrection::loadDefaultPadMaps(FEEConfig::Tags tag)
@@ -126,61 +156,90 @@ CommonModeCorrection::CMdata CommonModeCorrection::collectCMdata(const std::vect
   return data;
 }
 
-int CommonModeCorrection::correctDigits(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly) const
+int CommonModeCorrection::correctDigits(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly, std::vector<std::vector<CMDebug>>* cmDebug, int minTimeBin, int maxTimeBin) const
 {
   // calculation common mode values
-  int maxTimeBin = -1;
+  int maxTimeBinProcessed = -1;
   int lastCRU = -1;
   int lastTimeBin = -1;
   CMdata data;
   const auto& cmkValues = mPadMaps.at("CMkValues");
   const auto& pedestals = mPadMaps.at("Pedestals");
 
+  bool doArtificialCM = std::abs(mArtificialCM) > 0;
+
   for (size_t iDigit = 0; iDigit < digits.size(); ++iDigit) {
     auto& digit = digits[iDigit];
-    if (((lastCRU > 0) && (digit.getCRU() != lastCRU)) || ((lastTimeBin > 0) && (digit.getTimeStamp() != lastTimeBin))) {
+    const auto timeBin = digit.getTimeStamp();
+    if ((minTimeBin > -1) && (timeBin < minTimeBin)) {
+      continue;
+    }
+    if ((maxTimeBin > -1) && (timeBin > maxTimeBin)) {
+      continue;
+    }
+    if ((lastCRU > -1) && ((digit.getCRU() != lastCRU) || (digit.getTimeStamp() != lastTimeBin))) {
       auto& cmValuesCRU = cmValues[lastCRU];
       if (cmValuesCRU.size() <= lastTimeBin) {
         cmValuesCRU.resize(cmValuesCRU.size() + 500);
+        if (cmDebug) {
+          (*cmDebug)[lastCRU].resize((*cmDebug)[lastCRU].size() + 500);
+        }
       }
-      cmValuesCRU[lastTimeBin] = getCommonMode(data.adcValues, data.cmKValues, data.pedestals);
-      // LOGP(info, "processing CRU {}, timeBin {}, CM = {}", lastCRU, lastTimeBin, cmVal);
+      cmValuesCRU[lastTimeBin] = getCommonMode(data.adcValues, data.cmKValues, data.pedestals, cmDebug ? &((*cmDebug)[lastCRU][lastTimeBin]) : nullptr);
+      // LOGP(info, "processing CRU {}, timeBin {}, CM = {}", lastCRU, lastTimeBin, cmValuesCRU[lastTimeBin].cmValue);
 
       data.clear();
     }
     const auto sector = CRU(digit.getCRU()).sector();
-    data.adcValues.emplace_back(digit.getChargeFloat());
-    data.cmKValues.emplace_back(cmkValues.getValue(sector, digit.getRow(), digit.getPad()));
-    data.pedestals.emplace_back(pedestals.getValue(sector, digit.getRow(), digit.getPad()));
+    const auto cmkValue = cmkValues.getValue(sector, digit.getRow(), digit.getPad());
+    const auto pedestal = pedestals.getValue(sector, digit.getRow(), digit.getPad());
+    float charge = digit.getChargeFloat();
+    if (doArtificialCM) {
+      charge = std::clamp(charge + mArtificialCM * cmkValue, 0.f, 1023.f);
+    }
+    data.adcValues.emplace_back(charge);
+    data.cmKValues.emplace_back(cmkValue);
+    data.pedestals.emplace_back(pedestal);
 
     lastCRU = digit.getCRU();
-    lastTimeBin = digit.getTimeStamp();
-    maxTimeBin = std::max(lastTimeBin, maxTimeBin);
+    lastTimeBin = timeBin;
+    maxTimeBinProcessed = std::max(lastTimeBin, maxTimeBinProcessed);
   }
   {
     auto& cmValuesCRU = cmValues[lastCRU];
     if (cmValuesCRU.size() <= lastTimeBin) {
       cmValuesCRU.resize(cmValuesCRU.size() + 500);
+      if (cmDebug) {
+        (*cmDebug)[lastCRU].resize((*cmDebug)[lastCRU].size() + 500);
+      }
     }
-    cmValuesCRU[lastTimeBin] = getCommonMode(data.adcValues, data.cmKValues, data.pedestals);
-    // LOGP(info, "processing CRU {}, timeBin {}, CM = {}", lastCRU, lastTimeBin, cmVal);
+    cmValuesCRU[lastTimeBin] = getCommonMode(data.adcValues, data.cmKValues, data.pedestals, cmDebug ? &((*cmDebug)[lastCRU][lastTimeBin]) : nullptr);
+    // LOGP(info, "processing CRU {}, timeBin {}, CM = {}", lastCRU, lastTimeBin, cmValuesCRU[lastTimeBin].cmValue);
     data.clear();
   }
 
   // apply correction
   for (auto& digit : digits) {
+    const auto timeBin = digit.getTimeStamp();
+    if ((minTimeBin > -1) && (timeBin < minTimeBin)) {
+      continue;
+    }
+    if ((maxTimeBin > -1) && (timeBin > maxTimeBin)) {
+      continue;
+    }
     const auto sector = CRU(digit.getCRU()).sector();
     const auto cmKValue = cmkValues.getValue(sector, digit.getRow(), digit.getPad());
+    // LOGP(info, "correcting value for CRU {}, time bin {}", digit.getCRU(), digit.getTimeStamp());
     const auto cmValue = cmValues[digit.getCRU()][digit.getTimeStamp()].cmValue;
     if (!negativeOnly || cmValue < 0) {
       digit.setCharge(digit.getCharge() - cmValue * cmKValue);
     }
   }
 
-  return maxTimeBin;
+  return maxTimeBinProcessed;
 }
 
-void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t maxEntries, std::string_view digitFileOut, std::string_view cmFileOut, bool negativeOnly, int nThreads, bool writeOnlyCM)
+void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t maxEntries, std::string_view digitFileOut, std::string_view cmFileOut, bool negativeOnly, int nThreads, bool writeOnlyCM, bool writeDebug, int minTimeBin, int maxTimeBin)
 {
 
   TChain* tree = o2::tpc::utils::buildChain(fmt::format("ls {}", digiFileIn), "o2sim", "o2sim");
@@ -217,7 +276,12 @@ void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t m
     LOGP(info, "Processing entry {}/{}", iTF + 1, nEntries);
 
     std::vector<std::vector<CMInfo>> cmValues; // CRU * timeBin
+    std::vector<std::vector<CMDebug>> cmDebug; // CRU * timeBin
+
     cmValues.resize(CRU::MaxCRU);
+    if (writeDebug) {
+      cmDebug.resize(CRU::MaxCRU);
+    }
     int maxTimeBin = -1;
 
     auto worker = [&](int iTread) {
@@ -227,7 +291,7 @@ void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t m
         if (!digits || (digits->size() == 0)) {
           continue;
         }
-        const int maxTimeBinSector = correctDigits(*digits, cmValues, negativeOnly);
+        const int maxTimeBinSector = correctDigits(*digits, cmValues, negativeOnly, writeDebug ? &cmDebug : nullptr, minTimeBin, maxTimeBin);
         {
           static std::mutex maxMutex;
           std::lock_guard lock{maxMutex};
@@ -247,10 +311,6 @@ void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t m
       th.join();
     }
 
-    if (tOut) {
-      tOut->Fill();
-    }
-
     for (int iCRU = 0; iCRU < cmValues.size(); ++iCRU) {
       int maxTBCRU = std::min(maxTimeBin, int(cmValues[iCRU].size()));
       for (int iTimeBin = 0; iTimeBin < maxTBCRU; ++iTimeBin) {
@@ -258,10 +318,20 @@ void CommonModeCorrection::correctDigits(std::string_view digiFileIn, Long64_t m
                  << "iTF=" << iTF
                  << "iCRU=" << iCRU
                  << "iTimeBin=" << iTimeBin
-                 << "cm=" << cmValues[iCRU][iTimeBin].cmValue
-                 << "cmEntries=" << cmValues[iCRU][iTimeBin].nPadsUsed
+                 << "cmInfo=" << cmValues[iCRU][iTimeBin];
+        if (writeDebug) {
+          pcstream << "cm"
+                   << "cmDebug=" << cmDebug[iCRU][iTimeBin];
+        }
+        // << "cm=" << cmValues[iCRU][iTimeBin].cmValue
+        // << "cmEntries=" << cmValues[iCRU][iTimeBin].nPadsUsed
+        pcstream << "cm"
                  << "\n";
       }
+    }
+
+    if (tOut) {
+      tOut->Fill();
     }
   }
 
