@@ -38,6 +38,13 @@ class CommonModeCorrection
     std::vector<float> cmKValues;
     std::vector<float> pedestals;
 
+    void resize(size_t newSize)
+    {
+      adcValues.resize(newSize);
+      cmKValues.resize(newSize);
+      pedestals.resize(newSize);
+    }
+
     void clear()
     {
       adcValues.clear();
@@ -50,6 +57,11 @@ class CommonModeCorrection
     float cmValue{};
     float cmValueStd{};
     int nPadsUsed{};
+    float cmValueCRU{};
+    float sumPos{};
+    float sumNeg{};
+    int nNeg{};
+    int nSaturation{};
   };
 
   struct CMDebug {
@@ -73,8 +85,12 @@ class CommonModeCorrection
   void setNPadsCompRandom(int n) { mNPadsCompRamdom = n; }
   int getNPadsCompRandom() const { return mNPadsCompRamdom; }
 
-  void setNPadsCompMin(int n) { mNPadsCompRamdom = n; }
-  int getNPadsCompMin() const { return mNPadsCompRamdom; }
+  void setNPadsCompMin(int n) { mNPadsCompMin = n; }
+  int getNPadsCompMin() const { return mNPadsCompMin; }
+
+  /// Minimum number of pads required in the CM calculation to be used for digit correction
+  void setNPadsMinCM(int n) { mNPadsMinCM = n; }
+  int getNPadsMinCM() const { return mNPadsMinCM; }
 
   void setQEmpty(float q) { mQEmpty = q; }
   float getQEmpty() const { return mQEmpty; }
@@ -89,6 +105,10 @@ class CommonModeCorrection
   /// The mQComp will be set to (cm - mQCompScaleThreshold) * mQCompScale, if cm > mQCompScaleThreshold
   void setQCompScale(float q) { mQCompScale = q; }
   float getQCompScale() const { return mQCompScale; }
+
+  /// Threshold above which a signal is considered for sumPos, if debug information is used
+  void setSumPosThreshold(float threshold) { mSumPosThreshold = threshold; }
+  float getSumPosThreshold() const { return mSumPosThreshold; }
 
   /// Pad maps loaded from FEEConfig
   void setPadMaps(CalPadMapType& padMaps) { mPadMaps = padMaps; }
@@ -108,18 +128,27 @@ class CommonModeCorrection
   /// Custom setting of CalPad, overwriting what was set in mPadMaps
   void setCalPad(const CalPad& calPad, std::string_view name) { mPadMaps[name.data()] = calPad; }
 
+  /// cmk value
+  float getCMkValue(int sector, int row, int pad) { return mPadMaps["CMkValues"].getValue(sector, row, pad); }
+
+  /// pedestal value
+  float getPedestalValue(int sector, int row, int pad) { return mPadMaps["Pedestals"].getValue(sector, row, pad); }
+
   /// load the Pad maps from CCDB
-  void loadDefaultPadMaps(FEEConfig::Tags feeTag = FEEConfig::Tags::Physics30sigma);
+  void
+    loadDefaultPadMaps(FEEConfig::Tags feeTag = FEEConfig::Tags::Physics30sigma);
 
   CMdata collectCMdata(const std::vector<Digit>& digits, int cru, int timeBin);
+
+  int getCommonMode(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly = false, bool hasInjectedCMValue = false, std::vector<std::vector<CMDebug>>* cmDebug = nullptr, int minTimeBin = -1, int maxTimeBin = -1) const;
 
   /// corret digits for common mode
   /// \param cmValues will contain CM information for each CRU and time bin
   /// \param negativeOnly only correct negative common mode signals
   /// \return maximum
-  int correctDigits(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly = false, std::vector<std::vector<CMDebug>>* cmDebug = nullptr, int minTimeBin = -1, int maxTimeBin = -1) const;
+  int correctDigits(std::vector<Digit>& digits, std::vector<std::vector<CMInfo>>& cmValues, bool negativeOnly = false, bool hasInjectedCMValue = false, std::vector<std::vector<CMDebug>>* cmDebug = nullptr, int minTimeBin = -1, int maxTimeBin = -1) const;
 
-  void correctDigits(std::string_view digiFileIn, Long64_t maxEntries = -1, std::string_view digitFileOut = "tpcdigit_cmcorr.root", std::string_view cmFileOut = "CommonModeValues.root", bool negativeOnly = false, int nThreads = 1, bool writeOnlyCM = false, bool writeDebug = false, int minTimeBin = -1, int maxTimeBin = -1);
+  void correctDigits(std::string_view digiFileIn, Long64_t maxEntries = -1, std::string_view digitFileOut = "tpcdigit_cmcorr.root", std::string_view cmFileOut = "CommonModeValues.root", bool negativeOnly = false, int nThreads = 1, bool writeOnlyCM = false, bool writeDebug = false, bool hasInjectedCMValue = false, int minTimeBin = -1, int maxTimeBin = -1);
 
   void limitKFactorPrecision(bool limit = true) { mLimitKFactor = limit; }
   void limitPedestalPrecision(bool limit = true) { mLimitPedestal = limit; }
@@ -134,19 +163,67 @@ class CommonModeCorrection
   /// add artificial common mode, only works when using the 'correctDigits' function
   void addCommonMode(float cm) { mArtificialCM = cm; }
 
+  void setCorrectOutputForPedestal(bool corret = true) { mCorrectOutputForPedestal = corret; }
+  bool getCorrectOutputForPedestal() const { return mCorrectOutputForPedestal; }
+
+  /// Add zeros for pads without signal
+  void setAddZeros(bool addZeros) { mAddZeros = addZeros; }
+  bool getAddZeros() const { return mAddZeros; }
+
+  static float decodeInjectedCMValue(float lower, float upper);
+
  private:
-  inline static int sNThreads{1}; ///< Number of parallel threads for the CM calculation
-  int mNPadsCompRamdom{10};       ///< Number of random pads to compare with to check if the present pad is empty
-  int mNPadsCompMin{7};           ///< Minimum number of neighbouring pads with q close to present pad to define this as empty
-  float mQEmpty{2};               ///< Threshold to enter check for empty pad
-  float mQComp{1};                ///< Threshold for comparison with random pads
-  float mQCompScaleThreshold{0};  ///< Charge threshold from which on to increase mQComp
-  float mQCompScale{0};           ///< Slope with which to increase mQComp if below mQCompScaleThreshold
-  bool mLimitKFactor{false};      ///< Limit the k-factor precision to 2I6F
-  bool mLimitPedestal{false};     ///< Limit the preestal precision to 10I2F
-  float mArtificialCM{};          ///< artificial common mode signals
+  inline static int sNThreads{1};        ///< Number of parallel threads for the CM calculation
+  int mNPadsCompRamdom{10};              ///< Number of random pads to compare with to check if the present pad is empty
+  int mNPadsCompMin{7};                  ///< Minimum number of neighbouring pads with q close to present pad to define this as empty
+  int mNPadsMinCM{0};                    ///< Minimum number of pads required in the CM calculation to be used for digit correction
+  float mQEmpty{2};                      ///< Threshold to enter check for empty pad
+  float mQComp{1};                       ///< Threshold for comparison with random pads
+  float mQCompScaleThreshold{0};         ///< Charge threshold from which on to increase mQComp
+  float mQCompScale{0};                  ///< Slope with which to increase mQComp if below mQCompScaleThreshold
+  float mSumPosThreshold{2};             ///< calculate sumPos > mSumPosThreshold, sumNeg M<= mSumPosThreshold
+  bool mLimitKFactor{false};             ///< Limit the k-factor precision to 2I6F
+  bool mLimitPedestal{false};            ///< Limit the preestal precision to 10I2F
+  bool mAddZeros{false};                 ///< Add zeros for pads without signal
+  float mArtificialCM{};                 ///< artificial common mode signals
+  bool mCorrectOutputForPedestal{false}; ///< correct the writte out ADC for the pedestal value
 
   CalPadMapType mPadMaps; ///< Pad-by-pad CRU configuration values (Pedestal, Noise, ITF + CM parameters)
+
+  struct pos {
+    int row;
+    int pad;
+  };
+
+  // positions of lower words per CRU in sector
+  const std::array<pos, 10> mCMInjectIDLower{
+    // row0 pad0 row1 pad1
+    pos{0, 2},
+    pos{20, 1},
+    pos{32, 2},
+    pos{51, 1},
+    pos{63, 1},
+    pos{84, 1},
+    pos{97, 1},
+    pos{116, 2},
+    pos{127, 2},
+    pos{142, 0},
+  };
+
+  // positions of upper words per CRU in sector
+  const std::array<pos, 10> mCMInjectIDUpper{
+    // row0 pad0 row1 pad1
+    pos{0, 3},
+    pos{20, 3},
+    pos{32, 3},
+    pos{51, 3},
+    pos{63, 2},
+    pos{84, 4},
+    pos{97, 2},
+    pos{115, 5},
+    pos{127, 3},
+    pos{142, 4},
+  };
 
   /// Return the value stored in mPadMaps["calibName"]
   /// \param calibName name of calibraion in mPadMaps
@@ -156,7 +233,7 @@ class CommonModeCorrection
 
   bool padMapExists(const std::string& calibName);
 
-  ClassDefNV(CommonModeCorrection, 0);
+  ClassDefNV(CommonModeCorrection, 1);
 };
 
 } // namespace o2::tpc
