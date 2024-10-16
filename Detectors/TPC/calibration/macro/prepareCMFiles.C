@@ -147,7 +147,7 @@ void prepareCMFiles(const std::string_view pulserFile, std::string outputDir = "
   const auto outFileFloatRoot = (outputDir + "/commonMode_K_values_float.root");
   writeValues(outFileFloatTxt, commonModeKValuesFloat, onlyFilled);
 
-  getCalPad<FractionalBits>(outFileFloatTxt, outFileFloatRoot, "CMkValues");
+  getCalPad<0>(outFileFloatTxt, outFileFloatRoot, "CMkValues");
 
   // ===| k-Values limited precision 2I6F |===
   const auto outFileTxt = (outputDir + "/commonMode_K_values.txt");
