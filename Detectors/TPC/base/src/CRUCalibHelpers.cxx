@@ -263,7 +263,6 @@ cru_calib_helpers::DataMapU32 cru_calib_helpers::getDataMap(const CalPad& calPad
       const int dataWrapperID = fecInPartition >= fecOffset;
       const int globalLinkID = (fecInPartition % fecOffset) + dataWrapperID * 12;
 
-
       const int hwChannel = getHWChannel(sampa, sampaChannel, region % 2);
 
       const auto value = calRoc.getValue(ipad);
