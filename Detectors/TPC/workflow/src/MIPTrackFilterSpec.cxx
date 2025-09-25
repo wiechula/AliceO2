@@ -130,7 +130,6 @@ void MIPTrackFilterDevice::run(ProcessingContext& pc)
     return;
   }
 
-
   o2::globaltracking::RecoContainer recoData;
   recoData.collectData(pc, *mDataRequest);
   const auto tracksTPC = recoData.getTPCTracks();
@@ -148,17 +147,17 @@ void MIPTrackFilterDevice::run(ProcessingContext& pc)
     auto vtxRefs = recoData.getPrimaryVertexMatchedTrackRefs();                      // references from vertex to these track IDs
     std::vector<GID::Source> selSrc{GID::ITSTPC, GID::ITSTPCTRD, GID::ITSTPCTRDTOF}; // for Instance
     // LOGP(info, "Number of vertex tracks: {}", vtxRefs.size());
-    const auto nv = (vtxRefs.size()>0) ? vtxRefs.size() - 1 : 0;                     // note: the last entry groups the tracks which were not related to any vertex, to skip them, use vtxRefs.size()-1
+    const auto nv = (vtxRefs.size() > 0) ? vtxRefs.size() - 1 : 0; // note: the last entry groups the tracks which were not related to any vertex, to skip them, use vtxRefs.size()-1
 
     for (int iv = 0; iv < nv; iv++) {
       const auto& vtref = vtxRefs[iv];
-      //LOGP(info, "Processing vertex {} with {} tracks", iv, vtref.getEntries());
+      // LOGP(info, "Processing vertex {} with {} tracks", iv, vtref.getEntries());
       vertex = recoData.getPrimaryVertex(iv).getXYZ();
-      //LOGP(info, "Vertex position: x={} y={} z={}", vertex.x(), vertex.y(), vertex.z());
+      // LOGP(info, "Vertex position: x={} y={} z={}", vertex.x(), vertex.y(), vertex.z());
 
       for (auto src : selSrc) {
         int idMin = vtxRefs[iv].getFirstEntryOfSource(src), idMax = idMin + vtxRefs[iv].getEntriesOfSource(src);
-        //LOGP(info, "Source {}: idMin={} idMax={}", GID::getSourceName(src), idMin, idMax);
+        // LOGP(info, "Source {}: idMin={} idMax={}", GID::getSourceName(src), idMin, idMax);
 
         for (int i = idMin; i < idMax; i++) {
           auto vid = trackIndex[i];
